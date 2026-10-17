@@ -1,6 +1,4 @@
 import type { NextConfig } from "next"
-import path from "node:path"
-import { fileURLToPath } from "node:url"
 
 const isProd = process.env.NODE_ENV === "production"
 
@@ -56,9 +54,6 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   allowedDevOrigins: ["127.0.0.1"],
   output: "standalone",
-  // Keep standalone output tracing scoped to this app despite workspace
-  // lockfiles in both this directory and its parent.
-  outputFileTracingRoot: path.dirname(fileURLToPath(import.meta.url)),
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }]
   },
