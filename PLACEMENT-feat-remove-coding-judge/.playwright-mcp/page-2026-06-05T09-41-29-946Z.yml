@@ -1,0 +1,79 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - img [ref=e6]
+        - generic [ref=e9]: PlaceReady
+      - link "Open app" [ref=e10] [cursor=pointer]:
+        - /url: /dashboard
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - generic [ref=e13]:
+          - img [ref=e14]
+          - text: Multi-company placement prep
+        - heading "Get placed in the company you actually want." [level=1] [ref=e17]
+        - paragraph [ref=e18]:
+          - text: Prepare for 4–6 companies at once. See an honest
+          - strong [ref=e19]: Placement Readiness Index
+          - text: and an estimated placement probability for each — and know exactly what to do next.
+        - generic [ref=e20]:
+          - link "Start preparing free" [ref=e21] [cursor=pointer]:
+            - /url: /dashboard
+            - text: Start preparing free
+            - img
+          - link "See your readiness" [ref=e22] [cursor=pointer]:
+            - /url: /dashboard
+        - generic [ref=e23]:
+          - generic [ref=e24]:
+            - generic [ref=e25]: TC
+            - generic [ref=e26]: IN
+            - generic [ref=e27]: WI
+            - generic [ref=e28]: AC
+            - generic [ref=e29]: ZO
+            - generic [ref=e30]: CO
+          - generic [ref=e31]: TCS · Infosys · Wipro · Accenture · Zoho · Cognizant
+      - generic [ref=e32]:
+        - generic [ref=e33]:
+          - paragraph [ref=e34]: Your Readiness
+          - generic [ref=e35]: Overall 72
+        - generic [ref=e36]:
+          - generic [ref=e37]:
+            - generic [ref=e38]: TC
+            - generic [ref=e40]:
+              - generic [ref=e41]: TCS
+              - generic [ref=e42]: PRI 85 · ~78%
+          - generic [ref=e45]:
+            - generic [ref=e46]: IN
+            - generic [ref=e48]:
+              - generic [ref=e49]: Infosys
+              - generic [ref=e50]: PRI 70 · ~58%
+          - generic [ref=e53]:
+            - generic [ref=e54]: WI
+            - generic [ref=e56]:
+              - generic [ref=e57]: Wipro
+              - generic [ref=e58]: PRI 65 · ~52%
+          - generic [ref=e61]:
+            - generic [ref=e62]: ZO
+            - generic [ref=e64]:
+              - generic [ref=e65]: Zoho
+              - generic [ref=e66]: PRI 35 · ~18%
+        - paragraph [ref=e69]: Placement probability is an estimate from your in-app performance — not a guarantee.
+    - generic [ref=e71]:
+      - generic [ref=e72]:
+        - img [ref=e74]
+        - heading "Honest PRI" [level=3] [ref=e77]
+        - paragraph [ref=e78]: A 0–100 readiness score per company. Skipping content never inflates it.
+      - generic [ref=e79]:
+        - img [ref=e81]
+        - heading "Company-pattern mocks" [level=3] [ref=e85]
+        - paragraph [ref=e86]: Timed mocks that mirror each company's real test pattern.
+      - generic [ref=e87]:
+        - img [ref=e89]
+        - heading "PYQs & eligibility" [level=3] [ref=e91]
+        - paragraph [ref=e92]: Previous-year patterns and verified eligibility for every company.
+      - generic [ref=e93]:
+        - img [ref=e95]
+        - heading "Daily habit" [level=3] [ref=e97]
+        - paragraph [ref=e98]: Daily challenges, streaks and XP that keep you consistent.
+  - region "Notifications alt+T"
+  - alert [ref=e99]

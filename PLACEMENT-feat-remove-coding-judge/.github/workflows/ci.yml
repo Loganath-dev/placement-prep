@@ -1,0 +1,72 @@
+name: CI
+
+# Gate every push and PR on the same checks we run locally: type-check, unit
+# tests, and a production build. The app lives in the placement-preparation-app/
+# subfolder, so all steps run there.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: placement-preparation-app
+
+jobs:
+  verify:
+    name: Type-check, test, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: placement-preparation-app/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type-check
+        run: pnpm exec tsc --noEmit -p tsconfig.json
+
+      - name: Unit tests
+        run: pnpm test
+
+      - name: Production build
+        # Public placeholders so the client bundle compiles; the build phase does
+        # not require real secrets (see instrumentation.ts NEXT_PHASE guard).
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-anon-key
+        run: pnpm exec next build
+
+  # Reminder job: schema changes live in supabase/migrations and are applied with
+  # `supabase db push`. A true drift check needs DB credentials — wire SUPABASE
+  # secrets and uncomment the step below when you want CI to enforce it.
+  migrations:
+    name: Migrations present
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: List migrations
+        run: ls -1 placement-preparation-app/supabase/migrations
+      # - name: Check migration drift
+      #   env:
+      #     SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      #     SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      #   run: |
+      #     npx supabase link --project-ref <your-project-ref>
+      #     npx supabase db diff --linked --schema public

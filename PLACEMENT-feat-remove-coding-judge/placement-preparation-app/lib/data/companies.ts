@@ -1,0 +1,179 @@
+import type { Company, CompanyId } from "@/lib/types"
+
+/**
+ * Track set: TCS, Infosys, Wipro, Accenture, Zoho, Cognizant + core prep.
+ * cutoffPRI / slope tune the estimated Placement Probability:
+ * higher cutoff = harder to get placed; Zoho is the toughest (programming-heavy),
+ * service companies are more accessible.
+ */
+export const COMPANIES: Company[] = [
+  {
+    id: "tcs",
+    name: "Tata Consultancy Services",
+    short: "TCS",
+    accent: "oklch(0.55 0.19 256)",
+    sector: "IT Services",
+    blurb: "TCS NQT - aptitude, reasoning, verbal and a coding round. India's largest recruiter.",
+    cutoffPRI: 55,
+    slope: 0.9,
+    eligibility: {
+      cgpa: "60% / 6.0 CGPA across 10th, 12th, UG",
+      backlogs: "No active backlogs at the time of the drive",
+      tenthTwelfth: "Minimum 60% in 10th and 12th",
+      pattern: [
+        "Foundation/Advanced NQT: Numerical Ability, Reasoning Ability, Verbal Ability",
+        "Programming Logic + Hands-on Coding (2 problems)",
+        "Adaptive test - difficulty adjusts to performance",
+      ],
+      rounds: ["NQT (aptitude + coding)", "Technical Interview", "Managerial + HR"],
+      sourceId: "tcs-nqt-official",
+      lastVerified: "2026-05-30",
+    },
+  },
+  {
+    id: "infosys",
+    name: "Infosys",
+    short: "Infosys",
+    accent: "oklch(0.6 0.13 215)",
+    sector: "IT Services",
+    blurb: "InfyTQ-aligned hiring - strong aptitude + pseudocode + a hands-on coding round.",
+    cutoffPRI: 58,
+    slope: 0.9,
+    eligibility: {
+      cgpa: "60% / 6.0 CGPA aggregate, no standing arrears",
+      backlogs: "No active backlogs",
+      tenthTwelfth: "Minimum 60% in 10th and 12th",
+      pattern: [
+        "Aptitude: Quantitative + Logical Reasoning",
+        "Verbal Ability",
+        "Pseudocode + Hands-on coding",
+      ],
+      rounds: ["Online assessment", "Technical Interview", "HR Interview"],
+      sourceId: "infosys-careers",
+      lastVerified: "2026-05-30",
+    },
+  },
+  {
+    id: "wipro",
+    name: "Wipro",
+    short: "Wipro",
+    accent: "oklch(0.62 0.16 150)",
+    sector: "IT Services",
+    blurb: "Wipro Elite NTH - aptitude, written communication essay, and coding.",
+    cutoffPRI: 52,
+    slope: 0.9,
+    eligibility: {
+      cgpa: "60% / 6.0 CGPA across academics",
+      backlogs: "No active backlogs",
+      tenthTwelfth: "Minimum 60% in 10th and 12th",
+      pattern: [
+        "Aptitude: Quant, Logical, Verbal",
+        "Essay Writing (written English)",
+        "Coding round (2 problems)",
+      ],
+      rounds: ["Online assessment + essay", "Technical Interview", "HR Interview"],
+      sourceId: "wipro-careers",
+      lastVerified: "2026-05-30",
+    },
+  },
+  {
+    id: "accenture",
+    name: "Accenture",
+    short: "Accenture",
+    accent: "oklch(0.58 0.24 300)",
+    sector: "Consulting / IT",
+    blurb: "Cognitive & technical assessment, coding, and communication assessment.",
+    cutoffPRI: 50,
+    slope: 0.85,
+    eligibility: {
+      cgpa: "65% or above preferred; no specific CGPA bar some cycles",
+      backlogs: "No active backlogs",
+      tenthTwelfth: "Typically 65% in 10th and 12th",
+      pattern: [
+        "Cognitive: Numerical, Logical, Verbal Ability",
+        "Technical: Common Applications, MS Office, Pseudocode, Fundamentals",
+        "Coding (2 problems) + Communication Assessment",
+      ],
+      rounds: ["Online assessment", "Technical + HR Interview"],
+      sourceId: "accenture-careers",
+      lastVerified: "2026-05-30",
+    },
+  },
+  {
+    id: "zoho",
+    name: "Zoho",
+    short: "Zoho",
+    accent: "oklch(0.6 0.2 30)",
+    sector: "Product / SaaS",
+    blurb: "Programming-heavy. Multiple coding rounds - the toughest of the set, but high pay.",
+    cutoffPRI: 70,
+    slope: 0.75,
+    eligibility: {
+      cgpa: "60%+ typical; skill-first - strong coders prioritized",
+      backlogs: "Generally no active backlogs",
+      tenthTwelfth: "Around 60% in 10th and 12th",
+      pattern: [
+        "Round 1: Basic programming (aptitude + simple programs)",
+        "Round 2: Advanced coding (data structures, logic)",
+        "Round 3: Program design / debugging on a machine",
+      ],
+      rounds: ["Coding Round 1", "Coding Round 2", "Technical Interview", "HR"],
+      sourceId: "zoho-careers",
+      lastVerified: "2026-05-30",
+    },
+  },
+  {
+    id: "cognizant",
+    name: "Cognizant",
+    short: "Cognizant",
+    accent: "oklch(0.62 0.17 240)",
+    sector: "IT Services",
+    blurb: "GenC hiring - aptitude, automata-style coding, and communication.",
+    cutoffPRI: 50,
+    slope: 0.85,
+    eligibility: {
+      cgpa: "60% / 6.0 CGPA aggregate",
+      backlogs: "No active backlogs",
+      tenthTwelfth: "Minimum 60% in 10th and 12th",
+      pattern: [
+        "Aptitude: Quantitative + Logical + Verbal",
+        "Automata Fix / Coding round",
+        "Versant / communication test",
+      ],
+      rounds: ["Online assessment", "Technical Interview", "HR Interview"],
+      sourceId: "cognizant-careers",
+      lastVerified: "2026-05-30",
+    },
+  },
+
+
+  {
+    id: "general",
+    name: "Core Prep",
+    short: "Core",
+    accent: "oklch(0.55 0.215 264)",
+    sector: "All-round Prep",
+    blurb: "Complete self-training route across aptitude, reasoning, verbal, coding, CS core, communication and interviews.",
+    cutoffPRI: 45,
+    slope: 0.8,
+    isGeneral: true,
+  },
+]
+
+export const COMPANY_BY_ID: Record<CompanyId, Company> = COMPANIES.reduce(
+  (acc, c) => {
+    acc[c.id] = c
+    return acc
+  },
+  {} as Record<CompanyId, Company>,
+)
+
+export const SELECTABLE_COMPANIES = [
+  COMPANY_BY_ID.general,
+  ...COMPANIES.filter((c) => !c.isGeneral),
+]
+
+export function getCompany(id: CompanyId): Company {
+  return COMPANY_BY_ID[id]
+}
+

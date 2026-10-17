@@ -1,0 +1,73 @@
+- generic:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - img
+        - generic: PlaceReady
+      - generic:
+        - generic:
+          - generic: "1"
+          - generic: Profile
+        - generic:
+          - generic: "2"
+          - generic: Companies
+        - generic:
+          - generic: "3"
+          - generic: Primary
+      - generic:
+        - generic:
+          - generic:
+            - heading [level=1]: Tell us about you
+            - paragraph: We use this to personalise your prep. No age needed — it doesn't affect placements.
+          - generic:
+            - generic: Full name
+            - textbox:
+              - /placeholder: e.g. Aarav Sharma
+              - text: Priya Mehta
+          - generic:
+            - generic: College
+            - textbox:
+              - /placeholder: e.g. PSG College of Technology
+              - text: VIT Vellore
+          - generic:
+            - generic:
+              - generic: Branch
+              - textbox:
+                - /placeholder: e.g. CSE
+                - text: CSE
+            - generic:
+              - generic: Graduation year
+              - combobox [expanded]:
+                - generic: "2028"
+                - img
+          - generic:
+            - generic:
+              - generic: CGPA (optional)
+              - textbox:
+                - /placeholder: e.g. 8.2
+            - generic:
+              - generic: Active backlogs
+              - textbox:
+                - /placeholder: "0"
+                - text: "0"
+          - generic:
+            - button:
+              - text: Continue
+              - img
+  - region "Notifications alt+T"
+  - alert
+  - listbox [ref=e49]:
+    - option "2026" [ref=e50]:
+      - generic [ref=e51]: "2026"
+    - option "2027" [ref=e52]:
+      - generic [ref=e53]: "2027"
+    - option "2028" [active] [selected] [ref=e54]:
+      - generic:
+        - generic:
+          - img
+      - generic [ref=e55]: "2028"
+    - option "2029" [ref=e56]:
+      - generic [ref=e57]: "2029"
+    - option "1st/2nd year" [ref=e58]:
+      - generic [ref=e59]: 1st/2nd year

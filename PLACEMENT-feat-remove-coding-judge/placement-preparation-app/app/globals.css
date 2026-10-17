@@ -1,0 +1,233 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --font-heading: var(--font-heading);
+    --font-sans: var(--font-sans);
+    --font-mono: var(--font-mono);
+    --color-sidebar-ring: var(--sidebar-ring);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar: var(--sidebar);
+    --color-chart-5: var(--chart-5);
+    --color-chart-4: var(--chart-4);
+    --color-chart-3: var(--chart-3);
+    --color-chart-2: var(--chart-2);
+    --color-chart-1: var(--chart-1);
+    --color-success: var(--success);
+    --color-success-foreground: var(--success-foreground);
+    --color-warning: var(--warning);
+    --color-warning-foreground: var(--warning-foreground);
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary: var(--primary);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --color-foreground: var(--foreground);
+    --color-background: var(--background);
+    --radius-sm: calc(var(--radius) * 0.6);
+    --radius-md: calc(var(--radius) * 0.8);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) * 1.4);
+    --radius-2xl: calc(var(--radius) * 1.8);
+    --radius-3xl: calc(var(--radius) * 2.2);
+    --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* ---- StudyBench product theme ----
+   Calm exam-prep surfaces with blue primary, emerald success and amber warning. */
+:root {
+    --radius: 0.625rem;
+    /* The single shared easing curve behind every signature motion. */
+    --ease-signature: cubic-bezier(0.22, 1, 0.36, 1);
+
+    --background: oklch(0.982 0.006 248);
+    --foreground: oklch(0.23 0.03 261);
+
+    --card: oklch(0.998 0.002 248);
+    --card-foreground: oklch(0.23 0.03 261);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.23 0.03 261);
+
+    --primary: oklch(0.52 0.2 262);
+    --primary-foreground: oklch(0.99 0 0);
+
+    --secondary: oklch(0.955 0.01 252);
+    --secondary-foreground: oklch(0.34 0.04 262);
+
+    --muted: oklch(0.955 0.008 252);
+    --muted-foreground: oklch(0.5 0.035 257);
+
+    --accent: oklch(0.943 0.027 248);
+    --accent-foreground: oklch(0.42 0.13 264);
+
+    --destructive: oklch(0.585 0.21 27);
+
+    --success: oklch(0.66 0.15 162);
+    --success-foreground: oklch(0.99 0 0);
+    --warning: oklch(0.79 0.15 78);
+    --warning-foreground: oklch(0.27 0.05 60);
+
+    --border: oklch(0.895 0.012 252);
+    --input: oklch(0.94 0.01 252);
+    --ring: oklch(0.55 0.215 264);
+
+    --chart-1: oklch(0.55 0.215 264);
+    --chart-2: oklch(0.72 0.15 162);
+    --chart-3: oklch(0.79 0.15 78);
+    --chart-4: oklch(0.6 0.2 295);
+    --chart-5: oklch(0.65 0.2 13);
+
+    --sidebar: oklch(0.965 0.008 248);
+    --sidebar-foreground: oklch(0.3 0.03 261);
+    --sidebar-primary: oklch(0.55 0.215 264);
+    --sidebar-primary-foreground: oklch(0.99 0 0);
+    --sidebar-accent: oklch(0.95 0.03 256);
+    --sidebar-accent-foreground: oklch(0.42 0.13 264);
+    --sidebar-border: oklch(0.88 0.012 252);
+    --sidebar-ring: oklch(0.55 0.215 264);
+}
+
+.dark {
+    --background: oklch(0.17 0.02 264);
+    --foreground: oklch(0.97 0.005 250);
+    --card: oklch(0.215 0.024 264);
+    --card-foreground: oklch(0.97 0.005 250);
+    --popover: oklch(0.22 0.025 264);
+    --popover-foreground: oklch(0.97 0.005 250);
+    --primary: oklch(0.72 0.16 264);
+    --primary-foreground: oklch(0.18 0.02 264);
+    --secondary: oklch(0.28 0.03 264);
+    --secondary-foreground: oklch(0.97 0.005 250);
+    --muted: oklch(0.28 0.03 264);
+    --muted-foreground: oklch(0.72 0.03 257);
+    --accent: oklch(0.32 0.05 264);
+    --accent-foreground: oklch(0.92 0.04 256);
+    --destructive: oklch(0.7 0.19 22);
+    --success: oklch(0.72 0.15 162);
+    --success-foreground: oklch(0.18 0.02 264);
+    --warning: oklch(0.82 0.15 80);
+    --warning-foreground: oklch(0.2 0.04 60);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 14%);
+    --ring: oklch(0.7 0.17 264);
+    --chart-1: oklch(0.7 0.17 264);
+    --chart-2: oklch(0.72 0.15 162);
+    --chart-3: oklch(0.82 0.15 80);
+    --chart-4: oklch(0.7 0.18 295);
+    --chart-5: oklch(0.7 0.18 13);
+    --sidebar: oklch(0.2 0.022 264);
+    --sidebar-foreground: oklch(0.95 0.005 250);
+    --sidebar-primary: oklch(0.7 0.17 264);
+    --sidebar-primary-foreground: oklch(0.18 0.02 264);
+    --sidebar-accent: oklch(0.32 0.05 264);
+    --sidebar-accent-foreground: oklch(0.92 0.04 256);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.7 0.17 264);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    }
+  body {
+    @apply bg-background text-foreground;
+    background-image:
+      linear-gradient(180deg, oklch(1 0 0 / 70%), transparent 22rem),
+      repeating-linear-gradient(90deg, oklch(0.7 0.03 255 / 7%) 0 1px, transparent 1px 32px),
+      repeating-linear-gradient(180deg, oklch(0.7 0.03 255 / 5%) 0 1px, transparent 1px 32px);
+    background-attachment: fixed;
+    text-rendering: optimizeLegibility;
+    }
+  /* Long-form copy: avoid ugly single-word last lines. */
+  p {
+    text-wrap: pretty;
+    }
+  .dark body {
+    background-image:
+      linear-gradient(180deg, oklch(0.24 0.03 264 / 60%), transparent 24rem),
+      repeating-linear-gradient(90deg, oklch(1 0 0 / 4%) 0 1px, transparent 1px 32px),
+      repeating-linear-gradient(180deg, oklch(1 0 0 / 3%) 0 1px, transparent 1px 32px);
+  }
+  html {
+    @apply font-sans;
+    scroll-behavior: smooth;
+    }
+  h1, h2, h3, h4, h5 {
+    @apply font-heading;
+    /* Display type reads tighter and never strands a lone word on its own line. */
+    letter-spacing: -0.014em;
+    text-wrap: balance;
+    }
+}
+
+@layer utilities {
+  .surface-panel {
+    @apply border border-border/80 bg-card/95 shadow-[0_18px_48px_-34px_oklch(0.25_0.08_260_/_45%)] backdrop-blur-sm;
+  }
+
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/30;
+  }
+
+  /* ── StudyBench motion signature ──────────────────────────────────────────
+     One easing curve and one entrance gesture used app-wide, so motion reads as
+     a deliberate language rather than ad-hoc per component. All guarded by
+     prefers-reduced-motion. */
+
+  /* The PRI gauge sweeps its arc on mount from empty (--pri-c) to value. */
+  .animate-pri-draw {
+    animation: pri-draw 1100ms var(--ease-signature) both;
+  }
+
+  /* Staggered card/list entry. Pair with inline animation-delay for a cascade. */
+  .animate-rise {
+    animation: rise-in 560ms var(--ease-signature) both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-pri-draw,
+    .animate-rise {
+      animation: none !important;
+    }
+  }
+}
+
+@keyframes pri-draw {
+  from {
+    stroke-dashoffset: var(--pri-c);
+  }
+  to {
+    stroke-dashoffset: var(--pri-offset);
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+

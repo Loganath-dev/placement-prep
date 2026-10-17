@@ -1,0 +1,88 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "PlaceReady" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - img [ref=e7]
+          - generic [ref=e10]: PlaceReady
+        - navigation [ref=e11]:
+          - link "Blog" [ref=e12] [cursor=pointer]:
+            - /url: /blog
+          - link "FAQ" [ref=e13] [cursor=pointer]:
+            - /url: /faq
+          - link "Start free" [ref=e14] [cursor=pointer]:
+            - /url: /auth/signup
+    - main [ref=e15]:
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - img [ref=e18]
+          - text: Help & FAQ
+        - heading "Frequently asked questions" [level=1] [ref=e21]
+        - paragraph [ref=e22]: Everything about preparing for campus placements with PlaceReady — readiness scoring, pricing, content and privacy.
+      - generic [ref=e23]:
+        - generic [ref=e24]:
+          - heading "Getting started" [level=2] [ref=e25]
+          - generic [ref=e26]:
+            - generic [ref=e28]:
+              - heading "What is PlaceReady?" [level=3] [ref=e29]
+              - paragraph [ref=e30]: PlaceReady is an all-in-one campus placement preparation platform for Indian students and freshers. It brings together company-pattern learning tracks, aptitude and coding practice, previous-year-pattern questions, mock tests, interview and communication prep, and an honest Placement Readiness Index (PRI) that shows how prepared you are and exactly what to do next.
+            - generic [ref=e32]:
+              - heading "Which companies and tests can I prepare for on PlaceReady?" [level=3] [ref=e33]
+              - paragraph [ref=e34]: PlaceReady covers the six recruiters that most Indian students target — the largest IT services firms and leading product/SaaS companies — plus a company-agnostic General track for early-year students. Each track mirrors that recruiter's known pattern, including aptitude, coding, written/communication and interview rounds.
+        - generic [ref=e35]:
+          - heading "Preparation" [level=2] [ref=e36]
+          - generic [ref=e37]:
+            - generic [ref=e39]:
+              - heading "How does the Placement Readiness Index (PRI) work?" [level=3] [ref=e40]
+              - paragraph [ref=e41]: The PRI is a 0–100 readiness score per company. It combines your mastery across quantitative aptitude, logical reasoning, verbal ability, coding and DSA, CS core and communication/interview, along with your mock-test performance. It is honest by design — only chapters you actually pass (70% or higher) count, so skipping content never inflates your score.
+            - generic [ref=e43]:
+              - heading "Is the estimated placement probability a guarantee of a job?" [level=3] [ref=e44]
+              - paragraph [ref=e45]: No. The placement probability is an estimate based on your in-app performance, shown to help you gauge progress and prioritise your effort. It is not a guarantee of selection, an interview call, or a job offer. Final hiring decisions rest entirely with the employers.
+            - generic [ref=e47]:
+              - heading "How does the 70% chapter-unlock system work?" [level=3] [ref=e48]
+              - paragraph [ref=e49]: "Chapters unlock in sequence: you must score at least 70% on a chapter's quiz before the next chapter opens. This builds a genuine, job-ready foundation step by step instead of letting you skip ahead — the same discipline that helps you clear real placement tests under pressure."
+            - generic [ref=e51]:
+              - heading "What topics and sections does PlaceReady cover?" [level=3] [ref=e52]
+              - paragraph [ref=e53]: "Every company track has six sections: Quantitative Aptitude, Logical Reasoning, Verbal Ability, Coding & DSA, CS Core (DBMS, OS, Computer Networks, OOP and SQL), and Communication & Interview. The General track focuses on foundations and communication skills, without a company-specific interview round."
+            - generic [ref=e55]:
+              - heading "How do daily challenges, streaks and XP work?" [level=3] [ref=e56]
+              - paragraph [ref=e57]: Daily challenges give you a quick set of questions each day across General, Aptitude and Coding categories. Completing them earns XP and keeps your streak alive, with bonus XP at 7-, 30- and 100-day milestones. Consistent daily practice is one of the strongest predictors of placement success.
+        - generic [ref=e58]:
+          - heading "Pricing" [level=2] [ref=e59]
+          - generic [ref=e62]:
+            - heading "Is PlaceReady free? What does Premium include?" [level=3] [ref=e63]
+            - paragraph [ref=e64]: PlaceReady has a free tier that unlocks the first chapter of every section plus a sample of practice questions. Premium costs ₹399 per year and unlocks all chapters, all company tracks, the full previous-year question bank, every mock test, the complete interview question bank with trainer guidance, and detailed analytics.
+        - generic [ref=e65]:
+          - heading "Content & data" [level=2] [ref=e66]
+          - generic [ref=e67]:
+            - generic [ref=e69]:
+              - heading "Where does the learning content come from? Is it copied?" [level=3] [ref=e70]
+              - paragraph [ref=e71]: All content is original. It is authored in-house by our trainers and reconstructed from publicly available concepts, standard reference books and officially published eligibility information. We never copy proprietary or leaked test papers — previous-year questions are original reconstructions written in each recruiter's question pattern.
+            - generic [ref=e73]:
+              - heading "How is my personal data protected?" [level=3] [ref=e74]
+              - paragraph [ref=e75]: We follow India's Digital Personal Data Protection Act, 2023 and the Information Technology Act, 2000. Passwords are hashed, data is encrypted in transit and at rest, and we never store your card details — payments run on a PCI-DSS-compliant gateway. You can access, correct or delete your data at any time. See our Privacy Policy for full details.
+      - generic [ref=e77]:
+        - paragraph [ref=e78]: Still have a question?
+        - paragraph [ref=e79]: Start preparing free and explore the full platform, or read our in-depth guides on the blog.
+        - generic [ref=e80]:
+          - link "Start free" [ref=e81] [cursor=pointer]:
+            - /url: /auth/signup
+            - text: Start free
+            - img [ref=e82]
+          - link "Read the blog" [ref=e84] [cursor=pointer]:
+            - /url: /blog
+    - contentinfo [ref=e85]:
+      - generic [ref=e86]:
+        - generic [ref=e87]: © 2026 PlaceReady. All rights reserved.
+        - navigation [ref=e88]:
+          - link "Blog" [ref=e89] [cursor=pointer]:
+            - /url: /blog
+          - link "FAQ" [ref=e90] [cursor=pointer]:
+            - /url: /faq
+          - link "Privacy" [ref=e91] [cursor=pointer]:
+            - /url: /privacy
+          - link "Terms" [ref=e92] [cursor=pointer]:
+            - /url: /terms
+  - region "Notifications alt+T"
+  - alert [ref=e93]

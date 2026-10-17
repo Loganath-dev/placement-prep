@@ -1,0 +1,47 @@
+- generic [ref=e12]:
+  - generic [ref=e14]:
+    - generic [ref=e15]:
+      - img [ref=e17]
+      - generic [ref=e20]: PlaceReady
+    - generic [ref=e21]:
+      - generic [ref=e22]:
+        - generic [ref=e23]: "1"
+        - generic [ref=e24]: Profile
+      - generic [ref=e26]:
+        - generic [ref=e27]: "2"
+        - generic [ref=e28]: Companies
+      - generic [ref=e30]:
+        - generic [ref=e31]: "3"
+        - generic [ref=e32]: Primary
+    - generic [ref=e34]:
+      - generic [ref=e35]:
+        - heading "Tell us about you" [level=1] [ref=e36]
+        - paragraph [ref=e37]: We use this to personalise your prep. No age needed — it doesn't affect placements.
+      - generic [ref=e38]:
+        - generic [ref=e39]: Full name
+        - textbox "e.g. Aarav Sharma" [ref=e40]
+      - generic [ref=e41]:
+        - generic [ref=e42]: College
+        - textbox "e.g. PSG College of Technology" [ref=e43]
+      - generic [ref=e44]:
+        - generic [ref=e45]:
+          - generic [ref=e46]: Branch
+          - textbox "e.g. CSE" [ref=e47]
+        - generic [ref=e48]:
+          - generic [ref=e49]: Graduation year
+          - combobox [active] [ref=e50]:
+            - generic: "2026"
+            - img
+      - generic [ref=e51]:
+        - generic [ref=e52]:
+          - generic [ref=e53]: CGPA (optional)
+          - textbox "e.g. 8.2" [ref=e54]
+        - generic [ref=e55]:
+          - generic [ref=e56]: Active backlogs
+          - textbox "0" [ref=e57]
+      - generic [ref=e58]:
+        - button "Continue" [disabled]:
+          - text: Continue
+          - img
+  - region "Notifications alt+T"
+  - alert [ref=e59]

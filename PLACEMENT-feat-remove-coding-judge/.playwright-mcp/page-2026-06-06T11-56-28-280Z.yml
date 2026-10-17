@@ -1,0 +1,341 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "PlaceReady" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - img [ref=e7]
+          - generic [ref=e10]: PlaceReady
+        - link "Back to home" [ref=e11] [cursor=pointer]:
+          - /url: /
+          - img [ref=e12]
+          - text: Back to home
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - heading "Privacy Policy" [level=1] [ref=e16]
+        - paragraph [ref=e17]: "Effective date: 6 June 2026 · Last updated: 6 June 2026"
+      - generic [ref=e18]: This Privacy Policy is published in accordance with the Digital Personal Data Protection Act, 2023, the Information Technology Act, 2000 and the rules made thereunder. It explains how we collect, use, share, store and protect your personal data, and the rights available to you.
+      - generic [ref=e19]:
+        - img [ref=e20]
+        - generic [ref=e23]:
+          - text: This is a working draft. Items shown as
+          - code [ref=e24]: "[●]"
+          - text: (entity name, addresses, city, officer details) must be completed and the document reviewed by a qualified advocate before it is relied upon.
+      - generic [ref=e25]:
+        - paragraph [ref=e26]: This Privacy Policy describes how PlaceReady, a placement-preparation platform operated by [● Legal Entity Name] ([● entity type, e.g. a private limited company / LLP / sole proprietorship]), having its registered office at [● Registered Address], India ("PlaceReady", "we", "us" or "our") collects, uses, processes, discloses and safeguards the personal data of users ("you", "your", "User" or, under the DPDP Act, the "Data Principal") who access or use the PlaceReady website, web application and related services (collectively, the "Platform").
+        - paragraph [ref=e27]:
+          - text: For the purposes of the DPDP Act, 2023, PlaceReady is the
+          - strong [ref=e28]: Data Fiduciary
+          - text: that determines the purpose and means of processing your personal data. By creating an account or using the Platform, you confirm that you have read and understood this Policy. If you do not agree, please do not use the Platform.
+      - navigation [ref=e29]:
+        - paragraph [ref=e30]: Contents
+        - list [ref=e31]:
+          - listitem [ref=e32]:
+            - link "1. Key Definitions" [ref=e33] [cursor=pointer]:
+              - /url: "#definitions"
+          - listitem [ref=e34]:
+            - link "2. Information We Collect" [ref=e35] [cursor=pointer]:
+              - /url: "#what-we-collect"
+          - listitem [ref=e36]:
+            - link "3. How We Collect It" [ref=e37] [cursor=pointer]:
+              - /url: "#how-we-collect"
+          - listitem [ref=e38]:
+            - link "4. Purposes and Lawful Basis of Processing" [ref=e39] [cursor=pointer]:
+              - /url: "#purposes"
+          - listitem [ref=e40]:
+            - link "5. Consent and Its Withdrawal" [ref=e41] [cursor=pointer]:
+              - /url: "#consent"
+          - listitem [ref=e42]:
+            - link "6. Children's and Students' Data" [ref=e43] [cursor=pointer]:
+              - /url: "#children"
+          - listitem [ref=e44]:
+            - link "7. Cookies and Similar Technologies" [ref=e45] [cursor=pointer]:
+              - /url: "#cookies"
+          - listitem [ref=e46]:
+            - link "8. How and With Whom We Share Data" [ref=e47] [cursor=pointer]:
+              - /url: "#sharing"
+          - listitem [ref=e48]:
+            - link "9. Sub-Processors and Cross-Border Transfer" [ref=e49] [cursor=pointer]:
+              - /url: "#transfers"
+          - listitem [ref=e50]:
+            - link "10. Data Retention" [ref=e51] [cursor=pointer]:
+              - /url: "#retention"
+          - listitem [ref=e52]:
+            - link "11. Security Safeguards" [ref=e53] [cursor=pointer]:
+              - /url: "#security"
+          - listitem [ref=e54]:
+            - link "12. Personal Data Breach Notification" [ref=e55] [cursor=pointer]:
+              - /url: "#breach"
+          - listitem [ref=e56]:
+            - link "13. Your Rights as a Data Principal" [ref=e57] [cursor=pointer]:
+              - /url: "#rights"
+          - listitem [ref=e58]:
+            - link "14. Your Responsibilities" [ref=e59] [cursor=pointer]:
+              - /url: "#duties"
+          - listitem [ref=e60]:
+            - link "15. Third-Party Links and Services" [ref=e61] [cursor=pointer]:
+              - /url: "#third-party"
+          - listitem [ref=e62]:
+            - link "16. Changes to This Policy" [ref=e63] [cursor=pointer]:
+              - /url: "#changes"
+          - listitem [ref=e64]:
+            - link "17. Grievance Officer and Contact" [ref=e65] [cursor=pointer]:
+              - /url: "#grievance"
+          - listitem [ref=e66]:
+            - link "18. Governing Law and Jurisdiction" [ref=e67] [cursor=pointer]:
+              - /url: "#law"
+      - generic [ref=e68]:
+        - generic [ref=e69]:
+          - heading "1. Key Definitions" [level=2] [ref=e70]
+          - list [ref=e71]:
+            - listitem [ref=e72]:
+              - img [ref=e73]
+              - generic [ref=e75]:
+                - strong [ref=e76]: Personal Data
+                - text: means any data about an individual who is identifiable by or in relation to such data.
+            - listitem [ref=e77]:
+              - img [ref=e78]
+              - generic [ref=e80]:
+                - strong [ref=e81]: Data Principal
+                - text: means the individual to whom the personal data relates (you).
+            - listitem [ref=e82]:
+              - img [ref=e83]
+              - generic [ref=e85]:
+                - strong [ref=e86]: Data Fiduciary
+                - text: means the entity that determines the purpose and means of processing (PlaceReady).
+            - listitem [ref=e87]:
+              - img [ref=e88]
+              - generic [ref=e90]:
+                - strong [ref=e91]: Data Processor
+                - text: means a person who processes personal data on behalf of a Data Fiduciary (e.g. our hosting and payment partners).
+            - listitem [ref=e92]:
+              - img [ref=e93]
+              - generic [ref=e95]:
+                - strong [ref=e96]: Processing
+                - text: means any operation performed on personal data, including collection, storage, use, sharing and erasure.
+            - listitem [ref=e97]:
+              - img [ref=e98]
+              - generic [ref=e100]:
+                - strong [ref=e101]: Sensitive Personal Data or Information (SPDI)
+                - text: has the meaning given under the IT Rules, 2011 (e.g. passwords and financial information).
+        - generic [ref=e102]:
+          - heading "2. Information We Collect" [level=2] [ref=e103]
+          - paragraph [ref=e104]: "We collect only the data needed to provide and improve the Platform:"
+          - heading "a) Account & identity data" [level=3] [ref=e105]
+          - list [ref=e106]:
+            - listitem [ref=e107]:
+              - img [ref=e108]
+              - generic [ref=e110]: Email address and an authentication credential. Passwords are never stored in plain text — they are salted and hashed by our authentication provider (Supabase).
+            - listitem [ref=e111]:
+              - img [ref=e112]
+              - generic [ref=e114]: If you choose Google Sign-In, the basic profile information Google shares (name, email and Google account identifier) under your Google consent.
+          - heading "b) Educational profile data" [level=3] [ref=e115]
+          - list [ref=e116]:
+            - listitem [ref=e117]:
+              - img [ref=e118]
+              - generic [ref=e120]: Name, college/institution, branch/stream and expected graduation year.
+            - listitem [ref=e121]:
+              - img [ref=e122]
+              - generic [ref=e124]: Academic indicators you choose to enter, such as CGPA.
+            - listitem [ref=e125]:
+              - img [ref=e126]
+              - generic [ref=e128]: Your target companies and preparation preferences.
+          - heading "c) Usage & performance data" [level=3] [ref=e129]
+          - list [ref=e130]:
+            - listitem [ref=e131]:
+              - img [ref=e132]
+              - generic [ref=e134]: Quiz and mock-test scores, chapter progress, your Placement Readiness Index (PRI), XP, levels, streaks, badges and topic-wise accuracy.
+            - listitem [ref=e135]:
+              - img [ref=e136]
+              - generic [ref=e138]: Interactions with lessons, practice questions and daily challenges.
+          - heading "d) Payment-related data" [level=3] [ref=e139]
+          - list [ref=e140]:
+            - listitem [ref=e141]:
+              - img [ref=e142]
+              - generic [ref=e144]: Subscription status and transaction references for any premium purchase.
+            - listitem [ref=e145]:
+              - img [ref=e146]
+              - generic [ref=e148]:
+                - strong [ref=e149]: We do NOT collect or store your card number, CVV or UPI PIN.
+                - text: All payments are processed on the secure, PCI-DSS-compliant infrastructure of our payment gateway (Razorpay). We receive only a payment confirmation and reference identifier.
+          - heading "e) Technical & device data" [level=3] [ref=e150]
+          - list [ref=e151]:
+            - listitem [ref=e152]:
+              - img [ref=e153]
+              - generic [ref=e155]: IP address, browser type, device and operating-system information, and approximate location derived from IP.
+            - listitem [ref=e156]:
+              - img [ref=e157]
+              - generic [ref=e159]: Log data, session cookies and similar identifiers necessary to keep you signed in and to secure the Platform.
+        - generic [ref=e160]:
+          - heading "3. How We Collect It" [level=2] [ref=e161]
+          - list [ref=e162]:
+            - listitem [ref=e163]:
+              - img [ref=e164]
+              - generic [ref=e166]:
+                - strong [ref=e167]: Directly from you
+                - text: — when you register, complete onboarding, edit your profile, take quizzes/mocks, or contact us.
+            - listitem [ref=e168]:
+              - img [ref=e169]
+              - generic [ref=e171]:
+                - strong [ref=e172]: Automatically
+                - text: — through cookies, log files and analytics when you use the Platform.
+            - listitem [ref=e173]:
+              - img [ref=e174]
+              - generic [ref=e176]:
+                - strong [ref=e177]: From third parties
+                - text: — from Google (if you use Google Sign-In) and from our payment gateway (payment status only).
+        - generic [ref=e178]:
+          - heading "4. Purposes and Lawful Basis of Processing" [level=2] [ref=e179]
+          - paragraph [ref=e180]:
+            - text: We process your personal data on the basis of your
+            - strong [ref=e181]: consent
+            - text: and, where applicable, the
+            - strong [ref=e182]: legitimate uses
+            - text: "permitted under Section 7 of the DPDP Act, 2023. We use your data to:"
+          - list [ref=e183]:
+            - listitem [ref=e184]:
+              - img [ref=e185]
+              - generic [ref=e187]: Create and manage your account and authenticate you securely.
+            - listitem [ref=e188]:
+              - img [ref=e189]
+              - generic [ref=e191]: Personalise your preparation, compute your PRI and estimated placement probability, and recommend chapters, practice and mocks.
+            - listitem [ref=e192]:
+              - img [ref=e193]
+              - generic [ref=e195]: Operate gamification features (XP, levels, streaks, badges) and analytics (weakest/strongest topics).
+            - listitem [ref=e196]:
+              - img [ref=e197]
+              - generic [ref=e199]: Process subscriptions and provide customer support.
+            - listitem [ref=e200]:
+              - img [ref=e201]
+              - generic [ref=e203]: Maintain security, prevent fraud and abuse, and debug and improve the Platform.
+            - listitem [ref=e204]:
+              - img [ref=e205]
+              - generic [ref=e207]: Send service communications and, only with your consent, product updates. You can opt out of non-essential communications at any time.
+            - listitem [ref=e208]:
+              - img [ref=e209]
+              - generic [ref=e211]: Comply with applicable law and respond to lawful requests.
+          - paragraph [ref=e212]:
+            - text: We do
+            - strong [ref=e213]: not
+            - text: sell your personal data, and we do
+            - strong [ref=e214]: not
+            - text: use your data for automated decisions that produce legal or similarly significant effects on you. Your PRI and placement probability are study aids and
+            - strong [ref=e215]: estimates only
+            - text: ", not determinations about your employability."
+        - generic [ref=e216]:
+          - heading "5. Consent and Its Withdrawal" [level=2] [ref=e217]
+          - paragraph [ref=e218]:
+            - text: Your consent is free, specific, informed, unconditional and unambiguous, given through clear affirmative action when you sign up and use specific features. You may
+            - strong [ref=e219]: withdraw your consent
+            - text: at any time, with the same ease with which it was given, by changing settings, emailing privacy@placeready.app, or deleting your account from Settings.
+          - paragraph [ref=e220]: Withdrawing consent will not affect the lawfulness of processing carried out before withdrawal. Some features may stop working if the underlying data can no longer be processed.
+        - generic [ref=e221]:
+          - heading "6. Children's and Students' Data" [level=2] [ref=e222]
+          - paragraph [ref=e223]:
+            - text: The Platform is intended for college students and job-seekers. Under Section 9 of the DPDP Act, 2023, where a User is a
+            - strong [ref=e224]: child (below 18 years of age)
+            - text: ", we will process personal data only after obtaining"
+            - strong [ref=e225]: verifiable consent from a parent or lawful guardian
+            - text: ", and we will not undertake tracking, behavioural monitoring or targeted advertising directed at children, nor any processing likely to cause harm to a child."
+          - paragraph [ref=e226]: If you are below 18, please use the Platform only with the involvement and consent of your parent or guardian. If we learn that we have collected a child's data without the required consent, we will delete it promptly.
+        - generic [ref=e227]:
+          - heading "7. Cookies and Similar Technologies" [level=2] [ref=e228]
+          - paragraph [ref=e229]: We use strictly necessary cookies to keep you signed in and to secure sessions, and limited functional/analytics cookies to understand and improve usage. You can control cookies through your browser settings; disabling essential cookies may break sign-in and core features.
+        - generic [ref=e230]:
+          - heading "8. How and With Whom We Share Data" [level=2] [ref=e231]
+          - paragraph [ref=e232]: "We share personal data only as described below, and never sell it:"
+          - list [ref=e233]:
+            - listitem [ref=e234]:
+              - img [ref=e235]
+              - generic [ref=e237]:
+                - strong [ref=e238]: Data Processors / service providers
+                - text: — engaged under contract to process data on our instructions, including Supabase (cloud hosting, database and authentication), Razorpay (payment processing) and our email/communication providers.
+            - listitem [ref=e239]:
+              - img [ref=e240]
+              - generic [ref=e242]:
+                - strong [ref=e243]: Legal and safety
+                - text: — where required by law, court order, or a lawful request by a government authority, or to protect the rights, safety and property of PlaceReady, our Users or the public.
+            - listitem [ref=e244]:
+              - img [ref=e245]
+              - generic [ref=e247]:
+                - strong [ref=e248]: Business transfers
+                - text: — in connection with a merger, acquisition, restructuring or sale of assets, subject to the acquirer honouring this Policy.
+            - listitem [ref=e249]:
+              - img [ref=e250]
+              - generic [ref=e252]:
+                - strong [ref=e253]: With your consent
+                - text: — for any other purpose disclosed to you at the time.
+        - generic [ref=e254]:
+          - heading "9. Sub-Processors and Cross-Border Transfer" [level=2] [ref=e255]
+          - paragraph [ref=e256]: Our infrastructure provider hosts data in a data-centre region (currently the Asia-Pacific / Mumbai region). Where any processing or storage occurs outside India, such transfer is undertaken in accordance with Section 16 of the DPDP Act, 2023 and applicable government notifications, with contractual safeguards requiring our processors to maintain confidentiality and security comparable to those described in this Policy.
+        - generic [ref=e257]:
+          - heading "10. Data Retention" [level=2] [ref=e258]
+          - paragraph [ref=e259]: We retain personal data only for as long as necessary to fulfil the purposes set out in this Policy, to provide the Platform, and to comply with legal, tax and accounting obligations. When you delete your account, we will delete or irreversibly anonymise your personal data within a reasonable period, except where retention is required by law or for the establishment, exercise or defence of legal claims.
+        - generic [ref=e260]:
+          - heading "11. Security Safeguards" [level=2] [ref=e261]
+          - paragraph [ref=e262]: In line with Section 43A of the IT Act, 2000 and the IT Rules, 2011, and the security obligations of the DPDP Act, 2023, we implement reasonable security practices, including encryption of data in transit (HTTPS/TLS) and at rest, hashed passwords, row-level access controls so each User can access only their own records, least-privilege access for staff, and monitoring. No method of transmission or storage is perfectly secure, and we cannot guarantee absolute security; you are responsible for keeping your credentials confidential.
+        - generic [ref=e263]:
+          - heading "12. Personal Data Breach Notification" [level=2] [ref=e264]
+          - paragraph [ref=e265]: In the event of a personal data breach, we will notify the Data Protection Board of India and affected Data Principals as required under the DPDP Act, 2023, and will comply with applicable CERT-In directions (2022) on incident reporting.
+        - generic [ref=e266]:
+          - heading "13. Your Rights as a Data Principal" [level=2] [ref=e267]
+          - paragraph [ref=e268]: "Subject to applicable law, you have the right to:"
+          - list [ref=e269]:
+            - listitem [ref=e270]:
+              - img [ref=e271]
+              - generic [ref=e273]:
+                - strong [ref=e274]: Access
+                - text: a summary of the personal data we process about you and the processing activities.
+            - listitem [ref=e275]:
+              - img [ref=e276]
+              - generic [ref=e278]:
+                - strong [ref=e279]: Correction, completion and updating
+                - text: of inaccurate or incomplete data (you can edit most fields in Settings).
+            - listitem [ref=e280]:
+              - img [ref=e281]
+              - generic [ref=e283]:
+                - strong [ref=e284]: Erasure
+                - text: of your personal data where it is no longer required.
+            - listitem [ref=e285]:
+              - img [ref=e286]
+              - generic [ref=e288]:
+                - strong [ref=e289]: Withdraw consent
+                - text: at any time.
+            - listitem [ref=e290]:
+              - img [ref=e291]
+              - generic [ref=e293]:
+                - strong [ref=e294]: Grievance redressal
+                - text: — to readily raise grievances with our Grievance Officer.
+            - listitem [ref=e295]:
+              - img [ref=e296]
+              - generic [ref=e298]:
+                - strong [ref=e299]: Nominate
+                - text: another individual to exercise your rights in the event of death or incapacity.
+          - paragraph [ref=e300]: To exercise any right, email privacy@placeready.app or contact our Grievance Officer (Section 16). We may need to verify your identity before acting on a request.
+        - generic [ref=e301]:
+          - heading "14. Your Responsibilities" [level=2] [ref=e302]
+          - paragraph [ref=e303]: Under the DPDP Act, 2023, you agree to provide accurate and genuine information, not to impersonate another person, not to suppress material information, and not to file false or frivolous grievances. You are responsible for the data you enter (such as CGPA or college details).
+        - generic [ref=e304]:
+          - heading "15. Third-Party Links and Services" [level=2] [ref=e305]
+          - paragraph [ref=e306]: The Platform may reference or link to third-party websites and services (including official company career pages and educational resources). We are not responsible for the privacy practices or content of those third parties; please review their policies separately.
+        - generic [ref=e307]:
+          - heading "16. Changes to This Policy" [level=2] [ref=e308]
+          - paragraph [ref=e309]: We may update this Policy from time to time. Material changes will be notified through the Platform or by email, and the "Last updated" date will be revised. Your continued use after changes take effect constitutes acceptance.
+        - generic [ref=e310]:
+          - heading "17. Grievance Officer and Contact" [level=2] [ref=e311]
+          - paragraph [ref=e312]: "In accordance with Rule 3(2) of the IT (Intermediary Guidelines) Rules, 2021 and the DPDP Act, 2023, the details of our Grievance Officer are:"
+          - paragraph [ref=e313]: "Grievance Officer: [● Name] · Email: grievance@placeready.app · Address: [● Address], India · Response acknowledged within 24 hours and resolved within 15 days, in line with the IT Rules, 2021 and the DPDP Act, 2023."
+          - paragraph [ref=e314]: "General privacy queries: privacy@placeready.app · General support: support@placeready.app."
+        - generic [ref=e315]:
+          - heading "18. Governing Law and Jurisdiction" [level=2] [ref=e316]
+          - paragraph [ref=e317]: This Policy is governed by the laws of India. Subject to the Terms & Conditions, the courts at [● City], India shall have jurisdiction over any dispute arising out of or relating to this Policy.
+    - contentinfo [ref=e318]:
+      - generic [ref=e319]:
+        - generic [ref=e320]: © 2026 PlaceReady. All rights reserved.
+        - navigation [ref=e321]:
+          - link "Privacy Policy" [ref=e322] [cursor=pointer]:
+            - /url: /privacy
+          - link "Terms & Conditions" [ref=e323] [cursor=pointer]:
+            - /url: /terms
+  - region "Notifications alt+T"
+  - alert [ref=e324]

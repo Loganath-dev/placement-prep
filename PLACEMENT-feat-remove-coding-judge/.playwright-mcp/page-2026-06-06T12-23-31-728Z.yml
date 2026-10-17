@@ -1,0 +1,106 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "PlaceReady" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - img [ref=e7]
+          - generic [ref=e10]: PlaceReady
+        - navigation [ref=e11]:
+          - link "Blog" [ref=e12] [cursor=pointer]:
+            - /url: /blog
+          - link "FAQ" [ref=e13] [cursor=pointer]:
+            - /url: /faq
+          - link "Start free" [ref=e14] [cursor=pointer]:
+            - /url: /auth/signup
+    - main [ref=e15]:
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - img [ref=e18]
+          - text: PlaceReady Blog
+        - heading "Placement preparation guides for freshers" [level=1] [ref=e20]
+        - paragraph [ref=e21]: Practical, no-fluff guides to crack campus placements — from aptitude and coding to interviews and measuring your readiness.
+      - generic [ref=e22]:
+        - link "Placements Readiness 6 min read What Is a Placement Readiness Index — and Why It Beats Guesswork Stop guessing whether you're ready. A readiness index turns scattered prep into one honest number you can actually improve. 2 Jun 2026 Read" [ref=e23] [cursor=pointer]:
+          - /url: /blog/what-is-placement-readiness-index
+          - generic [ref=e25]:
+            - generic [ref=e26]:
+              - generic [ref=e27]: Placements
+              - generic [ref=e28]: Readiness
+              - generic [ref=e29]: 6 min read
+            - heading "What Is a Placement Readiness Index — and Why It Beats Guesswork" [level=2] [ref=e30]
+            - paragraph [ref=e31]: Stop guessing whether you're ready. A readiness index turns scattered prep into one honest number you can actually improve.
+            - generic [ref=e32]:
+              - generic [ref=e33]: 2 Jun 2026
+              - generic [ref=e34]:
+                - text: Read
+                - img [ref=e35]
+        - link "Interviews Communication 8 min read Group Discussion and HR Interview Tips Every Fresher Should Know Strong communication wins offers that strong coding alone cannot. Here's how to nail the GD and HR rounds. 28 May 2026 Read" [ref=e37] [cursor=pointer]:
+          - /url: /blog/group-discussion-and-hr-interview-tips
+          - generic [ref=e39]:
+            - generic [ref=e40]:
+              - generic [ref=e41]: Interviews
+              - generic [ref=e42]: Communication
+              - generic [ref=e43]: 8 min read
+            - heading "Group Discussion and HR Interview Tips Every Fresher Should Know" [level=2] [ref=e44]
+            - paragraph [ref=e45]: Strong communication wins offers that strong coding alone cannot. Here's how to nail the GD and HR rounds.
+            - generic [ref=e46]:
+              - generic [ref=e47]: 28 May 2026
+              - generic [ref=e48]:
+                - text: Read
+                - img [ref=e49]
+        - 'link "Coding DSA 9 min read Coding Interview Preparation for Freshers: The DSA Topics That Actually Matter Skip the 500-problem grind. Here are the DSA topics and patterns that actually decide fresher coding rounds. 22 May 2026 Read" [ref=e51] [cursor=pointer]':
+          - /url: /blog/coding-interview-preparation-for-freshers
+          - generic [ref=e53]:
+            - generic [ref=e54]:
+              - generic [ref=e55]: Coding
+              - generic [ref=e56]: DSA
+              - generic [ref=e57]: 9 min read
+            - 'heading "Coding Interview Preparation for Freshers: The DSA Topics That Actually Matter" [level=2] [ref=e58]'
+            - paragraph [ref=e59]: Skip the 500-problem grind. Here are the DSA topics and patterns that actually decide fresher coding rounds.
+            - generic [ref=e60]:
+              - generic [ref=e61]: 22 May 2026
+              - generic [ref=e62]:
+                - text: Read
+                - img [ref=e63]
+        - 'link "Aptitude Quant 8 min read Aptitude Preparation for Placements: Quant, Reasoning & Verbal Made Simple The high-yield topics and speed tricks that clear the aptitude round — without drowning in 800-page books. 16 May 2026 Read" [ref=e65] [cursor=pointer]':
+          - /url: /blog/aptitude-preparation-for-placements
+          - generic [ref=e67]:
+            - generic [ref=e68]:
+              - generic [ref=e69]: Aptitude
+              - generic [ref=e70]: Quant
+              - generic [ref=e71]: 8 min read
+            - 'heading "Aptitude Preparation for Placements: Quant, Reasoning & Verbal Made Simple" [level=2] [ref=e72]'
+            - paragraph [ref=e73]: The high-yield topics and speed tricks that clear the aptitude round — without drowning in 800-page books.
+            - generic [ref=e74]:
+              - generic [ref=e75]: 16 May 2026
+              - generic [ref=e76]:
+                - text: Read
+                - img [ref=e77]
+        - 'link "Placements Roadmap 9 min read How to Crack Campus Placements in 2026: A Step-by-Step Roadmap The complete fresher''s roadmap: when to start, what to master, and the exact order that turns scattered prep into placement offers. 10 May 2026 Read" [ref=e79] [cursor=pointer]':
+          - /url: /blog/how-to-crack-campus-placements-2026
+          - generic [ref=e81]:
+            - generic [ref=e82]:
+              - generic [ref=e83]: Placements
+              - generic [ref=e84]: Roadmap
+              - generic [ref=e85]: 9 min read
+            - 'heading "How to Crack Campus Placements in 2026: A Step-by-Step Roadmap" [level=2] [ref=e86]'
+            - paragraph [ref=e87]: "The complete fresher's roadmap: when to start, what to master, and the exact order that turns scattered prep into placement offers."
+            - generic [ref=e88]:
+              - generic [ref=e89]: 10 May 2026
+              - generic [ref=e90]:
+                - text: Read
+                - img [ref=e91]
+    - contentinfo [ref=e93]:
+      - generic [ref=e94]:
+        - generic [ref=e95]: © 2026 PlaceReady. All rights reserved.
+        - navigation [ref=e96]:
+          - link "Blog" [ref=e97] [cursor=pointer]:
+            - /url: /blog
+          - link "FAQ" [ref=e98] [cursor=pointer]:
+            - /url: /faq
+          - link "Privacy" [ref=e99] [cursor=pointer]:
+            - /url: /privacy
+          - link "Terms" [ref=e100] [cursor=pointer]:
+            - /url: /terms
+  - region "Notifications alt+T"

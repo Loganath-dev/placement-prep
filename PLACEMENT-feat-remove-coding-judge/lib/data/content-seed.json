@@ -1,0 +1,858 @@
+[
+  {
+    "id": "seed-quant-timework-1",
+    "section": "quant",
+    "topic": "Time & Work",
+    "difficulty": "medium",
+    "tier": "free",
+    "prompt": "A can finish a task in 12 days and B in 18 days. They work together for 4 days, then A leaves. How many more days does B need to finish the rest?",
+    "options": ["8", "6", "9", "7"],
+    "answer": 0,
+    "explanation": "Combined 4-day work = 4 × (1/12 + 1/18) = 4 × 5/36 = 5/9. Remaining = 4/9. B alone needs (4/9) ÷ (1/18) = 8 days.",
+    "optionNotes": [
+      "Correct. Together they complete 5/9 in 4 days; B clears the remaining 4/9 in (4/9) × 18 = 8 days.",
+      "This drops part of the work already done in the first 4 days.",
+      "Half of 18 — a guess from B's solo rate that ignores the work already finished.",
+      "An off-by-one slip; the exact arithmetic gives 8."
+    ]
+  },
+  {
+    "id": "seed-quant-profit-1",
+    "section": "quant",
+    "topic": "Profit & Loss",
+    "difficulty": "medium",
+    "tier": "premium",
+    "prompt": "A shopkeeper marks an item 40% above cost and then gives a 25% discount on the marked price. What is the profit percent?",
+    "options": ["5%", "15%", "10%", "12.5%"],
+    "answer": 0,
+    "explanation": "SP = 1.40 × 0.75 × CP = 1.05 × CP, so the profit is 5%.",
+    "optionNotes": [
+      "Correct. Marking up then discounting compounds: 1.40 × 0.75 = 1.05 → 5% profit.",
+      "40% − 25% = 15% wrongly subtracts percentages that apply to different bases.",
+      "A rounding guess; the exact compounded figure is 5%.",
+      "Applies the 25% to the markup only, not the full marked price."
+    ]
+  },
+  {
+    "id": "seed-quant-remainder-1",
+    "section": "quant",
+    "topic": "Number System",
+    "difficulty": "hard",
+    "tier": "premium",
+    "prompt": "What is the remainder when 7^100 is divided by 5?",
+    "options": ["1", "2", "3", "4"],
+    "answer": 0,
+    "explanation": "7 ≡ 2 (mod 5). Powers of 2 mod 5 cycle with length 4 (2,4,3,1). Since 100 is a multiple of 4, 2^100 ≡ 1.",
+    "optionNotes": [
+      "Correct. 7≡2 (mod 5) and 2^4≡1; 100 is a multiple of 4, so 7^100≡1.",
+      "That is 7^1 mod 5 — the cycle length is 4, not 1.",
+      "7^3 ≡ 3 (mod 5); 100 is not ≡ 3 in the exponent cycle.",
+      "7^2 ≡ 4 (mod 5); but 100 ≡ 0 (mod 4), giving 1, not 4."
+    ]
+  },
+  {
+    "id": "seed-reasoning-blood-1",
+    "section": "reasoning",
+    "topic": "Blood Relations",
+    "difficulty": "medium",
+    "tier": "free",
+    "prompt": "Pointing to a photo, Riya says, 'He is the only son of my mother's father.' How is the man related to Riya?",
+    "options": ["Maternal uncle", "Father", "Maternal grandfather", "Brother"],
+    "answer": 0,
+    "explanation": "Her mother's father is her grandfather. His only son is her mother's brother — i.e. her maternal uncle.",
+    "optionNotes": [
+      "Correct. Grandfather's only son is the mother's brother — a maternal uncle.",
+      "Her father is not her grandfather's son.",
+      "That is the mother's father himself, not his son.",
+      "Her brother is her parents' son, not her grandfather's son."
+    ]
+  },
+  {
+    "id": "seed-reasoning-syllogism-1",
+    "section": "reasoning",
+    "topic": "Syllogisms",
+    "difficulty": "medium",
+    "tier": "premium",
+    "prompt": "Statements: All pens are books. Some books are red. Conclusions: I. Some pens are red. II. Some books are pens. Which follows?",
+    "options": ["Only II follows", "Only I follows", "Both follow", "Neither follows"],
+    "answer": 0,
+    "explanation": "'All pens are books' guarantees 'some books are pens' (II). The red books need not be pens, so I is only possible, not certain.",
+    "optionNotes": [
+      "Correct. II is a valid immediate inference; I is not guaranteed.",
+      "I needs the red books to be pens, which is not stated.",
+      "II is valid but I is merely possible.",
+      "II validly follows from the universal affirmative, so 'neither' is wrong."
+    ]
+  },
+  {
+    "id": "seed-verbal-error-1",
+    "section": "verbal",
+    "topic": "Error Spotting",
+    "difficulty": "medium",
+    "tier": "free",
+    "prompt": "Find the error: 'One of the boys (A) / have submitted (B) / his assignment (C) / on time. (D)'",
+    "options": ["B", "A", "C", "D"],
+    "answer": 0,
+    "explanation": "The subject 'One' is singular, so the verb must be 'has submitted', not 'have submitted'.",
+    "optionNotes": [
+      "Correct. 'One of the boys' takes a singular verb — 'has submitted'.",
+      "'One of the + plural noun' is the correct partitive structure.",
+      "'his assignment' correctly agrees with the singular 'one'.",
+      "'on time' is idiomatic and error-free."
+    ]
+  },
+  {
+    "id": "seed-verbal-idiom-1",
+    "section": "verbal",
+    "topic": "Idioms",
+    "difficulty": "medium",
+    "tier": "premium",
+    "prompt": "Choose the meaning of the idiom: 'to bite the bullet'.",
+    "options": [
+      "To endure a painful situation bravely",
+      "To make a careless mistake",
+      "To eat very quickly",
+      "To start an argument"
+    ],
+    "answer": 0,
+    "explanation": "'Bite the bullet' means to force yourself through something unpleasant or unavoidable with courage.",
+    "optionNotes": [
+      "Correct — to face a hardship bravely.",
+      "That is closer to 'drop the ball'.",
+      "A literal misreading; the idiom is figurative.",
+      "That is 'pick a fight', a different idiom."
+    ]
+  },
+  {
+    "id": "seed-cscore-dbms-1",
+    "section": "cs-core",
+    "topic": "DBMS Normalization",
+    "difficulty": "medium",
+    "tier": "free",
+    "prompt": "A table is in 2NF but a non-key attribute depends on another non-key attribute. Which normal form does it violate?",
+    "options": ["3NF", "1NF", "BCNF", "4NF"],
+    "answer": 0,
+    "explanation": "A non-key attribute depending on another non-key attribute is a transitive dependency, which 3NF forbids.",
+    "optionNotes": [
+      "Correct. Transitive dependency on a non-key attribute breaks 3NF.",
+      "1NF is about atomic values, not transitive dependencies.",
+      "BCNF is stricter than 3NF; the first form broken here is 3NF.",
+      "4NF concerns multivalued dependencies."
+    ]
+  },
+  {
+    "id": "seed-cscore-os-1",
+    "section": "cs-core",
+    "topic": "Operating Systems",
+    "difficulty": "medium",
+    "tier": "premium",
+    "prompt": "Which CPU scheduling algorithm can indefinitely starve long processes?",
+    "options": ["Shortest Job First", "Round Robin", "First Come First Serve", "Multilevel Round Robin"],
+    "answer": 0,
+    "explanation": "SJF keeps preferring shorter jobs, so a long job can be postponed forever if short jobs keep arriving — starvation.",
+    "optionNotes": [
+      "Correct. SJF can starve long jobs when short jobs keep arriving.",
+      "Round Robin gives every process a time slice, avoiding starvation.",
+      "FCFS serves strictly in arrival order, so nothing is skipped indefinitely.",
+      "Round-robin within levels still guarantees progress."
+    ]
+  },
+  {
+    "id": "seed-cscore-network-1",
+    "section": "cs-core",
+    "topic": "Computer Networks",
+    "difficulty": "medium",
+    "tier": "premium",
+    "prompt": "Which OSI layer provides reliable end-to-end delivery, sequencing and flow control?",
+    "options": ["Transport", "Network", "Data Link", "Session"],
+    "answer": 0,
+    "explanation": "The transport layer (e.g. TCP) handles end-to-end reliability, ordering and flow control.",
+    "optionNotes": [
+      "Correct. TCP at the transport layer gives end-to-end reliability and flow control.",
+      "The network layer handles routing/addressing, not end-to-end reliability.",
+      "Data link gives single-hop (node-to-node) reliability, not end-to-end.",
+      "The session layer manages dialogs, not delivery guarantees."
+    ]
+  },
+  {
+    "id": "seed-coding-complexity-1",
+    "section": "coding",
+    "topic": "Complexity",
+    "difficulty": "easy",
+    "tier": "free",
+    "prompt": "What is the time complexity of searching for an element in a balanced binary search tree with n nodes?",
+    "options": ["O(log n)", "O(n)", "O(n log n)", "O(1)"],
+    "answer": 0,
+    "explanation": "A balanced BST has height ~log n, and search follows a single root-to-leaf path.",
+    "optionNotes": [
+      "Correct. Height ~log n means a search compares ~log n nodes.",
+      "O(n) is the worst case of a degenerate (unbalanced) BST.",
+      "O(n log n) is typical of comparison sorts, not one search.",
+      "O(1) lookup needs hashing, not tree comparisons."
+    ]
+  },
+  {
+    "id": "seed-coding-lru-1",
+    "section": "coding",
+    "topic": "Data Structures",
+    "difficulty": "medium",
+    "tier": "premium",
+    "prompt": "Which structure implements an LRU cache with O(1) get and put?",
+    "options": ["Hash map + doubly linked list", "Single array", "Min-heap", "Binary search tree"],
+    "answer": 0,
+    "explanation": "The hash map gives O(1) lookup; the doubly linked list lets you move and evict nodes in O(1) to track recency.",
+    "optionNotes": [
+      "Correct. Map for O(1) lookup, doubly linked list for O(1) recency updates/eviction.",
+      "Reordering an array on each access is O(n).",
+      "Heap operations are O(log n), and recency is not a numeric minimum.",
+      "A balanced BST gives O(log n), not O(1)."
+    ]
+  },
+  {
+    "id": "seed-comm-weakness-1",
+    "section": "comm-interview",
+    "topic": "HR Interview",
+    "difficulty": "medium",
+    "tier": "premium",
+    "prompt": "In an HR interview, the strongest way to answer 'What is your biggest weakness?' is to:",
+    "options": [
+      "Name a real, non-critical weakness and the steps you take to improve it",
+      "Claim you have no weaknesses",
+      "Mention a weakness critical to the role",
+      "Give a fake weakness like 'I work too hard'"
+    ],
+    "answer": 0,
+    "explanation": "Interviewers assess self-awareness and growth: a genuine, non-disqualifying weakness plus concrete improvement steps.",
+    "optionNotes": [
+      "Correct. Honesty + a concrete improvement plan signals maturity.",
+      "Claiming no weaknesses reads as low self-awareness.",
+      "Naming a deal-breaker weakness for the role hurts your candidacy.",
+      "'I work too hard' is a cliché interviewers see through."
+    ]
+  },
+  {
+    "id": "seed-quant-sici-1",
+    "section": "quant",
+    "topic": "Simple & Compound Interest",
+    "difficulty": "medium",
+    "tier": "free",
+    "prompt": "The difference between compound interest and simple interest on a sum for 2 years at 10% per annum is ₹50. Find the sum.",
+    "options": ["₹5000", "₹2500", "₹10000", "₹500"],
+    "answer": 0,
+    "explanation": "For 2 years, CI − SI = P(r/100)² = P × (0.1)² = P/100. Setting P/100 = 50 gives P = ₹5000.",
+    "optionNotes": [
+      "Correct. CI − SI for 2 years = P(r/100)² = P/100 = 50 → P = ₹5000.",
+      "Halves the principal; the formula gives 5000.",
+      "Doubles the principal — uses difference = P/50 by mistake.",
+      "Confuses the sum with the ₹50 difference itself."
+    ]
+  },
+  {
+    "id": "seed-quant-ages-1",
+    "section": "quant",
+    "topic": "Ages",
+    "difficulty": "medium",
+    "tier": "premium",
+    "prompt": "The ratio of A's and B's ages is 4:5. After 6 years it becomes 5:6. What is A's present age?",
+    "options": ["24", "20", "30", "18"],
+    "answer": 0,
+    "explanation": "Let ages be 4x and 5x. (4x+6)/(5x+6) = 5/6 ⇒ 24x+36 = 25x+30 ⇒ x = 6, so A = 4x = 24.",
+    "optionNotes": [
+      "Correct. Solving (4x+6)/(5x+6) = 5/6 gives x = 6, so A = 24.",
+      "Uses x = 5; recheck the cross-multiplication.",
+      "That is B's present age (5x), not A's.",
+      "Uses x = 4.5, which does not satisfy the equation."
+    ]
+  },
+  {
+    "id": "seed-quant-trains-1",
+    "section": "quant",
+    "topic": "Speed, Time & Distance",
+    "difficulty": "medium",
+    "tier": "premium",
+    "prompt": "A train 150 m long passes a pole in 15 seconds. How long will it take to cross a 350 m platform at the same speed?",
+    "options": ["50 s", "35 s", "65 s", "45 s"],
+    "answer": 0,
+    "explanation": "Speed = 150/15 = 10 m/s. To cross the platform it covers 150 + 350 = 500 m, taking 500/10 = 50 s.",
+    "optionNotes": [
+      "Correct. Speed 10 m/s; distance = train + platform = 500 m → 50 s.",
+      "Uses only the platform length, ignoring the train's own length.",
+      "Adds the two times instead of the two distances.",
+      "Arithmetic slip; 500/10 = 50, not 45."
+    ]
+  },
+  {
+    "id": "seed-quant-permutation-1",
+    "section": "quant",
+    "topic": "Permutations",
+    "difficulty": "medium",
+    "tier": "free",
+    "prompt": "In how many distinct ways can the letters of the word 'LEVEL' be arranged?",
+    "options": ["30", "60", "120", "20"],
+    "answer": 0,
+    "explanation": "LEVEL has 5 letters with L and E each repeating twice: 5!/(2!·2!) = 120/4 = 30.",
+    "optionNotes": [
+      "Correct. 5!/(2!·2!) = 30, accounting for two L's and two E's.",
+      "Divides by only one 2! — forgets one repeated letter.",
+      "5! with no correction for the repeated letters.",
+      "Over-divides; only L and E repeat (each twice)."
+    ]
+  },
+  {
+    "id": "seed-quant-average-1",
+    "section": "quant",
+    "topic": "Averages",
+    "difficulty": "easy",
+    "tier": "free",
+    "prompt": "The average of 5 numbers is 27. If one number is removed, the average of the rest is 25. What is the removed number?",
+    "options": ["35", "30", "25", "40"],
+    "answer": 0,
+    "explanation": "Total of 5 = 135; total of remaining 4 = 100; removed = 135 − 100 = 35.",
+    "optionNotes": [
+      "Correct. 5×27 − 4×25 = 135 − 100 = 35.",
+      "Averages the two averages — not how totals work.",
+      "That is the new average, not the removed value.",
+      "Overestimates the difference in totals."
+    ]
+  },
+  {
+    "id": "seed-quant-mixture-1",
+    "section": "quant",
+    "topic": "Alligation & Mixtures",
+    "difficulty": "hard",
+    "tier": "premium",
+    "prompt": "In what ratio must free water be mixed with milk costing ₹60/litre so the mixture costs ₹50/litre?",
+    "options": ["1:5", "5:1", "1:6", "1:10"],
+    "answer": 0,
+    "explanation": "By alligation, water:milk = (60 − 50):(50 − 0) = 10:50 = 1:5.",
+    "optionNotes": [
+      "Correct. Alligation gives water:milk = 10:50 = 1:5.",
+      "Inverts the ratio (milk:water).",
+      "Uses 60 instead of 50 in the second difference.",
+      "Miscomputes the alligation differences."
+    ]
+  },
+  {
+    "id": "seed-reasoning-coding-1",
+    "section": "reasoning",
+    "topic": "Coding-Decoding",
+    "difficulty": "easy",
+    "tier": "free",
+    "prompt": "If 'CAT' is coded as 'DBU', how is 'DOG' coded?",
+    "options": ["EPH", "EPF", "DPH", "CPF"],
+    "answer": 0,
+    "explanation": "Each letter shifts +1 (C→D, A→B, T→U). So D→E, O→P, G→H, giving 'EPH'.",
+    "optionNotes": [
+      "Correct. +1 shift on each letter: D→E, O→P, G→H.",
+      "G should map to H, not F (that would be −1).",
+      "D should shift to E, not stay D.",
+      "Shifts letters in the wrong direction."
+    ]
+  },
+  {
+    "id": "seed-reasoning-series-1",
+    "section": "reasoning",
+    "topic": "Number Series",
+    "difficulty": "medium",
+    "tier": "premium",
+    "prompt": "Find the next term: 2, 6, 12, 20, 30, ?",
+    "options": ["42", "40", "36", "44"],
+    "answer": 0,
+    "explanation": "The terms are n(n+1): 1·2, 2·3, …, so the 6th is 6·7 = 42 (gaps grow 4, 6, 8, 10, 12).",
+    "optionNotes": [
+      "Correct. n(n+1) gives 6×7 = 42; the gap after 30 is 12.",
+      "Adds 10 again instead of the next even gap, 12.",
+      "Assumes a constant difference, which doesn't fit.",
+      "Overshoots the gap of 12."
+    ]
+  },
+  {
+    "id": "seed-reasoning-direction-1",
+    "section": "reasoning",
+    "topic": "Direction Sense",
+    "difficulty": "easy",
+    "tier": "free",
+    "prompt": "A man walks 5 km north, turns right and walks 3 km, then turns right and walks 5 km. How far is he from the start?",
+    "options": ["3 km", "5 km", "8 km", "13 km"],
+    "answer": 0,
+    "explanation": "North 5 and south 5 cancel; only the 3 km east leg remains, so displacement is 3 km.",
+    "optionNotes": [
+      "Correct. The north and south legs cancel; 3 km east is left.",
+      "Ignores that the 5 km north and 5 km south cancel.",
+      "Adds perpendicular legs without cancelling opposites.",
+      "Sums total distance walked, not displacement."
+    ]
+  },
+  {
+    "id": "seed-reasoning-clock-1",
+    "section": "reasoning",
+    "topic": "Clocks",
+    "difficulty": "medium",
+    "tier": "premium",
+    "prompt": "What is the angle between the hands of a clock at exactly 3:00?",
+    "options": ["90°", "75°", "60°", "105°"],
+    "answer": 0,
+    "explanation": "At 3:00 the minute hand is at 12 and the hour hand at 3 — three hour-marks apart × 30° = 90°.",
+    "optionNotes": [
+      "Correct. 3 hour-marks × 30° = 90°.",
+      "That is near 3:30, after the hour hand has moved.",
+      "Uses a 2-hour gap; 3:00 is a 3-hour gap.",
+      "Overcounts by an extra half-hour of movement."
+    ]
+  },
+  {
+    "id": "seed-reasoning-analogy-1",
+    "section": "reasoning",
+    "topic": "Analogies",
+    "difficulty": "easy",
+    "tier": "free",
+    "prompt": "Doctor : Hospital :: Teacher : ?",
+    "options": ["School", "Student", "Books", "Education"],
+    "answer": 0,
+    "explanation": "The relationship is worker-to-workplace: a doctor works in a hospital, a teacher in a school.",
+    "optionNotes": [
+      "Correct. It mirrors the worker-to-workplace relationship.",
+      "A student is whom a teacher serves, not the workplace.",
+      "Books are a tool, not the place of work.",
+      "Education is the field, not the physical workplace."
+    ]
+  },
+  {
+    "id": "seed-verbal-synonym-1",
+    "section": "verbal",
+    "topic": "Synonyms",
+    "difficulty": "easy",
+    "tier": "free",
+    "prompt": "Choose the word closest in meaning to 'METICULOUS'.",
+    "options": ["Careful and precise", "Careless", "Generous", "Hasty"],
+    "answer": 0,
+    "explanation": "'Meticulous' means showing great attention to detail.",
+    "optionNotes": [
+      "Correct — careful and precise, attentive to detail.",
+      "The opposite of meticulous.",
+      "Unrelated; 'generous' is about giving.",
+      "Opposite in spirit — meticulous work is unhurried."
+    ]
+  },
+  {
+    "id": "seed-verbal-antonym-1",
+    "section": "verbal",
+    "topic": "Antonyms",
+    "difficulty": "easy",
+    "tier": "free",
+    "prompt": "Choose the antonym of 'ABUNDANT'.",
+    "options": ["Scarce", "Plentiful", "Ample", "Numerous"],
+    "answer": 0,
+    "explanation": "'Abundant' means plentiful, so the opposite is scarce.",
+    "optionNotes": [
+      "Correct. Scarce is the opposite of abundant.",
+      "A synonym of abundant, not an antonym.",
+      "A synonym of abundant.",
+      "Close in meaning to abundant, not opposite."
+    ]
+  },
+  {
+    "id": "seed-verbal-completion-1",
+    "section": "verbal",
+    "topic": "Sentence Completion",
+    "difficulty": "medium",
+    "tier": "premium",
+    "prompt": "Despite his ___ efforts, the project missed its deadline. Choose the best word.",
+    "options": ["strenuous", "lethargic", "indifferent", "reluctant"],
+    "answer": 0,
+    "explanation": "'Despite' signals contrast: he tried hard (strenuous) yet the project still failed.",
+    "optionNotes": [
+      "Correct. 'Despite … missed' needs strong effort to contrast with failure.",
+      "Lazy effort gives no contrast with the failure.",
+      "Indifference doesn't fit a 'despite … missed' contrast.",
+      "Reluctant effort provides no real contrast either."
+    ]
+  },
+  {
+    "id": "seed-verbal-inference-1",
+    "section": "verbal",
+    "topic": "Reading Inference",
+    "difficulty": "medium",
+    "tier": "premium",
+    "prompt": "'The new policy reduced average wait times but increased customer complaints.' Which is best inferred?",
+    "options": [
+      "Faster service did not guarantee higher satisfaction",
+      "Customers prefer slower service",
+      "The policy failed completely",
+      "Wait times are unrelated to complaints"
+    ],
+    "answer": 0,
+    "explanation": "Wait times fell yet complaints rose, so reducing wait time alone did not ensure satisfaction.",
+    "optionNotes": [
+      "Correct. Speed improved but satisfaction did not follow.",
+      "Unsupported and illogical.",
+      "Too strong — it did reduce wait times.",
+      "The sentence links them rather than calling them unrelated."
+    ]
+  },
+  {
+    "id": "seed-cscore-oop-1",
+    "section": "cs-core",
+    "topic": "OOP",
+    "difficulty": "medium",
+    "tier": "free",
+    "prompt": "Which OOP feature lets a subclass give its own implementation of a method already defined in its parent?",
+    "options": ["Method overriding", "Encapsulation", "Abstraction", "Method overloading"],
+    "answer": 0,
+    "explanation": "Redefining an inherited method in a subclass is overriding — the basis of runtime polymorphism.",
+    "optionNotes": [
+      "Correct. Overriding redefines a parent method in the subclass.",
+      "Encapsulation bundles data with methods; it doesn't redefine behavior.",
+      "Abstraction hides implementation detail, not overrides it.",
+      "Overloading is same name, different parameters in one class — compile-time."
+    ]
+  },
+  {
+    "id": "seed-cscore-keys-1",
+    "section": "cs-core",
+    "topic": "DBMS Keys",
+    "difficulty": "medium",
+    "tier": "premium",
+    "prompt": "A candidate key that is not chosen as the primary key is called a:",
+    "options": ["Alternate key", "Foreign key", "Super key", "Composite key"],
+    "answer": 0,
+    "explanation": "Candidate keys not selected as the primary key are alternate keys.",
+    "optionNotes": [
+      "Correct. Unchosen candidate keys are alternate keys.",
+      "A foreign key references another table's key.",
+      "A super key is any uniquely-identifying attribute set; a candidate key is a minimal one.",
+      "A composite key spans multiple attributes — a separate idea."
+    ]
+  },
+  {
+    "id": "seed-cscore-deadlock-1",
+    "section": "cs-core",
+    "topic": "Operating Systems",
+    "difficulty": "hard",
+    "tier": "premium",
+    "prompt": "Which of these is NOT one of the four necessary conditions for deadlock?",
+    "options": ["Priority inversion", "Mutual exclusion", "Hold and wait", "Circular wait"],
+    "answer": 0,
+    "explanation": "The four Coffman conditions are mutual exclusion, hold and wait, no preemption and circular wait. Priority inversion is a scheduling problem, not a deadlock condition.",
+    "optionNotes": [
+      "Correct. Priority inversion is unrelated to the four deadlock conditions.",
+      "Mutual exclusion is one of the four conditions.",
+      "Hold and wait is one of the four conditions.",
+      "Circular wait is one of the four conditions."
+    ]
+  },
+  {
+    "id": "seed-cscore-subnet-1",
+    "section": "cs-core",
+    "topic": "Computer Networks",
+    "difficulty": "medium",
+    "tier": "free",
+    "prompt": "How many usable host addresses are in an IPv4 /24 subnet?",
+    "options": ["254", "256", "255", "128"],
+    "answer": 0,
+    "explanation": "A /24 leaves 8 host bits: 2⁸ − 2 (network and broadcast) = 254 usable hosts.",
+    "optionNotes": [
+      "Correct. 2⁸ − 2 = 254 usable addresses.",
+      "256 is the total before removing network and broadcast.",
+      "255 removes only one reserved address.",
+      "128 corresponds to a /25, not a /24."
+    ]
+  },
+  {
+    "id": "seed-cscore-hashing-1",
+    "section": "cs-core",
+    "topic": "Data Structures",
+    "difficulty": "medium",
+    "tier": "premium",
+    "prompt": "With a good hash function and low load factor, what is the average-case time to search a hash table?",
+    "options": ["O(1)", "O(log n)", "O(n)", "O(n log n)"],
+    "answer": 0,
+    "explanation": "Few collisions mean lookups touch a constant number of slots on average — amortised O(1).",
+    "optionNotes": [
+      "Correct. Average-case hash lookup is O(1).",
+      "O(log n) is balanced-tree search, not hashing.",
+      "O(n) is the worst case when all keys collide.",
+      "O(n log n) is a sorting bound, not a lookup."
+    ]
+  },
+  {
+    "id": "seed-coding-stability-1",
+    "section": "coding",
+    "topic": "Sorting",
+    "difficulty": "medium",
+    "tier": "premium",
+    "prompt": "Which sorting algorithm is NOT stable in its standard form?",
+    "options": ["Quick sort", "Merge sort", "Insertion sort", "Bubble sort"],
+    "answer": 0,
+    "explanation": "Standard quicksort can reorder equal keys during partitioning, so it is not stable; merge, insertion and bubble sort preserve order of equal keys.",
+    "optionNotes": [
+      "Correct. Partitioning can swap equal elements, breaking stability.",
+      "Merge sort keeps equal elements in order during the merge.",
+      "Insertion sort never swaps equal elements — stable.",
+      "Bubble sort swaps only strictly out-of-order pairs — stable."
+    ]
+  },
+  {
+    "id": "seed-coding-recursion-1",
+    "section": "coding",
+    "topic": "Recursion",
+    "difficulty": "easy",
+    "tier": "free",
+    "prompt": "What does f(5) return?  int f(int n){ return n <= 1 ? 1 : n * f(n - 1); }",
+    "options": ["120", "25", "15", "5"],
+    "answer": 0,
+    "explanation": "The function computes factorial: 5 × 4 × 3 × 2 × 1 = 120.",
+    "optionNotes": [
+      "Correct. It is factorial(5) = 120.",
+      "25 is 5², not the product chain.",
+      "15 is the sum 1+2+3+4+5, not the product.",
+      "5 is only the first call before recursion multiplies down."
+    ]
+  },
+  {
+    "id": "seed-coding-bits-1",
+    "section": "coding",
+    "topic": "Bit Manipulation",
+    "difficulty": "medium",
+    "tier": "premium",
+    "prompt": "For a positive integer x, what does (x & (x - 1)) == 0 test?",
+    "options": ["x is a power of two", "x is even", "x is prime", "x is negative"],
+    "answer": 0,
+    "explanation": "A power of two has exactly one set bit; subtracting 1 flips that bit and the lower zeros, so the AND is 0.",
+    "optionNotes": [
+      "Correct. Only powers of two satisfy x & (x−1) == 0.",
+      "6 is even but 6 & 5 = 4 ≠ 0, so it isn't testing evenness.",
+      "Unrelated to bit patterns of primes.",
+      "The test assumes x is positive."
+    ]
+  },
+  {
+    "id": "seed-comm-tellme-1",
+    "section": "comm-interview",
+    "topic": "HR Interview",
+    "difficulty": "easy",
+    "tier": "free",
+    "prompt": "The strongest structure for answering 'Tell me about yourself' in a placement interview is:",
+    "options": [
+      "Present role/skills → relevant past → why you fit this role",
+      "Your entire life story in chronological order",
+      "Only your hobbies and family background",
+      "Your salary expectations and demands"
+    ],
+    "answer": 0,
+    "explanation": "A crisp present → past → future-fit arc keeps the answer relevant and professional.",
+    "optionNotes": [
+      "Correct. Present → past → fit is concise and on-point.",
+      "A full life story is too long and unfocused.",
+      "Hobbies/family miss your professional fit, which is assessed.",
+      "Salary is irrelevant and premature for this question."
+    ]
+  },
+  {
+    "id": "seed-comm-star-1",
+    "section": "comm-interview",
+    "topic": "Behavioral Interview",
+    "difficulty": "medium",
+    "tier": "premium",
+    "prompt": "In a behavioral interview, the STAR method structures an answer as:",
+    "options": [
+      "Situation, Task, Action, Result",
+      "Skills, Talent, Attitude, Reputation",
+      "Story, Theme, Argument, Resolution",
+      "Summary, Topic, Analysis, Review"
+    ],
+    "answer": 0,
+    "explanation": "STAR = Situation, Task, Action, Result — a clear arc for competency questions.",
+    "optionNotes": [
+      "Correct. STAR is Situation, Task, Action, Result.",
+      "A plausible-sounding distractor, but not the STAR acronym.",
+      "Not the STAR acronym.",
+      "Not the STAR acronym."
+    ]
+  },
+  {
+    "id": "seed-tcs-series-1",
+    "section": "quant",
+    "companyId": "tcs",
+    "topic": "Number Series",
+    "difficulty": "medium",
+    "tier": "premium",
+    "prompt": "TCS NQT pattern — find the missing term: 3, 7, 15, 31, ?, 127",
+    "options": ["63", "62", "64", "47"],
+    "answer": 0,
+    "explanation": "Each term is 2× the previous plus 1: 31 × 2 + 1 = 63 (and 63 × 2 + 1 = 127).",
+    "optionNotes": [
+      "Correct. The rule is 2n + 1: 31×2+1 = 63.",
+      "Uses 2× only, forgetting the +1.",
+      "2×31 + 2 — wrong constant.",
+      "Adds 16, but the gaps double, not stay constant."
+    ]
+  },
+  {
+    "id": "seed-tcs-coding-output-1",
+    "section": "coding",
+    "companyId": "tcs",
+    "topic": "Programming Logic",
+    "difficulty": "medium",
+    "tier": "premium",
+    "prompt": "TCS NQT — what prints?  for(i = 0; i < 3; i++);  printf(\"%d\", i);",
+    "options": ["3", "0", "2", "Compile error"],
+    "answer": 0,
+    "explanation": "The semicolon right after the for() makes the loop body empty. The loop still runs until i becomes 3, then printf executes once and prints 3.",
+    "optionNotes": [
+      "Correct. The empty-body loop increments i to 3, then printf prints 3.",
+      "Ignores that the loop still increments i to its exit value.",
+      "Off-by-one; the loop exits when i reaches 3.",
+      "It compiles — a stray semicolon after for() is legal C."
+    ]
+  },
+  {
+    "id": "seed-infosys-syllogism-1",
+    "section": "reasoning",
+    "companyId": "infosys",
+    "topic": "Logical Deduction",
+    "difficulty": "medium",
+    "tier": "premium",
+    "prompt": "Infosys InfyTQ — All Bloops are Razzies and all Razzies are Lazzies. Is 'All Bloops are Lazzies' valid?",
+    "options": ["Valid", "Invalid", "Cannot be determined", "Only some Bloops are Lazzies"],
+    "answer": 0,
+    "explanation": "By transitivity: Bloops ⊆ Razzies ⊆ Lazzies, so every Bloop is a Lazzie.",
+    "optionNotes": [
+      "Correct. The two universal statements chain transitively.",
+      "It is a textbook valid syllogism.",
+      "Both premises are universal, so the conclusion is determinate.",
+      "ALL Bloops are Lazzies, not merely some."
+    ]
+  },
+  {
+    "id": "seed-infosys-pseudocode-1",
+    "section": "coding",
+    "companyId": "infosys",
+    "topic": "Pseudocode",
+    "difficulty": "medium",
+    "tier": "premium",
+    "prompt": "Infosys — a routine loops 'a, b = b, a % b' until b becomes 0, then returns a. What does it compute?",
+    "options": ["GCD of a and b", "LCM of a and b", "a raised to the power b", "Sum of a and b"],
+    "answer": 0,
+    "explanation": "Repeatedly replacing (a, b) with (b, a mod b) until b = 0 is Euclid's algorithm for the greatest common divisor.",
+    "optionNotes": [
+      "Correct. This is Euclid's GCD algorithm.",
+      "LCM = a×b/GCD; this loop alone gives the GCD.",
+      "There is no multiplication chain for a power.",
+      "It uses the modulo operation, not addition."
+    ]
+  },
+  {
+    "id": "seed-zoho-secondlargest-1",
+    "section": "coding",
+    "companyId": "zoho",
+    "topic": "Arrays",
+    "difficulty": "medium",
+    "tier": "premium",
+    "prompt": "Zoho — to find the second largest element of an unsorted array of distinct integers in a single pass, you should track:",
+    "options": [
+      "The largest and second-largest seen so far",
+      "Only the largest seen so far",
+      "A sorted copy of the array",
+      "The median of the array"
+    ],
+    "answer": 0,
+    "explanation": "Maintain two running values — current max and current second max — updating both as you scan. One pass, O(n).",
+    "optionNotes": [
+      "Correct. Tracking max and runner-up gives the answer in one O(n) pass.",
+      "Only the largest loses the runner-up you actually need.",
+      "Sorting is O(n log n) and not a single pass.",
+      "The median is unrelated to the second largest."
+    ]
+  },
+  {
+    "id": "seed-zoho-stack-1",
+    "section": "coding",
+    "companyId": "zoho",
+    "topic": "Data Structures",
+    "difficulty": "easy",
+    "tier": "premium",
+    "prompt": "Zoho — which data structure best checks whether parentheses in an expression are balanced?",
+    "options": ["Stack", "Queue", "Heap", "Linked list"],
+    "answer": 0,
+    "explanation": "Push each opening bracket and pop on a closing bracket; LIFO order matches the nesting of parentheses.",
+    "optionNotes": [
+      "Correct. A stack's LIFO order matches bracket nesting.",
+      "A queue is FIFO and can't match the most recent opening bracket.",
+      "A heap orders by priority, which is irrelevant here.",
+      "A linked list only works if you use it as a stack."
+    ]
+  },
+  {
+    "id": "seed-accenture-percent-1",
+    "section": "quant",
+    "companyId": "accenture",
+    "topic": "Percentages",
+    "difficulty": "easy",
+    "tier": "premium",
+    "prompt": "Accenture — a number is increased by 20% and then decreased by 20%. The net change is:",
+    "options": ["4% decrease", "No change", "4% increase", "2% decrease"],
+    "answer": 0,
+    "explanation": "1.20 × 0.80 = 0.96, i.e. a 4% net decrease (the two percentages act on different bases, so they don't cancel).",
+    "optionNotes": [
+      "Correct. 1.2 × 0.8 = 0.96 → 4% decrease.",
+      "They don't cancel — the second % is taken on a larger base.",
+      "The net effect is a decrease, not an increase.",
+      "Miscomputes the compounded change; it is 4%, not 2%."
+    ]
+  },
+  {
+    "id": "seed-accenture-cloud-1",
+    "section": "cs-core",
+    "companyId": "accenture",
+    "topic": "Cloud Computing",
+    "difficulty": "easy",
+    "tier": "premium",
+    "prompt": "Accenture — which cloud service model delivers ready-to-use applications over the internet?",
+    "options": ["SaaS (Software as a Service)", "IaaS", "PaaS", "DaaS"],
+    "answer": 0,
+    "explanation": "SaaS delivers complete, ready-to-use applications (e.g. Gmail, Salesforce) to end users over the internet.",
+    "optionNotes": [
+      "Correct. SaaS provides finished applications to end users.",
+      "IaaS provides raw compute/storage, not finished apps.",
+      "PaaS provides a platform to build apps, not ready apps.",
+      "DaaS delivers virtual desktops, not applications."
+    ]
+  },
+  {
+    "id": "seed-wipro-ratio-1",
+    "section": "quant",
+    "companyId": "wipro",
+    "topic": "Ratio & Proportion",
+    "difficulty": "medium",
+    "tier": "premium",
+    "prompt": "Wipro — if A:B = 2:3 and B:C = 4:5, then A:B:C is:",
+    "options": ["8:12:15", "2:3:5", "2:12:5", "8:12:20"],
+    "answer": 0,
+    "explanation": "Make B common: A:B = 2:3 = 8:12 and B:C = 4:5 = 12:15, so A:B:C = 8:12:15.",
+    "optionNotes": [
+      "Correct. Scaling B to 12 gives 8:12:15.",
+      "Concatenates the ratios without making B consistent.",
+      "Mixes the two scales incorrectly.",
+      "Scales C wrong — it should be 15, not 20."
+    ]
+  },
+  {
+    "id": "seed-cognizant-oddcube-1",
+    "section": "reasoning",
+    "companyId": "cognizant",
+    "topic": "Odd One Out",
+    "difficulty": "easy",
+    "tier": "premium",
+    "prompt": "Cognizant — find the odd one out: 8, 27, 64, 100, 125",
+    "options": ["100", "27", "64", "125"],
+    "answer": 0,
+    "explanation": "8, 27, 64 and 125 are perfect cubes (2³, 3³, 4³, 5³); 100 is a perfect square, not a cube.",
+    "optionNotes": [
+      "Correct. 100 is the only non-cube in the list.",
+      "27 = 3³, a perfect cube.",
+      "64 = 4³, a perfect cube.",
+      "125 = 5³, a perfect cube."
+    ]
+  }
+]

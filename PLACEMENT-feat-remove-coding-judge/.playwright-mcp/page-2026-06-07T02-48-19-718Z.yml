@@ -1,0 +1,192 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "PlaceReady" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - img [ref=e7]
+          - generic [ref=e10]: PlaceReady
+        - navigation [ref=e11]:
+          - link "Blog" [ref=e12] [cursor=pointer]:
+            - /url: /blog
+          - link "FAQ" [ref=e13] [cursor=pointer]:
+            - /url: /faq
+          - link "Privacy Policy" [ref=e14] [cursor=pointer]:
+            - /url: /privacy
+          - link "Terms & Conditions" [ref=e15] [cursor=pointer]:
+            - /url: /terms
+        - generic [ref=e16]:
+          - link "Sign in" [ref=e17] [cursor=pointer]:
+            - /url: /auth/login
+          - link "Start free" [ref=e18] [cursor=pointer]:
+            - /url: /auth/signup
+    - generic [ref=e20]:
+      - generic [ref=e21]:
+        - generic [ref=e22]:
+          - img [ref=e23]
+          - text: Multi-company placement prep
+        - heading "Get placed in the company you actually want." [level=1] [ref=e26]
+        - paragraph [ref=e27]: Prepare for up to 6 recruiters at once, see an honest readiness score, and know exactly what to do next.
+        - generic [ref=e28]:
+          - link "Start free" [ref=e29] [cursor=pointer]:
+            - /url: /auth/signup
+            - text: Start free
+            - img
+          - link "See how it works" [ref=e30] [cursor=pointer]:
+            - /url: "#how"
+      - generic [ref=e32]:
+        - generic [ref=e33]:
+          - generic [ref=e34]:
+            - img [ref=e35]
+            - generic [ref=e38]:
+              - generic [ref=e39]: "72"
+              - generic [ref=e40]: Overall
+          - generic [ref=e41]:
+            - paragraph [ref=e42]: Your readiness
+            - paragraph [ref=e43]: One honest score across every track you target.
+        - generic [ref=e44]:
+          - generic [ref=e45]:
+            - generic [ref=e46]: TC
+            - generic [ref=e48]:
+              - generic [ref=e49]: TCS
+              - generic [ref=e50]: PRI 85 · ~78%
+          - generic [ref=e53]:
+            - generic [ref=e54]: IN
+            - generic [ref=e56]:
+              - generic [ref=e57]: Infosys
+              - generic [ref=e58]: PRI 70 · ~58%
+          - generic [ref=e61]:
+            - generic [ref=e62]: WI
+            - generic [ref=e64]:
+              - generic [ref=e65]: Wipro
+              - generic [ref=e66]: PRI 64 · ~51%
+          - generic [ref=e69]:
+            - generic [ref=e70]: ZO
+            - generic [ref=e72]:
+              - generic [ref=e73]: Zoho
+              - generic [ref=e74]: PRI 38 · ~19%
+        - paragraph [ref=e77]: Placement probability is an estimate from your in-app performance, not a guarantee.
+    - generic [ref=e79]:
+      - paragraph [ref=e80]: Prepare for the recruiters you are targeting
+      - generic [ref=e81]:
+        - generic [ref=e82]:
+          - generic [ref=e83]: TC
+          - generic [ref=e84]: IN
+          - generic [ref=e85]: WI
+          - generic [ref=e86]: AC
+          - generic [ref=e87]: ZO
+          - generic [ref=e88]: CO
+        - generic [ref=e89]: 6 company tracks and a General track
+    - generic [ref=e90]:
+      - generic [ref=e91]:
+        - heading "How PlaceReady works" [level=2] [ref=e92]
+        - paragraph [ref=e93]: A simple loop that turns scattered preparation into placement offers.
+      - generic [ref=e94]:
+        - generic [ref=e96]:
+          - generic [ref=e97]:
+            - img [ref=e99]
+            - generic [ref=e103]: "01"
+          - heading "Pick your targets" [level=3] [ref=e104]
+          - paragraph [ref=e105]: Choose the companies you want and track readiness for each in parallel.
+        - generic [ref=e106]:
+          - generic [ref=e107]:
+            - img [ref=e109]
+            - generic [ref=e111]: "02"
+          - heading "Learn and pass at 70%" [level=3] [ref=e112]
+          - paragraph [ref=e113]: Work through bite-size chapters. Score 70% to unlock the next one.
+        - generic [ref=e114]:
+          - generic [ref=e115]:
+            - img [ref=e117]
+            - generic [ref=e120]: "03"
+          - heading "Track real readiness" [level=3] [ref=e121]
+          - paragraph [ref=e122]: Watch your Placement Readiness Index climb as your skills get job-ready.
+    - generic [ref=e124]:
+      - article [ref=e125]:
+        - img [ref=e128]
+        - generic [ref=e132]:
+          - img [ref=e133]
+          - generic [ref=e136]:
+            - generic [ref=e137]: "78"
+            - generic [ref=e138]: PRI
+        - generic [ref=e139]:
+          - heading "An honest readiness score" [level=3] [ref=e140]
+          - paragraph [ref=e141]: Your PRI combines aptitude, coding, CS core, communication and mocks. Skipping content never inflates it.
+      - article [ref=e142]:
+        - img [ref=e144]
+        - generic [ref=e148]:
+          - heading "Company-pattern mocks" [level=3] [ref=e149]
+          - paragraph [ref=e150]: Timed mocks that mirror each recruiter's real test pattern.
+      - article [ref=e151]:
+        - img [ref=e153]
+        - generic [ref=e155]:
+          - heading "PYQs and eligibility" [level=3] [ref=e156]
+          - paragraph [ref=e157]: Previous-year patterns and verified eligibility for every track.
+      - article [ref=e158]:
+        - img [ref=e160]
+        - generic [ref=e162]:
+          - heading "Daily challenges and streaks" [level=3] [ref=e171]
+          - paragraph [ref=e172]: Build a daily habit. Earn XP and keep your streak alive.
+      - article [ref=e173]:
+        - img [ref=e175]
+        - generic [ref=e177]:
+          - generic [ref=e178]:
+            - generic [ref=e180]: Percentages
+            - generic [ref=e184]: Recursion
+          - heading "Weakest and strongest topics" [level=3] [ref=e187]
+          - paragraph [ref=e188]: See exactly where to focus next.
+    - generic [ref=e190]:
+      - generic [ref=e191]:
+        - heading "A score you can't fake." [level=2] [ref=e192]
+        - paragraph [ref=e193]: Most apps reward activity. PlaceReady rewards mastery. Only chapters you genuinely pass at 70% or higher count toward your readiness, so the number you see is the truth.
+        - list [ref=e194]:
+          - listitem [ref=e195]:
+            - img [ref=e196]
+            - text: Chapters unlock in order, one pass at a time.
+          - listitem [ref=e198]:
+            - img [ref=e199]
+            - text: Weak areas are surfaced, not hidden.
+          - listitem [ref=e201]:
+            - img [ref=e202]
+            - text: Per-company scoring reflects each recruiter's bar.
+      - generic [ref=e204]:
+        - paragraph [ref=e205]: Quantitative Aptitude
+        - generic [ref=e206]:
+          - generic [ref=e207]:
+            - img [ref=e209]
+            - generic [ref=e211]: Percentages & Ratios
+            - generic [ref=e212]: 86%
+          - generic [ref=e213]:
+            - img [ref=e215]
+            - generic [ref=e217]: Profit, Loss & Interest
+            - generic [ref=e218]: 92%
+          - generic [ref=e219]:
+            - generic [ref=e220]: "3"
+            - generic [ref=e221]: Number System & HCF-LCM
+            - generic [ref=e222]:
+              - img [ref=e223]
+              - text: Pass to unlock
+    - generic [ref=e227]:
+      - heading "Start preparing for the company you actually want." [level=2] [ref=e228]
+      - paragraph [ref=e229]: Free to start. Premium unlocks every track at ₹399 per year.
+      - link "Start free" [ref=e231] [cursor=pointer]:
+        - /url: /auth/signup
+        - text: Start free
+        - img
+    - contentinfo [ref=e232]:
+      - generic [ref=e233]:
+        - generic [ref=e234]:
+          - img [ref=e236]
+          - generic [ref=e239]: © 2026 PlaceReady. All rights reserved.
+        - navigation [ref=e240]:
+          - link "Blog" [ref=e241] [cursor=pointer]:
+            - /url: /blog
+          - link "FAQ" [ref=e242] [cursor=pointer]:
+            - /url: /faq
+          - link "Privacy Policy" [ref=e243] [cursor=pointer]:
+            - /url: /privacy
+          - link "Terms & Conditions" [ref=e244] [cursor=pointer]:
+            - /url: /terms
+          - link "Sign in" [ref=e245] [cursor=pointer]:
+            - /url: /auth/login
+  - region "Notifications alt+T"
+  - alert [ref=e246]
