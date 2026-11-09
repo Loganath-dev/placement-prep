@@ -70,7 +70,11 @@ describe("Razorpay annual checkout",()=>{
 describe("Razorpay payment verification",()=>{
  const orderId="order_1",paymentId="pay_1"
  async function signature(){return hmacSha256Hex("secret",`${orderId}|${paymentId}`)}
- function mockOrder(order:Record<string,unknown>){vi.stubGlobal("fetch",vi.fn(async()=>({ok:true,json:async()=>order})))}
+ function mockOrder(order:Record<string,unknown>,payment:Record<string,unknown>={id:paymentId,status:"captured",order_id:orderId,amount:AMOUNT,currency:"INR"}){
+  vi.stubGlobal("fetch",vi.fn(async(url:string)=>({
+   ok:true,json:async()=>url.includes("/payments/")?payment:order
+  })))
+ }
  it("requires authentication",async()=>{mockAuth(null);expect((await verifyPOST(req({}))).status).toBe(401)})
  it("rejects invalid signatures",async()=>{
   mockAuth(USER)
@@ -84,13 +88,16 @@ describe("Razorpay payment verification",()=>{
   expect(grantPaymentEntitlement).toHaveBeenCalledWith(expect.anything(),paymentId)
   expect(recordAnnualAffiliateCommission).toHaveBeenCalledWith(expect.anything(),{userId:USER.id,paymentId,paymentAmount:24900})
  })
- it("rejects order ownership and amount mismatch",async()=>{
+ it("rejects order ownership, order amount mismatch and uncaptured payments",async()=>{
   mockAuth(USER);mockOrder(annualOrder({notes:{user_id:"other",plan_key:PREMIUM_PLAN_KEY}}))
   const wrongOwner=await verifyPOST(req({razorpay_order_id:orderId,razorpay_payment_id:paymentId,razorpay_signature:await signature()}))
   expect(wrongOwner.status).toBe(403)
   mockOrder(annualOrder({amount:49900}))
   const wrongAmount=await verifyPOST(req({razorpay_order_id:orderId,razorpay_payment_id:paymentId,razorpay_signature:await signature()}))
   expect(wrongAmount.status).toBe(400)
+  mockOrder(annualOrder(),{id:paymentId,status:"authorized",order_id:orderId,amount:AMOUNT,currency:"INR"})
+  const notCaptured=await verifyPOST(req({razorpay_order_id:orderId,razorpay_payment_id:paymentId,razorpay_signature:await signature()}))
+  expect(notCaptured.status).toBe(409)
  })
  it("accepts already-created legacy yearly orders without commission",async()=>{
   mockAuth(USER);mockOrder({notes:{user_id:USER.id},amount:49900,currency:"INR"})
