@@ -237,7 +237,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       const supabase = createClient()
       let user: User | null = null
       try {
-        const authResult = await withTimeout(
+        const authResult = await withTimeout<Awaited<ReturnType<typeof supabase.auth.getUser>>>(
           supabase.auth.getUser(),
           10_000,
           "Supabase authentication check timed out",
@@ -249,7 +249,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
         // temporarily unavailable, use the browser's locally-held session to
         // bootstrap the UI; server routes still verify the auth cookie.
         console.warn("[store] getUser failed; falling back to local session", authError)
-        const sessionResult = await withTimeout(
+        const sessionResult = await withTimeout<Awaited<ReturnType<typeof supabase.auth.getSession>>>(
           supabase.auth.getSession(),
           3_000,
           "Supabase local session lookup timed out",
