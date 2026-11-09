@@ -105,6 +105,13 @@ describe("Razorpay payment verification",()=>{
   expect(response.status).toBe(200)
   expect(recordAnnualAffiliateCommission).not.toHaveBeenCalled()
  })
+ it("returns a retryable response when affiliate credit cannot be recorded",async()=>{
+  mockAuth(USER);mockOrder(annualOrder())
+  vi.mocked(recordAnnualAffiliateCommission).mockRejectedValueOnce(new Error("temporary database failure"))
+  const response=await verifyPOST(req({razorpay_order_id:orderId,razorpay_payment_id:paymentId,razorpay_signature:await signature()}))
+  expect(response.status).toBe(500)
+  expect(grantPaymentEntitlement).toHaveBeenCalledWith(expect.anything(),paymentId)
+ })
 })
 
 describe("Razorpay webhook reconciliation",()=>{
@@ -130,5 +137,13 @@ describe("Razorpay webhook reconciliation",()=>{
   const response=await webhookPOST(signed(payload,await sign(payload)))
   expect(response.status).toBe(409)
   expect(grantPaymentEntitlement).not.toHaveBeenCalled()
+ })
+ it("returns a retryable webhook response when affiliate credit fails",async()=>{
+  vi.stubGlobal("fetch",vi.fn(async()=>({ok:true,json:async()=>annualOrder()})))
+  vi.mocked(recordAnnualAffiliateCommission).mockRejectedValueOnce(new Error("temporary database failure"))
+  const payload={event:"payment.captured",payload:{payment:{entity:{id:"pay_4",status:"captured",order_id:"order_4",amount:24900,currency:"INR"}}}}
+  const response=await webhookPOST(signed(payload,await sign(payload)))
+  expect(response.status).toBe(500)
+  expect(grantPaymentEntitlement).toHaveBeenCalledWith(expect.anything(),"pay_4")
  })
 })
