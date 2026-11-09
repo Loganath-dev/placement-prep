@@ -283,10 +283,17 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       }
 
       try {
-        const [remote, statusResponse] = await Promise.all([
-          loadUserState(user.id),
-          fetch("/api/premium/status", { cache: "no-store" }).catch(() => null),
-        ])
+        // Bound the database hydration too: the six Supabase reads in
+        // loadUserState can stall independently of auth.getUser(). Without a
+        // deadline AppShell remains on "Loading StudyBench..." forever.
+        const [remote, statusResponse] = await withTimeout(
+          Promise.all([
+            loadUserState(user.id),
+            fetch("/api/premium/status", { cache: "no-store" }).catch(() => null),
+          ]),
+          12_000,
+          "StudyBench account data loading timed out",
+        )
         if (cancelled) return
 
         if (remote) {
