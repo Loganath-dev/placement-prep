@@ -100,7 +100,7 @@ describe("Razorpay payment verification",()=>{
   expect(notCaptured.status).toBe(409)
  })
  it("accepts already-created legacy yearly orders without commission",async()=>{
-  mockAuth(USER);mockOrder({notes:{user_id:USER.id},amount:49900,currency:"INR"})
+  mockAuth(USER);mockOrder({notes:{user_id:USER.id},amount:49900,currency:"INR"},{id:paymentId,status:"captured",order_id:orderId,amount:49900,currency:"INR"})
   const response=await verifyPOST(req({razorpay_order_id:orderId,razorpay_payment_id:paymentId,razorpay_signature:await signature()}))
   expect(response.status).toBe(200)
   expect(recordAnnualAffiliateCommission).not.toHaveBeenCalled()
