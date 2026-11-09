@@ -11,7 +11,7 @@ describe("isPremiumActive", () => {
     expect(isPremiumActive(undefined, undefined, NOW)).toBe(false)
   })
 
-  it("is true when flagged with no expiry (lifetime/promo grant)", () => {
+  it("is true when flagged with no expiry (grandfathered non-expiring grant)", () => {
     expect(isPremiumActive(true, null, NOW)).toBe(true)
     expect(isPremiumActive(true, undefined, NOW)).toBe(true)
   })

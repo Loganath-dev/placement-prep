@@ -13,6 +13,9 @@ import {
   FREE_SECTION_INDEX,
   lockedCount,
   PLAN_FEATURES,
+  PREMIUM_AMOUNT_PAISE,
+  PREMIUM_DURATION_DAYS,
+  PREMIUM_PLAN_KEY,
   premiumPriceLabel,
   visibleCodingTestsForPlan,
   visibleForPlan,
@@ -97,6 +100,9 @@ describe("plan access", () => {
   })
 
   it("keeps premium pricing centralized", () => {
-    expect(premiumPriceLabel()).toBe("₹249/lifetime")
+    expect(premiumPriceLabel()).toBe("₹249/year")
+    expect(PREMIUM_AMOUNT_PAISE).toBe(24_900)
+    expect(PREMIUM_DURATION_DAYS).toBe(365)
+    expect(PREMIUM_PLAN_KEY).toBe("premium_annual_249")
   })
 })

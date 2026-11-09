@@ -19,8 +19,8 @@ import { createClient } from "@supabase/supabase-js"
 // ─── Config ────────────────────────────────────────────────────────────────
 const SITE_NAME  = "StudyBench"
 const SITE_URL   = process.env.NEXT_PUBLIC_SITE_URL || "https://studybench.in"
-const PRICE      = "₹149/year"
-const PRICE_MONTHLY = "₹12/month"
+const PRICE      = "₹249/year"
+const PRICE_MONTHLY = "₹21/month"
 const BATCH_DELAY_MS = 800   // stay well under Resend's rate limit
 const SUBJECT    = "Your placement cutoff is closer than you think 🎯"
 
@@ -202,7 +202,7 @@ function buildHtmlEmail({ name }) {
         <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px 20px;margin:0 0 28px;text-align:center">
           <p style="margin:0 0 4px;font-size:24px;font-weight:800;color:#0f172a">${PRICE}</p>
           <p style="margin:0;font-size:13px;color:#64748b">That is just ${PRICE_MONTHLY} — less than a cup of coffee.</p>
-          <p style="margin:6px 0 0;font-size:13px;color:#64748b">One-time payment. No subscription. No renewal surprise.</p>
+          <p style="margin:6px 0 0;font-size:13px;color:#64748b">Annual subscription for 365 days.</p>
         </div>
 
         <!-- CTA -->
@@ -258,7 +258,7 @@ function buildTextEmail({ name }) {
     "✓ Mistake notebook — spaced repetition for wrong answers",
     "✓ Placement Readiness Index — honest 0-100 score",
     "",
-    "One-time payment. No subscription. No renewal surprise.",
+    "Annual subscription for 365 days.",
     "",
     `Upgrade now → ${SITE_URL}/settings`,
     "",

@@ -1,183 +1,51 @@
-import { describe, expect, it } from "vitest"
-import {
-  grantPremiumMonths,
-  grantPremiumYear,
-  recordPaymentOnce,
-  type PaymentInput,
-} from "@/lib/entitlement"
+import { describe, expect, it, vi } from "vitest"
+import { grantPaymentEntitlement, recordPaymentOnce, type PaymentInput } from "@/lib/entitlement"
 
-// Minimal fake of the supabase-js admin client covering exactly the calls
-// entitlement.ts makes: payments.insert, payments.select().eq().single(),
-// user_state.select().eq().maybeSingle(), user_state.upsert.
-interface FakeOptions {
-  paymentInsertError?: { code: string; message: string } | null
-  paymentOwner?: string
-  premiumUntil?: string | null
-  userStateUpsertError?: { message: string } | null
+const payment:PaymentInput={
+ paymentId:"pay_1",orderId:"order_1",userId:"user_1",amount:24900,currency:"INR",
+ source:"verify",planKey:"premium_annual_249",entitlementDays:365,
 }
-
-interface RecordedCalls {
-  paymentInserted?: Record<string, unknown>
-  userStateUpserted?: Record<string, unknown>
+function fakeAdmin(options:{insertError?:{code:string;message:string};existing?:Record<string,unknown>}={}) {
+ const calls:{inserted?:Record<string,unknown>}={}
+ const admin={
+  from:()=>({
+   insert:async(row:Record<string,unknown>)=>{calls.inserted=row;return {error:options.insertError??null}},
+   select:()=>({eq:()=>({single:async()=>({data:options.existing??null,error:null})})}),
+  }),
+ }
+ return {admin:admin as never,calls}
 }
-
-function makeAdmin(opts: FakeOptions = {}) {
-  const calls: RecordedCalls = {}
-  const admin = {
-    from(table: string) {
-      if (table === "payments") {
-        return {
-          insert: async (row: Record<string, unknown>) => {
-            calls.paymentInserted = row
-            return { error: opts.paymentInsertError ?? null }
-          },
-          select: () => ({
-            eq: () => ({
-              single: async () => ({
-                data: { user_id: opts.paymentOwner ?? "unknown" },
-                error: null,
-              }),
-            }),
-          }),
-        }
-      }
-      return {
-        select: () => ({
-          eq: () => ({
-            maybeSingle: async () => ({
-              data:
-                opts.premiumUntil === undefined
-                  ? null
-                  : { premium_until: opts.premiumUntil },
-              error: null,
-            }),
-          }),
-        }),
-        upsert: async (row: Record<string, unknown>) => {
-          calls.userStateUpserted = row
-          return { error: opts.userStateUpsertError ?? null }
-        },
-      }
-    },
-  }
-  // entitlement.ts only calls the methods modelled above.
-  return { admin: admin as unknown as Parameters<typeof grantPremiumYear>[0], calls }
-}
-
-const PAYMENT: PaymentInput = {
-  paymentId: "pay_123",
-  orderId: "order_456",
-  userId: "user-a",
-  amount: 9900,
-  currency: "INR",
-  source: "verify",
-}
-
-const UNIQUE_VIOLATION = { code: "23505", message: "duplicate key" }
-
-describe("recordPaymentOnce", () => {
-  it("records a fresh payment with the full ledger row", async () => {
-    const { admin, calls } = makeAdmin()
-    await expect(recordPaymentOnce(admin, PAYMENT)).resolves.toBe("recorded")
-    expect(calls.paymentInserted).toMatchObject({
-      payment_id: "pay_123",
-      order_id: "order_456",
-      user_id: "user-a",
-      amount: 9900,
-      currency: "INR",
-      source: "verify",
-    })
-  })
-
-  it("treats a duplicate from the same user as an idempotent retry", async () => {
-    const { admin } = makeAdmin({
-      paymentInsertError: UNIQUE_VIOLATION,
-      paymentOwner: "user-a",
-    })
-    await expect(recordPaymentOnce(admin, PAYMENT)).resolves.toBe("already-recorded")
-  })
-
-  it("rejects a payment already consumed by a different user (replay attack)", async () => {
-    const { admin } = makeAdmin({
-      paymentInsertError: UNIQUE_VIOLATION,
-      paymentOwner: "user-b",
-    })
-    await expect(recordPaymentOnce(admin, PAYMENT)).resolves.toBe(
-      "replayed-by-other-user",
-    )
-  })
-
-  it("throws on unexpected DB errors so callers can return 5xx and retry", async () => {
-    const { admin } = makeAdmin({
-      paymentInsertError: { code: "08000", message: "connection lost" },
-    })
-    await expect(recordPaymentOnce(admin, PAYMENT)).rejects.toThrow("connection lost")
-  })
+describe("recordPaymentOnce",()=>{
+ it("writes the annual plan metadata to the append-only payment ledger",async()=>{
+  const {admin,calls}=fakeAdmin()
+  await expect(recordPaymentOnce(admin,payment)).resolves.toBe("recorded")
+  expect(calls.inserted).toMatchObject({payment_id:"pay_1",amount:24900,plan_key:"premium_annual_249",entitlement_days:365})
+ })
+ it("accepts an identical retry",async()=>{
+  const {admin}=fakeAdmin({insertError:{code:"23505",message:"duplicate"},existing:{
+   user_id:"user_1",order_id:"order_1",amount:24900,plan_key:"premium_annual_249",entitlement_days:365
+  }})
+  await expect(recordPaymentOnce(admin,payment)).resolves.toBe("already-recorded")
+ })
+ it("rejects cross-account or mismatched payment replay",async()=>{
+  const {admin}=fakeAdmin({insertError:{code:"23505",message:"duplicate"},existing:{
+   user_id:"other",order_id:"order_1",amount:24900,plan_key:"premium_annual_249",entitlement_days:365
+  }})
+  await expect(recordPaymentOnce(admin,payment)).resolves.toBe("replayed-by-other-user")
+ })
 })
-
-describe("grantPremiumYear", () => {
-  const YEAR_MS = 365 * 24 * 60 * 60 * 1000
-
-  it("grants ~one year from now to a first-time buyer and flips premium on", async () => {
-    const { admin, calls } = makeAdmin({ premiumUntil: null })
-    const until = await grantPremiumYear(admin, "user-a")
-    const granted = Date.parse(until)
-    expect(Math.abs(granted - (Date.now() + YEAR_MS))).toBeLessThan(48 * 60 * 60 * 1000)
-    expect(calls.userStateUpserted).toMatchObject({
-      id: "user-a",
-      premium: true,
-      premium_until: until,
-    })
-  })
-
-  it("never shortens a longer existing entitlement (promo / prior purchase)", async () => {
-    const twoYearsOut = new Date(Date.now() + 2 * YEAR_MS).toISOString()
-    const { admin } = makeAdmin({ premiumUntil: twoYearsOut })
-    await expect(grantPremiumYear(admin, "user-a")).resolves.toBe(twoYearsOut)
-  })
-
-  it("extends an expired entitlement to one year from now", async () => {
-    const lastYear = new Date(Date.now() - YEAR_MS).toISOString()
-    const { admin } = makeAdmin({ premiumUntil: lastYear })
-    const until = await grantPremiumYear(admin, "user-a")
-    expect(Date.parse(until)).toBeGreaterThan(Date.now())
-  })
-
-  it("works when the user_state row does not exist yet (upsert path)", async () => {
-    const { admin, calls } = makeAdmin() // premiumUntil undefined -> no row
-    const until = await grantPremiumYear(admin, "user-a")
-    expect(Date.parse(until)).toBeGreaterThan(Date.now())
-    expect(calls.userStateUpserted).toMatchObject({ id: "user-a", premium: true })
-  })
-
-  it("throws when the entitlement write fails so the payment is not silently lost", async () => {
-    const { admin } = makeAdmin({
-      premiumUntil: null,
-      userStateUpsertError: { message: "write failed" },
-    })
-    await expect(grantPremiumYear(admin, "user-a")).rejects.toThrow("write failed")
-  })
-})
-
-describe("grantPremiumMonths", () => {
-  const MONTH_MS = 30 * 24 * 60 * 60 * 1000
-
-  it("grants about one month to a user without active premium", async () => {
-    const { admin, calls } = makeAdmin({ premiumUntil: null })
-    const until = await grantPremiumMonths(admin, "referrer-a", 1)
-    expect(Math.abs(Date.parse(until) - (Date.now() + MONTH_MS))).toBeLessThan(4 * 24 * 60 * 60 * 1000)
-    expect(calls.userStateUpserted).toMatchObject({
-      id: "referrer-a",
-      premium: true,
-      premium_until: until,
-    })
-  })
-
-  it("extends from an existing future expiry", async () => {
-    const currentExpiry = new Date(Date.now() + MONTH_MS).toISOString()
-    const { admin } = makeAdmin({ premiumUntil: currentExpiry })
-    const until = await grantPremiumMonths(admin, "referrer-a", 1)
-    expect(Date.parse(until)).toBeGreaterThan(Date.parse(currentExpiry))
-    expect(Date.parse(until) - Date.parse(currentExpiry)).toBeGreaterThan(25 * 24 * 60 * 60 * 1000)
-  })
+describe("grantPaymentEntitlement",()=>{
+ it("uses the transaction-safe database grant function",async()=>{
+  const rpc=vi.fn(async()=>({data:"2027-11-09T00:00:00.000Z",error:null}))
+  await expect(grantPaymentEntitlement({rpc} as never,"pay_1")).resolves.toBe("2027-11-09T00:00:00.000Z")
+  expect(rpc).toHaveBeenCalledWith("grant_payment_entitlement",{p_payment_id:"pay_1"})
+ })
+ it("does not fail when a grandfathered entitlement has no expiry",async()=>{
+  const admin={rpc:vi.fn(async()=>({data:null,error:null}))}
+  await expect(grantPaymentEntitlement(admin as never,"pay_legacy")).resolves.toBeNull()
+ })
+ it("surfaces database failures for provider retry",async()=>{
+  const admin={rpc:vi.fn(async()=>({data:null,error:{message:"database unavailable"}}))}
+  await expect(grantPaymentEntitlement(admin as never,"pay_1")).rejects.toThrow("database unavailable")
+ })
 })

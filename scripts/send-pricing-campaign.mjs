@@ -5,7 +5,7 @@ import { createClient } from "@supabase/supabase-js"
 
 const SITE_NAME = "StudyBench"
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://studybench.in"
-const PRICE_LABEL = "₹149/year"
+const PRICE_LABEL = "₹249/year"
 const SUBJECT = "Let's get you placed (honestly) 🚀"
 const BATCH_DELAY_MS = 700
 
@@ -125,7 +125,7 @@ function buildHtmlEmail({ name }) {
         
         <p style="margin:0 0 16px;font-size:15px;color:#334155">We built StudyBench to give you one focused plan. Right now, your account is on the Free plan. It's great to sample Section 1, but if you're serious about clearing the actual company cutoffs, you should unlock <strong>StudyBench Premium</strong>.</p>
         
-        <p style="margin:0 0 16px;font-size:15px;color:#334155">Here is what you unlock for <strong>${PRICE_LABEL}</strong> (which is less than ₹13 a month):</p>
+        <p style="margin:0 0 16px;font-size:15px;color:#334155">Here is what you unlock for <strong>${PRICE_LABEL}</strong> (which is about ₹21 a month):</p>
         
         <div style="margin:0 0 24px;padding:16px;background:#f1f5f9;border-radius:12px">
           <ul style="margin:0;padding-left:20px;font-size:14px;color:#334155;line-height:1.7">
@@ -161,7 +161,7 @@ function buildTextEmail({ name }) {
     "",
     `We built StudyBench to give you one focused plan. Right now, your account is on the Free plan. It's great to sample Section 1, but if you're serious about clearing the actual company cutoffs, you should unlock StudyBench Premium.`,
     "",
-    `Here is what you unlock for ${PRICE_LABEL} (which is less than Rs 13 a month):`,
+    `Here is what you unlock for ${PRICE_LABEL} (which is about Rs 21 a month):`,
     "",
     `* All 7 Company Tracks Unlocked: Full depth for TCS, Infosys, Wipro, Accenture, Zoho, Cognizant and General Tracks.`,
     `* Realistic Mock Tests: Full company-pattern mock series with detailed analysis so you know where you stand.`,

@@ -292,7 +292,7 @@ function WhyJoinSection() {
               {premiumPriceLabel()}
             </p>
             <p className="mt-1 text-sm text-slate-600">
-              One-time payment for lifetime access. Limited time period offer.
+              Annual subscription. Premium access lasts 365 days after your payment is verified.
             </p>
             <StartCta placement="why_join_join_now" className="mt-4 w-full bg-slate-950 text-white hover:bg-slate-900">
               Join now
@@ -532,7 +532,7 @@ function PricingSection() {
                 </p>
                 <p className="mt-3 font-heading text-3xl font-bold">{premiumPriceLabel()}</p>
                 <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
-                  Unlock deeper sections, full PYQ banks, company mock series, coding depth and better analytics. One-time payment for lifetime access.
+                  Unlock deeper sections, full PYQ banks, company mock series, coding depth and better analytics. One annual subscription gives you 365 days of Premium access.
                 </p>
               </div>
               <div className="rounded-xl border border-primary/15 bg-primary/5 px-4 py-3">
