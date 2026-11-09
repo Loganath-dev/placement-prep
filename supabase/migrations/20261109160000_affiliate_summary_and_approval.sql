@@ -15,7 +15,7 @@ set search_path = pg_catalog, public
 as $$
   select
     (select count(*) from public.profiles p where p.referred_by = (select auth.uid())),
-    (select count(*) from public.affiliate_commissions c
+    (select count(distinct c.buyer_id) from public.affiliate_commissions c
       where c.referrer_id = (select auth.uid())
         and c.status in ('pending','approved','paid')),
     coalesce((select sum(c.commission_amount) from public.affiliate_commissions c
