@@ -1,71 +1,49 @@
 import { describe, expect, it } from "vitest"
 import {
-  canAccessChapterPractice,
-  canAccessLearningChapter,
-  canAccessLearningSection,
-  canAccessMockCompany,
-  FREE_CHAPTER_PRACTICE_LIMIT,
-  FREE_CODING_PROBLEM_LIMIT,
-  FREE_INTERVIEW_LIMIT,
-  FREE_LESSONS_PER_SECTION,
-  FREE_MOCK_COMPANY,
-  FREE_MOCK_LIMIT,
-  FREE_PYQ_LIMIT,
-  FREE_SECTION_INDEX,
-  lockedCount,
-  PLAN_FEATURES,
-  PREMIUM_AMOUNT_PAISE,
-  PREMIUM_DURATION_DAYS,
-  PREMIUM_PLAN_KEY,
-  premiumPriceLabel,
-  visibleCodingTestsForPlan,
-  visibleForPlan,
+  canAccessChapterPractice, canAccessLearningChapter, canAccessLearningSection,
+  canAccessLesson, canAccessMockCompany, FREE_CHAPTER_PRACTICE_LIMIT,
+  FREE_CODING_PROBLEM_LIMIT, FREE_INTERVIEW_LIMIT, FREE_LESSONS_PER_TOPIC,
+  FREE_MOCK_COMPANY, FREE_MOCK_LIMIT, FREE_PYQ_LIMIT, FREE_SECTION_INDEX,
+  lockedCount, PLAN_FEATURES, PREMIUM_AMOUNT_PAISE, PREMIUM_DURATION_DAYS,
+  PREMIUM_PLAN_KEY, premiumPriceLabel, visibleCodingTestsForPlan, visibleForPlan,
   visibleMocksForPlan,
 } from "@/lib/access"
 import { MOCKS_PER_COMPANY, mocksForCompany } from "@/lib/data/mocks"
 
-describe("plan access", () => {
-  it("states that free users can enter all tracks and all of section 1", () => {
-    expect(PLAN_FEATURES).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          feature: "Company tracks",
-          free: "All 7 tracks visible",
-        }),
-        expect.objectContaining({
-          feature: "Learning chapters",
-          free: "Two starter lessons in every learning section",
-          premium: "Every section and chapter including advanced placement-level content",
-        }),
-      ]),
-    )
+describe("approved StudyBench access policy", () => {
+  it("describes the five learning categories and their independent free allowances", () => {
+    expect(PLAN_FEATURES).toEqual(expect.arrayContaining([
+      expect.objectContaining({ feature: "Common Aptitude", free: "First two lessons per topic" }),
+      expect.objectContaining({ feature: "CS Core", free: "First two lessons per topic" }),
+      expect.objectContaining({ feature: "Programming Languages", free: "First two lessons in each of ten languages" }),
+      expect.objectContaining({ feature: "DSA", free: "First two lessons per learning path" }),
+    ]))
   })
 
-  it("opens every learning section and the first chapter for free", () => {
+  it("keeps all topics visible and gates lesson three independently within each topic", () => {
     expect(canAccessLearningSection(0, false)).toBe(true)
     expect(canAccessLearningSection(5, false)).toBe(true)
-    expect(canAccessLearningSection(4, true)).toBe(true)
-
     expect(canAccessLearningChapter(0, 0, false)).toBe(true)
-    expect(canAccessLearningChapter(4, 0, false)).toBe(true)
-    expect(canAccessLearningChapter(0, 1, false)).toBe(false)
-    expect(canAccessLearningChapter(5, 3, true)).toBe(true)
+    expect(canAccessLearningChapter(0, 8, false)).toBe(true)
+    expect(canAccessLesson(0, 0, false)).toBe(true)
+    expect(canAccessLesson(0, 1, false)).toBe(true)
+    expect(canAccessLesson(7, 0, false)).toBe(true)
+    expect(canAccessLesson(7, 1, false)).toBe(true)
+    expect(canAccessLesson(0, 2, false)).toBe(false)
+    expect(canAccessLesson(7, 2, false)).toBe(false)
+    expect(canAccessLesson(7, 2, true)).toBe(true)
+  })
 
+  it("allows practice entry while applying the question allowance separately", () => {
     expect(canAccessChapterPractice(0, 0, false)).toBe(true)
-    expect(canAccessChapterPractice(2, 1, false)).toBe(false)
-    expect(canAccessChapterPractice(2, 4, true)).toBe(true)
+    expect(canAccessChapterPractice(5, 8, false)).toBe(true)
+    expect(visibleForPlan(["a", "b", "c"], false, FREE_CHAPTER_PRACTICE_LIMIT)).toHaveLength(3)
+    expect(visibleForPlan(["a", "b", "c"], true, FREE_CHAPTER_PRACTICE_LIMIT)).toHaveLength(3)
   })
 
-  it("keeps item-level free limits while premium receives the full list", () => {
-    const items = ["first", "second", "third"]
-
-    expect(visibleForPlan(items, false, 1)).toEqual(["first"])
-    expect(visibleForPlan(items, true, 1)).toEqual(items)
-  })
-
-  it("centralizes exact free-plan quotas for each limited surface", () => {
+  it("centralizes current free quotas", () => {
     expect(FREE_SECTION_INDEX).toBe(0)
-    expect(FREE_LESSONS_PER_SECTION).toBe(2)
+    expect(FREE_LESSONS_PER_TOPIC).toBe(2)
     expect(FREE_PYQ_LIMIT).toBe(15)
     expect(FREE_INTERVIEW_LIMIT).toBe(12)
     expect(FREE_CODING_PROBLEM_LIMIT).toBe(0)
@@ -74,33 +52,27 @@ describe("plan access", () => {
     expect(FREE_MOCK_LIMIT).toBe(1)
   })
 
-  it("locks company mocks for free users and opens the full mock series for premium users", () => {
-    const coreMocks = mocksForCompany(FREE_MOCK_COMPANY)
-    const tcsMocks = mocksForCompany("tcs")
-
-    expect(coreMocks).toHaveLength(MOCKS_PER_COMPANY)
-    expect(tcsMocks).toHaveLength(MOCKS_PER_COMPANY)
+  it("allows one general mock and gates company mocks", () => {
+    const general = mocksForCompany(FREE_MOCK_COMPANY)
+    const tcs = mocksForCompany("tcs")
+    expect(general).toHaveLength(MOCKS_PER_COMPANY)
+    expect(tcs).toHaveLength(MOCKS_PER_COMPANY)
     expect(canAccessMockCompany(FREE_MOCK_COMPANY, false)).toBe(true)
     expect(canAccessMockCompany("tcs", false)).toBe(false)
     expect(canAccessMockCompany("tcs", true)).toBe(true)
-    expect(visibleMocksForPlan(coreMocks, FREE_MOCK_COMPANY, false)).toHaveLength(FREE_MOCK_LIMIT)
-    expect(visibleMocksForPlan(tcsMocks, "tcs", false)).toEqual([])
-    expect(visibleMocksForPlan(tcsMocks, "tcs", true)).toHaveLength(MOCKS_PER_COMPANY)
-    expect(lockedCount(coreMocks.length, FREE_MOCK_LIMIT)).toBe(MOCKS_PER_COMPANY - FREE_MOCK_LIMIT)
+    expect(visibleMocksForPlan(general, FREE_MOCK_COMPANY, false)).toHaveLength(1)
+    expect(visibleMocksForPlan(tcs, "tcs", false)).toEqual([])
+    expect(visibleMocksForPlan(tcs, "tcs", true)).toHaveLength(MOCKS_PER_COMPANY)
+    expect(lockedCount(general.length, FREE_MOCK_LIMIT)).toBe(MOCKS_PER_COMPANY - 1)
   })
 
-  it("keeps hidden coding edge cases premium-only", () => {
-    const cases = [
-      { input: "1", output: "1" },
-      { input: "0", output: "0", hidden: true },
-      { input: "9", output: "9", hidden: true },
-    ]
-
+  it("keeps hidden coding edge cases unavailable on the free plan", () => {
+    const cases = [{ input: "1", output: "1" }, { input: "0", output: "0", hidden: true }]
     expect(visibleCodingTestsForPlan(cases, false)).toEqual([cases[0]])
     expect(visibleCodingTestsForPlan(cases, true)).toEqual(cases)
   })
 
-  it("keeps premium pricing centralized", () => {
+  it("uses exactly ₹249, 24,900 paise and 365 days for Premium", () => {
     expect(premiumPriceLabel()).toBe("₹249/year")
     expect(PREMIUM_AMOUNT_PAISE).toBe(24_900)
     expect(PREMIUM_DURATION_DAYS).toBe(365)

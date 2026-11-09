@@ -46,7 +46,7 @@ export default function SectionPage() {
             <div>
               <h1 className="font-heading text-2xl font-bold">{section.name}</h1>
               <p className="mx-auto mt-1 max-w-md text-muted-foreground">
-                The first two lessons in every learning section are free. Upgrade to continue beyond the starter lessons.
+                Every topic starts with two free lessons. Premium unlocks the complete curriculum.
               </p>
             </div>
             <Link href="/settings" className="text-sm font-medium text-primary hover:underline">
@@ -155,11 +155,11 @@ export default function SectionPage() {
       </div>
 
       <p className="rounded-xl bg-muted/50 p-3 text-center text-sm text-muted-foreground">
-        Every learning section starts with two free lessons.
+        Every topic starts with two free lessons.
         {!state.premium ? (
           <>
             {" "}
-            Further chapters and lessons require Premium.{" "}
+            The third lesson in each topic requires Premium.{" "}
             <Link href="/settings" className="text-primary hover:underline">
               Go Premium
             </Link>{" "}
