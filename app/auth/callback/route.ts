@@ -35,7 +35,16 @@ export async function GET(request: Request) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error && data.user) {
       if (referralId && referralId !== data.user.id) {
-        await supabase.from("profiles").upsert({ id: data.user.id, referred_by: referralId })
+        // Attribute only an account without a profile. Opening an invite link
+        // while signing into an existing account must not rewrite attribution.
+        const { data: existingProfile } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("id", data.user.id)
+          .maybeSingle()
+        if (!existingProfile) {
+          await supabase.from("profiles").insert({ id: data.user.id, referred_by: referralId })
+        }
       }
       return NextResponse.redirect(`${origin}${next}`)
     }
@@ -43,7 +52,16 @@ export async function GET(request: Request) {
     const { data, error } = await supabase.auth.verifyOtp({ type, token_hash: tokenHash })
     if (!error && data.user) {
       if (referralId && referralId !== data.user.id) {
-        await supabase.from("profiles").upsert({ id: data.user.id, referred_by: referralId })
+        // Attribute only an account without a profile. Opening an invite link
+        // while signing into an existing account must not rewrite attribution.
+        const { data: existingProfile } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("id", data.user.id)
+          .maybeSingle()
+        if (!existingProfile) {
+          await supabase.from("profiles").insert({ id: data.user.id, referred_by: referralId })
+        }
       }
       return NextResponse.redirect(`${origin}${next}`)
     }
