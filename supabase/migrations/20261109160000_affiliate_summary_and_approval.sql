@@ -10,7 +10,7 @@ returns table (
 )
 language sql
 stable
-security invoker
+security definer
 set search_path = pg_catalog, public
 as $$
   select
