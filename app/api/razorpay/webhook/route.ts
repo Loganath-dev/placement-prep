@@ -46,9 +46,11 @@ export async function POST(request:Request) {
  const userId=typeof notes.user_id==="string" ? notes.user_id : undefined
  const plan=resolveRazorpayOrderPlan(order)
  if(!userId||!plan) return NextResponse.json({ok:true,event:eventName,skipped:true})
- if((typeof payment.amount==="number"&&payment.amount!==plan.amountPaise)||(payment.currency&&payment.currency!==order.currency)) {
-  captureError(new Error("Razorpay payment/order amount or currency mismatch"),{scope:"razorpay/webhook",paymentId,orderId,userId})
-  return NextResponse.json({ok:true,event:eventName,skipped:true})
+ if(payment.status!=="captured" || payment.order_id!==orderId ||
+    payment.amount!==plan.amountPaise || payment.currency!=="INR" ||
+    order.amount!==plan.amountPaise || order.currency!=="INR") {
+  captureError(new Error("Razorpay payment capture, order, amount or currency mismatch"),{scope:"razorpay/webhook",paymentId,orderId,userId})
+  return NextResponse.json({ok:false,error:"Payment details did not pass reconciliation."},{status:409})
  }
  const admin=createAdminClient()
  try {
