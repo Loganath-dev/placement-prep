@@ -31,7 +31,7 @@ export async function POST(request:Request) {
  if(!paymentId||!orderId) return NextResponse.json({ok:true,event:eventName,skipped:true})
  const razorpay=getRazorpayEnvOrNull()
  if(!razorpay) return NextResponse.json({error:"Razorpay API credentials are not configured."},{status:500})
- let order:Record<string,any>
+ let order:Record<string,unknown>
  try {
   const response=await fetch(`https://api.razorpay.com/v1/orders/${encodeURIComponent(orderId)}`,{
    headers:{Authorization:`Basic ${btoa(`${razorpay.keyId}:${razorpay.keySecret}`)}`},cache:"no-store"
@@ -42,7 +42,8 @@ export async function POST(request:Request) {
   captureError(error,{scope:"razorpay/webhook",stage:"order_lookup",paymentId,orderId})
   return NextResponse.json({error:"Could not reconcile Razorpay order."},{status:502})
  }
- const userId:string|undefined=order?.notes?.user_id
+ const notes=order.notes&&typeof order.notes==="object" ? order.notes as Record<string,unknown> : {}
+ const userId=typeof notes.user_id==="string" ? notes.user_id : undefined
  const plan=resolveRazorpayOrderPlan(order)
  if(!userId||!plan) return NextResponse.json({ok:true,event:eventName,skipped:true})
  if((typeof payment.amount==="number"&&payment.amount!==plan.amountPaise)||(payment.currency&&payment.currency!==order.currency)) {
