@@ -31,7 +31,7 @@ export default async function ReferralsPage() {
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Metric label="Signups" value={Number(totals?.total_signups ?? 0)} />
         <Metric label="Paid referrals" value={Number(totals?.premium_referrals ?? 0)} />
-        <Metric label="Pending commission" value={rupees(totals?.pending_commission)} />
+        <Metric label="Unpaid commission" value={rupees(totals?.pending_commission)} />
         <Metric label="Paid commission" value={rupees(totals?.paid_commission)} />
       </section>
       <section className="rounded-xl border border-border p-5">
