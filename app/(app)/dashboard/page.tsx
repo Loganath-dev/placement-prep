@@ -15,11 +15,7 @@ import {
 } from "@/components/app/ui-bits"
 import { SharePriCard } from "@/components/app/share-pri-card"
 import { UpgradeBanner } from "@/components/app/upgrade-prompt"
-import {
-  PREMIUM_FOOD_COMPARISON_LABEL,
-  PREMIUM_MONTHLY_EQUIVALENT_INR,
-  premiumPriceLabel,
-} from "@/lib/access"
+import { premiumPriceLabel, PREMIUM_DURATION_DAYS } from "@/lib/access"
 import { getCompany, SELECTABLE_COMPANIES } from "@/lib/data/companies"
 import { getSections } from "@/lib/data/content"
 import {
@@ -374,12 +370,12 @@ function PaymentValueCard() {
           <div className="mt-3 flex items-end gap-2">
             <p className="font-heading text-3xl font-bold">{premiumPriceLabel()}</p>
             <p className="pb-1 text-sm text-primary-foreground/75">
-              ~Rs {PREMIUM_MONTHLY_EQUIVALENT_INR}/month
+              {PREMIUM_DURATION_DAYS} days
             </p>
           </div>
           <p className="mt-2 text-sm leading-relaxed text-primary-foreground/82">
-            {PREMIUM_FOOD_COMPARISON_LABEL}, but it unlocks the full company prep
-            depth for the entire year.
+            One annual subscription unlocks the complete company preparation
+            curriculum, practice banks and mock assessments for 365 days.
           </p>
         </div>
         <Button asChild variant="secondary" className="w-full justify-between">
