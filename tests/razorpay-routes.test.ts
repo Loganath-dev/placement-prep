@@ -118,10 +118,17 @@ describe("Razorpay webhook reconciliation",()=>{
  })
  it("loads the Razorpay order and grants the verified annual plan",async()=>{
   vi.stubGlobal("fetch",vi.fn(async()=>({ok:true,json:async()=>annualOrder()})))
-  const payload={event:"payment.captured",payload:{payment:{entity:{id:"pay_2",order_id:"order_2",amount:24900,currency:"INR"}}}}
+  const payload={event:"payment.captured",payload:{payment:{entity:{id:"pay_2",status:"captured",order_id:"order_2",amount:24900,currency:"INR"}}}}
   const response=await webhookPOST(signed(payload,await sign(payload)))
   expect(response.status).toBe(200)
   expect(recordPaymentOnce).toHaveBeenCalledWith(expect.anything(),expect.objectContaining({planKey:PREMIUM_PLAN_KEY,entitlementDays:365}))
   expect(grantPaymentEntitlement).toHaveBeenCalledWith(expect.anything(),"pay_2")
+ })
+ it("rejects webhook events whose payment is not captured",async()=>{
+  vi.stubGlobal("fetch",vi.fn(async()=>({ok:true,json:async()=>annualOrder()})))
+  const payload={event:"payment.captured",payload:{payment:{entity:{id:"pay_3",status:"authorized",order_id:"order_3",amount:24900,currency:"INR"}}}}
+  const response=await webhookPOST(signed(payload,await sign(payload)))
+  expect(response.status).toBe(409)
+  expect(grantPaymentEntitlement).not.toHaveBeenCalled()
  })
 })
