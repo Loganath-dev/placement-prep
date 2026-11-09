@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import type { Session } from "@supabase/supabase-js"
+import type { Session, User } from "@supabase/supabase-js"
 import { createClient } from "@/lib/supabase/client"
 import {
   deleteAllMistakes,
@@ -34,6 +34,18 @@ import { COMPANIES } from "@/lib/data/companies"
 import { localDateKey, previousLocalDateKey } from "@/lib/date-key"
 
 const MISTAKE_CAP = 60
+
+/** Bound auth bootstrap so a stalled Supabase request cannot leave the app
+ * shell on its permanent loading screen. */
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(message)), timeoutMs)
+    promise.then(
+      (value) => { clearTimeout(timer); resolve(value) },
+      (error: unknown) => { clearTimeout(timer); reject(error) },
+    )
+  })
+}
 
 const STORAGE_KEY_PREFIX = "studybench.state.v1:"
 const storageKeyForUser = (userId: string) => `${STORAGE_KEY_PREFIX}${userId}`
@@ -223,10 +235,31 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
 
     async function hydrate() {
       const supabase = createClient()
-      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      let user: User | null = null
+      try {
+        const authResult = await withTimeout(
+          supabase.auth.getUser(),
+          10_000,
+          "Supabase authentication check timed out",
+        )
+        if (authResult.error) throw authResult.error
+        user = authResult.data.user
+      } catch (authError) {
+        // getUser verifies the session over the network. If that request is
+        // temporarily unavailable, use the browser's locally-held session to
+        // bootstrap the UI; server routes still verify the auth cookie.
+        console.warn("[store] getUser failed; falling back to local session", authError)
+        const sessionResult = await withTimeout(
+          supabase.auth.getSession(),
+          3_000,
+          "Supabase local session lookup timed out",
+        )
+        if (sessionResult.error) throw sessionResult.error
+        user = sessionResult.data.session?.user ?? null
+      }
       if (cancelled) return
 
-      if (authError || !user) {
+      if (!user) {
         setState(DEFAULT_STATE)
         setUserId(null)
         setUserCreatedAt(null)
@@ -286,7 +319,11 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    void hydrate()
+    void hydrate().catch((error) => {
+      // A thrown auth/bootstrap error must never leave hydrated=false forever.
+      console.error("[store] authentication hydration failed", error)
+      if (!cancelled) setHydrated(true)
+    })
 
     const supabase = createClient()
     let activeUserId: string | null = null
