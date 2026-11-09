@@ -50,12 +50,13 @@ export async function POST(request:Request) {
   if(recorded==="replayed-by-other-user") return NextResponse.json({error:"Payment already used or details do not match."},{status:409})
   const premiumUntil=await grantPaymentEntitlement(admin,paymentId)
   if(plan.affiliateEligible) {
-   try { await recordAnnualAffiliateCommission(admin,{userId:user.id,paymentId,paymentAmount:plan.amountPaise}) }
-   catch(error) { captureError(error,{scope:"razorpay/verify",stage:"affiliate",userId:user.id,paymentId}) }
+   // Do not swallow commission errors: the same verified payment can be
+   // safely retried, and the unique payment_id keeps the credit idempotent.
+   await recordAnnualAffiliateCommission(admin,{userId:user.id,paymentId,paymentAmount:plan.amountPaise})
   }
   return NextResponse.json({ok:true,paymentId,premiumUntil,planKey:plan.planKey})
  } catch(error) {
-  captureError(error,{scope:"razorpay/verify",stage:"activation",userId:user.id,paymentId})
-  return NextResponse.json({error:"Payment verified but could not activate Premium. Contact support."},{status:500})
+  captureError(error,{scope:"razorpay/verify",stage:"activation_or_affiliate",userId:user.id,paymentId})
+  return NextResponse.json({error:"Payment verified. Account updates are still being reconciled; please refresh shortly."},{status:500})
  }
 }
