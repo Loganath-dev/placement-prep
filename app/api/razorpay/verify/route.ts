@@ -30,7 +30,20 @@ export async function POST(request:Request) {
  const order=await response.json()
  if(order?.notes?.user_id!==user.id) return NextResponse.json({error:"This payment belongs to a different account."},{status:403})
  const plan=resolveRazorpayOrderPlan(order)
- if(!plan) return NextResponse.json({error:"Order does not match an active or grandfathered StudyBench plan."},{status:400})
+ if(!plan || order.amount!==plan.amountPaise || order.currency!=="INR") {
+  return NextResponse.json({error:"Order does not match an active or grandfathered StudyBench plan."},{status:400})
+ }
+
+ // A valid checkout signature proves the order/payment pair. Entitlement is
+ // granted only after Razorpay independently confirms a captured payment.
+ const paymentResponse=await fetch(`https://api.razorpay.com/v1/payments/${encodeURIComponent(paymentId)}`,{
+  headers:{Authorization:`Basic ${btoa(`${razorpay.keyId}:${razorpay.keySecret}`)}`},cache:"no-store"
+ })
+ if(!paymentResponse.ok) return NextResponse.json({error:"Could not confirm the payment with Razorpay. Try again."},{status:502})
+ const payment=await paymentResponse.json()
+ if(payment.status!=="captured" || payment.order_id!==orderId || payment.amount!==plan.amountPaise || payment.currency!=="INR") {
+  return NextResponse.json({error:"Razorpay has not confirmed a captured payment for this order."},{status:409})
+ }
  const admin=createAdminClient()
  try {
   const recorded=await recordPaymentOnce(admin,{paymentId,orderId,userId:user.id,amount:plan.amountPaise,currency:"INR",source:"verify",planKey:plan.planKey,entitlementDays:plan.entitlementDays})
