@@ -1,7 +1,7 @@
 import type { CompanyId } from "@/lib/types"
 
 export const PREMIUM_PRICE_INR = 249
-export const PREMIUM_DURATION_LABEL = "lifetime"
+export const PREMIUM_DURATION_LABEL = "year"
 export const PREMIUM_MONTHLY_EQUIVALENT_INR = Math.ceil(PREMIUM_PRICE_INR / 12)
 export const PREMIUM_FOOD_COMPARISON_LABEL = "Less than one canteen snack a month"
 export const FREE_PYQ_LIMIT = 15
