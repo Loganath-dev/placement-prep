@@ -10,7 +10,7 @@ import { Icon } from "@/components/app/icon"
 import { QuizRunner, type QuizResultItem } from "@/components/app/quiz-runner"
 import { Prose } from "@/components/app/prose"
 import { UpgradeBanner } from "@/components/app/upgrade-prompt"
-import { canAccessLearningChapter } from "@/lib/access"
+import { canAccessLearningChapter, canAccessLesson } from "@/lib/access"
 import { COMPANY_BY_ID, getCompany } from "@/lib/data/companies"
 import { getSection, getSections } from "@/lib/data/content"
 import { generateDrills, generateDrillsByDifficulty } from "@/lib/data/question-bank"
@@ -54,6 +54,7 @@ export default function ChapterPage() {
   const completedLessonCount = Object.keys(lessonResults).length
   const currentLessonIndex = Math.min(completedLessonCount, chapter.lessons.length - 1)
   const currentLesson = chapter.lessons[currentLessonIndex]
+  const lessonLocked = !canAccessLesson(idx, currentLessonIndex, state.premium)
   const allLessonResults = Object.values(lessonResults).flat()
   const chapterPracticeScore = allLessonResults.length
     ? Math.round(
@@ -129,7 +130,18 @@ export default function ChapterPage() {
         <p className="mt-1 text-muted-foreground">{chapter.summary}</p>
       </div>
 
-      {practiceLessonIndex === null ? (
+      {lessonLocked && !chapterComplete ? (
+        <Card>
+          <CardContent className="space-y-3 py-8 text-center">
+            <Icon name="Lock" className="mx-auto size-8 text-primary" />
+            <h2 className="font-heading text-xl font-semibold">Continue this learning path</h2>
+            <p className="mx-auto max-w-md text-sm text-muted-foreground">
+              Your two free starter lessons are complete. Premium unlocks every lesson, chapter and practice set.
+            </p>
+            <Button asChild><Link href="/settings">Explore Premium</Link></Button>
+          </CardContent>
+        </Card>
+      ) : practiceLessonIndex === null ? (
         chapterComplete ? (
           <div className="flex flex-col gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-5 sm:flex-row sm:items-center sm:justify-between">
             <div>

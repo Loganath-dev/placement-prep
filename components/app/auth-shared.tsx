@@ -32,9 +32,11 @@ export function GoogleIcon({ className }: { className?: string }) {
 export function GoogleButton({
   label = "Continue with Google",
   source = "auth",
+  referralId,
 }: {
   label?: string
   source?: "auth" | "signup" | "login"
+  referralId?: string | null
 }) {
   const [loading, setLoading] = React.useState(false)
 
@@ -45,7 +47,7 @@ export function GoogleButton({
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${window.location.origin}/auth/callback${referralId ? `?ref=${encodeURIComponent(referralId)}` : ""}`,
       },
     })
     if (error) setLoading(false)

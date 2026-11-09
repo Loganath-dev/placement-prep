@@ -31,11 +31,12 @@ import { levelFromXP, XP } from "@/lib/scoring"
 import { nextSchedule } from "@/lib/spaced-repetition"
 import { identifyAnalyticsUser, track } from "@/lib/analytics"
 import { COMPANIES } from "@/lib/data/companies"
+import { localDateKey, previousLocalDateKey } from "@/lib/date-key"
 
 const MISTAKE_CAP = 60
 
-const STORAGE_KEY = "studybench.state.v1"
-const LEGACY_STORAGE_KEY = "placeready.state.v1"
+const STORAGE_KEY_PREFIX = "studybench.state.v1:"
+const storageKeyForUser = (userId: string) => `${STORAGE_KEY_PREFIX}${userId}`
 
 const DEFAULT_STATE: AppState = {
   onboarded: false,
@@ -77,12 +78,10 @@ function sanitizeCompanyIds(state: AppState): AppState {
 }
 
 function today(): string {
-  return new Date().toISOString().slice(0, 10)
+  return localDateKey()
 }
-function yesterday(d: string): string {
-  const dt = new Date(d + "T00:00:00")
-  dt.setDate(dt.getDate() - 1)
-  return dt.toISOString().slice(0, 10)
+function yesterday(dayKey: string): string {
+  return previousLocalDateKey(dayKey)
 }
 
 function ensureProgress(state: AppState, id: CompanyId) {
@@ -217,93 +216,103 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
   })
   const listenersRef = React.useRef(new Set<() => void>())
 
-  // ── hydrate: localStorage first (fast), then Supabase (authoritative) ──
+  // Hydrate only after the authenticated user is known. Cache keys are
+  // user-scoped, preventing one account from seeing another account's state.
   React.useEffect(() => {
+    let cancelled = false
+
     async function hydrate() {
-      // 1. Restore from localStorage immediately so UI doesn't flash blank.
-      let restoredFromCache = false
+      const supabase = createClient()
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      if (cancelled) return
+
+      if (authError || !user) {
+        setState(DEFAULT_STATE)
+        setUserId(null)
+        setUserCreatedAt(null)
+        identifyAnalyticsUser(null)
+        setHydrated(true)
+        return
+      }
+
+      setUserId(user.id)
+      setUserCreatedAt(user.created_at ?? null)
+      identifyAnalyticsUser(user.id)
+
       try {
-        const raw = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(LEGACY_STORAGE_KEY)
-        if (raw) {
-          setState(sanitizeCompanyIds(normalizeEntitlement({ ...DEFAULT_STATE, ...JSON.parse(raw) })))
-          restoredFromCache = true
-          // Returning users can use the cached app immediately while Supabase
-          // refreshes in the background. This removes a full-network loader.
+        const cached = localStorage.getItem(storageKeyForUser(user.id))
+        if (cached) {
+          setState(sanitizeCompanyIds(normalizeEntitlement({ ...DEFAULT_STATE, ...JSON.parse(cached) })))
           setHydrated(true)
-          if (!localStorage.getItem(STORAGE_KEY)) {
-            localStorage.setItem(STORAGE_KEY, raw)
-            localStorage.removeItem(LEGACY_STORAGE_KEY)
-          }
         }
       } catch {
-        /* ignore corrupt state */
+        // Corrupt/unavailable cache must not prevent the authoritative load.
       }
 
-      // 2. Check Supabase session.
-      const supabase = createClient()
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
+      try {
+        const [remote, statusResponse] = await Promise.all([
+          loadUserState(user.id),
+          fetch("/api/premium/status", { cache: "no-store" }).catch(() => null),
+        ])
+        if (cancelled) return
 
-      if (user) {
-        setUserId(user.id)
-        setUserCreatedAt(user.created_at ?? null)
-        identifyAnalyticsUser(user.id)
-        // 3. Refresh state and entitlement concurrently; neither depends on the
-        // other and serializing them adds an avoidable network round trip.
-        try {
-          const remotePromise = loadUserState(user.id)
-          const statusPromise = fetch("/api/premium/status", { cache: "no-store" }).catch(() => null)
-          const [remote, statusResponse] = await Promise.all([remotePromise, statusPromise])
-          
-          if (remote) {
-            const normalized = sanitizeCompanyIds(normalizeEntitlement({ ...DEFAULT_STATE, ...remote }))
-            void ensureUserState(user.id, normalized)
-            if (statusResponse && statusResponse.ok) {
-              const entitlement = (await statusResponse.json()) as {
-                premium: boolean
-                premiumUntil: string | null
-                source: "creator" | "purchase" | "free"
-              }
-              setState({
-                ...normalized,
-                premium: entitlement.premium,
-                premiumUntil: entitlement.premiumUntil ?? undefined,
-                entitlementSource: entitlement.source,
-              })
-            } else {
-              setState(normalized)
+        if (remote) {
+          const normalized = sanitizeCompanyIds(normalizeEntitlement({ ...DEFAULT_STATE, ...remote }))
+          await ensureUserState(user.id, normalized)
+          if (statusResponse?.ok) {
+            const entitlement = await statusResponse.json() as {
+              premium: boolean
+              premiumUntil: string | null
+              source: "creator" | "purchase" | "free"
             }
+            if (cancelled) return
+            setState({
+              ...normalized,
+              premium: entitlement.premium,
+              premiumUntil: entitlement.premiumUntil ?? undefined,
+              entitlementSource: entitlement.source,
+            })
           } else {
-            // `remote` is null only for brand-new users who have no rows in
-            // user_state yet. Seed their row so subsequent syncs have a target.
-            // ensureUserState uses a one-way ratchet on `onboarded`, so this
-            // is safe to call with DEFAULT_STATE (which has onboarded=false).
-            await ensureUserState(user.id, DEFAULT_STATE)
+            setState(normalized)
           }
-        } catch {
-          /* offline — localStorage fallback stays */
+        } else {
+          await ensureUserState(user.id, DEFAULT_STATE)
+          if (!cancelled) setState(DEFAULT_STATE)
         }
-      } else {
-        identifyAnalyticsUser(null)
+      } catch (error) {
+        console.warn("[store] remote hydration failed", error)
+      } finally {
+        if (!cancelled) setHydrated(true)
       }
-
-      // First-time users have no safe cached routing state, so they wait for
-      // the authoritative load. Returning users were already released above.
-      if (!restoredFromCache) setHydrated(true)
     }
 
     void hydrate()
 
-    // 4. Keep userId in sync with auth state changes (sign-in / sign-out).
     const supabase = createClient()
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event: string, session: Session | null) => {
-      setUserId(session?.user?.id ?? null)
-      setUserCreatedAt(session?.user?.created_at ?? null)
-    })
-    return () => subscription.unsubscribe()
+    let activeUserId: string | null = null
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event: string, session: Session | null) => {
+        const nextUserId = session?.user?.id ?? null
+        const changedAccount = activeUserId !== null && nextUserId !== activeUserId
+        if (event === "SIGNED_OUT" || changedAccount) {
+          setHydrated(false)
+          setState(DEFAULT_STATE)
+          setUserId(null)
+          setUserCreatedAt(null)
+          identifyAnalyticsUser(null)
+        }
+        if (event === "SIGNED_IN" && nextUserId && activeUserId !== nextUserId) {
+          window.location.reload()
+        }
+        activeUserId = nextUserId
+        setUserId(nextUserId)
+        setUserCreatedAt(session?.user?.created_at ?? null)
+      },
+    )
+    return () => {
+      cancelled = true
+      subscription.unsubscribe()
+    }
   }, [setState])
 
   React.useEffect(() => {
@@ -317,18 +326,18 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     return () => clearTimeout(id)
   }, [hydrated, state.premium, state.premiumUntil, setState])
 
-  // ── persist to localStorage, debounced so rapid mutations don't thrash ──
+  // Persist only to the current authenticated user's cache namespace.
   React.useEffect(() => {
-    if (!hydrated) return
+    if (!hydrated || !userId) return
     const id = setTimeout(() => {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+        localStorage.setItem(storageKeyForUser(userId), JSON.stringify(state))
       } catch {
         /* quota / private mode */
       }
     }, 400)
     return () => clearTimeout(id)
-  }, [state, hydrated])
+  }, [state, hydrated, userId])
 
   // ── mutate helper ──
   const uidRef = React.useRef(userId)
@@ -642,43 +651,28 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       },
 
       signOut: async () => {
-        // Set hydrated = false FIRST so the persist-to-localStorage effect
-        // (which guards on `if (!hydrated) return`) cannot re-write
-        // DEFAULT_STATE back into storage after removeItem.
         setHydrated(false)
         setState(DEFAULT_STATE)
         setUserId(null)
-        try {
-          localStorage.removeItem(STORAGE_KEY)
-        } catch {
-          /* ignore */
-        }
+        setUserCreatedAt(null)
+        identifyAnalyticsUser(null)
         await createClient().auth.signOut()
         window.location.href = "/auth/login"
       },
 
       deleteAccount: async () => {
-        // Server route erases the auth user + all rows with the service-role key.
-        try {
-          await fetch("/api/account/delete", { method: "POST" })
-        } catch {
-          /* network — still sign out and clear locally below */
+        const response = await fetch("/api/account/delete", { method: "POST" })
+        if (!response.ok) {
+          const payload = await response.json().catch(() => null)
+          throw new Error(payload?.error ?? "Account deletion failed. Your session is still active.")
         }
-        // Same guard as signOut: kill hydrated first so the persist effect
-        // cannot re-write DEFAULT_STATE back into localStorage.
         setHydrated(false)
         setState(DEFAULT_STATE)
         setUserId(null)
-        try {
-          localStorage.removeItem(STORAGE_KEY)
-        } catch {
-          /* ignore */
-        }
-        try {
-          await createClient().auth.signOut()
-        } catch {
-          /* already signed out */
-        }
+        setUserCreatedAt(null)
+        identifyAnalyticsUser(null)
+        await createClient().auth.signOut()
+        window.location.href = "/"
       },
     }),
     [mutate, setState],

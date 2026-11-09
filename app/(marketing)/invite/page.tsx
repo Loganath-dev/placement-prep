@@ -27,8 +27,10 @@ const FEATURES = [
   { icon: "Code2", label: "Coding practice", detail: "DSA problems with in-browser code execution" },
 ]
 
-export default async function InvitePage() {
-  const signupHref = "/auth/signup"
+export default async function InvitePage({ searchParams }: { searchParams: Promise<{ ref?: string }> }) {
+  const params = await searchParams
+  const referral = params.ref && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(params.ref) ? params.ref : null
+  const signupHref = referral ? `/auth/signup?ref=${encodeURIComponent(referral)}` : "/auth/signup"
   const loginHref = "/auth/login"
 
   return (
@@ -67,7 +69,7 @@ export default async function InvitePage() {
               Create your free account
             </p>
             <p className="max-w-sm text-sm text-muted-foreground">
-              No credit card needed. Free gives you all of Section 1 in every company track.
+              No credit card needed. Start with two free lessons in every learning section.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-3">
               <Link

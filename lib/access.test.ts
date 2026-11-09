@@ -7,6 +7,7 @@ import {
   FREE_CHAPTER_PRACTICE_LIMIT,
   FREE_CODING_PROBLEM_LIMIT,
   FREE_INTERVIEW_LIMIT,
+  FREE_LESSONS_PER_SECTION,
   FREE_MOCK_COMPANY,
   FREE_MOCK_LIMIT,
   FREE_PYQ_LIMIT,
@@ -33,26 +34,25 @@ describe("plan access", () => {
         }),
         expect.objectContaining({
           feature: "Learning chapters",
-          free: "Full Section 1 (all chapters) in every track — no cap",
+          free: "Two starter lessons in every learning section",
           premium: "Every section and chapter including advanced placement-level content",
         }),
       ]),
     )
   })
 
-  it("opens all of section 1 for free users and everything for premium users", () => {
+  it("opens every learning section and the first chapter for free", () => {
     expect(canAccessLearningSection(0, false)).toBe(true)
-    expect(canAccessLearningSection(1, false)).toBe(false)
+    expect(canAccessLearningSection(5, false)).toBe(true)
     expect(canAccessLearningSection(4, true)).toBe(true)
 
     expect(canAccessLearningChapter(0, 0, false)).toBe(true)
-    expect(canAccessLearningChapter(0, 1, false)).toBe(true)
-    expect(canAccessLearningChapter(1, 0, false)).toBe(false)
+    expect(canAccessLearningChapter(4, 0, false)).toBe(true)
+    expect(canAccessLearningChapter(0, 1, false)).toBe(false)
     expect(canAccessLearningChapter(5, 3, true)).toBe(true)
 
     expect(canAccessChapterPractice(0, 0, false)).toBe(true)
-    expect(canAccessChapterPractice(0, 1, false)).toBe(true)
-    expect(canAccessChapterPractice(2, 0, false)).toBe(false)
+    expect(canAccessChapterPractice(2, 1, false)).toBe(false)
     expect(canAccessChapterPractice(2, 4, true)).toBe(true)
   })
 
@@ -65,6 +65,7 @@ describe("plan access", () => {
 
   it("centralizes exact free-plan quotas for each limited surface", () => {
     expect(FREE_SECTION_INDEX).toBe(0)
+    expect(FREE_LESSONS_PER_SECTION).toBe(2)
     expect(FREE_PYQ_LIMIT).toBe(15)
     expect(FREE_INTERVIEW_LIMIT).toBe(12)
     expect(FREE_CODING_PROBLEM_LIMIT).toBe(0)

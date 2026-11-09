@@ -28,7 +28,8 @@ export async function POST() {
   // Intentionally NOT deleted: `payments` (financial ledger retained for
   // reconciliation/GST; its user_id FK nulls out when the auth user is deleted)
   // and `question_reports` (anonymized the same way, kept for content QA).
-  await Promise.allSettled([
+  // Do not delete the Auth identity if any owned-data cleanup fails.
+  const cleanup = await Promise.all([
     admin.from("company_progress").delete().eq("user_id", uid),
     admin.from("daily_challenges").delete().eq("id", uid),
     admin.from("mistakes").delete().eq("user_id", uid),
@@ -37,6 +38,14 @@ export async function POST() {
     admin.from("user_state").delete().eq("id", uid),
     admin.from("profiles").delete().eq("id", uid),
   ])
+  const failedCleanup = cleanup.find((result) => result.error)
+  if (failedCleanup?.error) {
+    console.error("[account/delete] owned-data cleanup failed", failedCleanup.error)
+    return NextResponse.json(
+      { error: "Some account data could not be deleted. Please retry or contact support." },
+      { status: 500 },
+    )
+  }
 
   const { error } = await admin.auth.admin.deleteUser(uid)
   if (error) {

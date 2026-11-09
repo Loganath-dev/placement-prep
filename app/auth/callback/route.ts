@@ -26,17 +26,25 @@ export async function GET(request: Request) {
   const tokenHash = searchParams.get("token_hash")
   const type = searchParams.get("type") as EmailOtpType | null
   const next = safeRedirectPath(searchParams.get("next"))
+  const referralParam = searchParams.get("ref")
+  const referralId = referralParam && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(referralParam) ? referralParam : null
 
   const supabase = await createClient()
 
   if (code) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error && data.user) {
+      if (referralId && referralId !== data.user.id) {
+        await supabase.from("profiles").upsert({ id: data.user.id, referred_by: referralId })
+      }
       return NextResponse.redirect(`${origin}${next}`)
     }
   } else if (tokenHash && type) {
     const { data, error } = await supabase.auth.verifyOtp({ type, token_hash: tokenHash })
     if (!error && data.user) {
+      if (referralId && referralId !== data.user.id) {
+        await supabase.from("profiles").upsert({ id: data.user.id, referred_by: referralId })
+      }
       return NextResponse.redirect(`${origin}${next}`)
     }
   }

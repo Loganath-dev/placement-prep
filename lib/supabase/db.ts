@@ -119,10 +119,9 @@ export async function loadUserState(userId: string): Promise<Partial<AppState> |
     sb.from("drive_outcomes").select("id,user_id,company_id,result,stage_reached,pri_at_drive,ts,notes").eq("user_id", userId).order("ts", { ascending: false }).limit(50),
   ])
 
-  for (const res of [profRes, stRes, cpRes, dailyRes, mistakesRes, outcomesRes]) {
-    if (res.error) {
-      console.error("[loadUserState] db query failed:", res.error)
-    }
+  const failedQuery = [profRes, stRes, cpRes, dailyRes, mistakesRes, outcomesRes].find((res) => res.error)
+  if (failedQuery?.error) {
+    throw new Error(`[loadUserState] database hydration failed: ${failedQuery.error.message}`)
   }
 
   const prof = profRes.data as ProfileRow | null

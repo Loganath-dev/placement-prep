@@ -59,6 +59,7 @@ export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
     label: "Review",
     items: [
+      { href: "/referrals", label: "Refer & Earn", icon: "Users" },
       { href: "/readiness", label: "Readiness", icon: "TrendingUp" },
       { href: "/analytics", label: "Analytics", icon: "ChartColumn" },
       { href: "/bookmarks", label: "Bookmarks", icon: "Bookmark" },
@@ -154,6 +155,14 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
           ))}
         </div>
       ))}
+      {isAdmin ? (
+        <div className="mt-2 border-t border-sidebar-border pt-2">
+          <p className="px-3 pb-1 text-[11px] font-semibold uppercase text-sidebar-foreground/45">Administration</p>
+          <NavLink href="/admin/metrics" label="Admin Metrics" icon="Gauge" active={isActive("/admin") && !isActive("/admin/affiliates") && !isActive("/admin/reports")} onClick={onNavigate} />
+          <NavLink href="/admin/affiliates" label="Affiliates" icon="Users" active={isActive("/admin/affiliates")} onClick={onNavigate} />
+          <NavLink href="/admin/reports" label="Question Reports" icon="Flag" active={isActive("/admin/reports")} onClick={onNavigate} />
+        </div>
+      ) : null}
       <div className="my-2 h-px bg-sidebar-border" />
       {FOOTER_ITEMS.map((it) => (
         <NavLink key={it.href} {...it} active={isActive(it.href)} onClick={onNavigate} />

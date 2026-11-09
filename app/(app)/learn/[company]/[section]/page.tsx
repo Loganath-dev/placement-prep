@@ -46,8 +46,7 @@ export default function SectionPage() {
             <div>
               <h1 className="font-heading text-2xl font-bold">{section.name}</h1>
               <p className="mx-auto mt-1 max-w-md text-muted-foreground">
-                Free users can open the first section and first chapter in each track.
-                Upgrade to continue into this section.
+                The first two lessons in every learning section are free. Upgrade to continue beyond the starter lessons.
               </p>
             </div>
             <Link href="/settings" className="text-sm font-medium text-primary hover:underline">
@@ -156,11 +155,11 @@ export default function SectionPage() {
       </div>
 
       <p className="rounded-xl bg-muted/50 p-3 text-center text-sm text-muted-foreground">
-        Free users can open Section 1, Chapter 1 in every track.
+        Every learning section starts with two free lessons.
         {!state.premium ? (
           <>
             {" "}
-            Chapter 2 and deeper sections require Premium.{" "}
+            Further chapters and lessons require Premium.{" "}
             <Link href="/settings" className="text-primary hover:underline">
               Go Premium
             </Link>{" "}

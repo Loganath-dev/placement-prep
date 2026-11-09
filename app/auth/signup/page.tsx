@@ -23,6 +23,8 @@ export default function SignupPage() {
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const [sent, setSent] = React.useState(false)
+  const referralId = searchParams.get("ref")?.trim() ?? ""
+  const validReferralId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(referralId) ? referralId : null
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -37,7 +39,7 @@ export default function SignupPage() {
     const { data, error: err } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback${validReferralId ? `?ref=${encodeURIComponent(validReferralId)}` : ""}`, ...(validReferralId ? { data: { referred_by: validReferralId } } : {}) },
     })
     setLoading(false)
     if (err) {
@@ -91,7 +93,7 @@ export default function SignupPage() {
             Company tracks, starter chapters, sample PYQs, one mock baseline and a readiness score.
           </p>
         </div>
-        <GoogleButton label="Sign up with Google" source="signup" />
+        <GoogleButton label="Sign up with Google" source="signup" referralId={validReferralId} />
         <div className="my-4">
           <OrDivider />
         </div>
