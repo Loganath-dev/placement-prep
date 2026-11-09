@@ -52,9 +52,17 @@ export default function SignupPage() {
     })
     // If email confirmation is off, a session is returned and the user enters the app.
     if (data.session && data.user) {
-      await supabase.from("profiles").insert({
-        id: data.user.id,
-      })
+      if (validReferralId && validReferralId !== data.user.id) {
+        await supabase.from("profiles").upsert(
+          { id: data.user.id, referred_by: validReferralId },
+          { onConflict: "id" },
+        )
+      } else {
+        await supabase.from("profiles").upsert(
+          { id: data.user.id },
+          { onConflict: "id", ignoreDuplicates: true },
+        )
+      }
       router.push("/onboarding")
       router.refresh()
     } else {
