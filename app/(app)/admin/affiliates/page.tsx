@@ -7,6 +7,8 @@ export const dynamic = "force-dynamic"
 export default async function AdminAffiliatesPage() {
   await requireAdmin()
   const admin = createAdminClient()
+  const { error: approvalError } = await admin.rpc("approve_eligible_affiliate_commissions")
+  if (approvalError) throw new Error("Could not refresh eligible affiliate commissions.")
   const [{ data: settings }, { data: commissions }, { data: profiles }, { data: payouts }] = await Promise.all([
     admin.from("affiliate_settings").select("is_enabled,minimum_payout_paise,waiting_period_days").eq("id",1).maybeSingle(),
     admin.from("affiliate_commissions").select("id,referrer_id,payment_id,payment_amount,commission_amount,eligible_date,status,created_at").order("created_at",{ascending:false}).limit(1000),
