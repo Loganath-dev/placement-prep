@@ -160,7 +160,7 @@ function Hero() {
             </StartCta>
             <Button asChild size="lg" variant="outline">
               <TrackedLink href="#pricing" placement="hero_pricing">
-                See ₹249 plan
+                See Premium plans
               </TrackedLink>
             </Button>
           </div>
@@ -261,7 +261,7 @@ function WhyJoinSection() {
             </StartCta>
             <Button asChild variant="outline" className="border-white/25 bg-white/8 text-white hover:bg-white/14 hover:text-white">
               <TrackedLink href="#pricing" placement="why_join_pricing">
-                See ₹249 Premium
+                See Premium plans
               </TrackedLink>
             </Button>
           </div>
@@ -288,7 +288,7 @@ function WhyJoinSection() {
               {premiumPriceLabel()}
             </p>
             <p className="mt-1 text-sm text-slate-600">
-              Annual subscription. Premium access lasts 365 days after your payment is verified.
+              Choose 6 months for ₹299 or 1 year for ₹499. Access starts after payment verification.
             </p>
             <StartCta placement="why_join_join_now" className="mt-4 w-full bg-slate-950 text-white hover:bg-slate-900">
               Join now
@@ -343,7 +343,7 @@ function ProblemSection() {
     {
       icon: "TrendingUp",
       title: "Free plan first, Premium when you're ready",
-      body: "Start with full access to Section 1 across all tracks. When you want deeper mocks, coding, and PYQ banks — upgrade for ₹249.",
+      body: "Start with full access to Section 1 across all tracks. When you want deeper mocks, coding, and PYQ banks — choose ₹299 for 6 months or ₹499 for one year.",
     },
   ]
 
