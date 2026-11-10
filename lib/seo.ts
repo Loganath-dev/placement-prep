@@ -1,4 +1,4 @@
-import { PREMIUM_PRICE_INR } from "@/lib/access"
+import { PREMIUM_PRICE_INR, PREMIUM_SIX_MONTH_PRICE_INR } from "@/lib/access"
 import { SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/content/blocks"
 import type { Metadata } from "next"
 
@@ -223,11 +223,18 @@ export function softwareApplicationJsonLd() {
       },
       {
         "@type": "Offer",
-        name: "Premium",
+        name: "Premium — 6 months",
+        price: String(PREMIUM_SIX_MONTH_PRICE_INR),
+        priceCurrency: "INR",
+        description: "Full Premium access for 183 days.",
+        availability: "https://schema.org/InStock",
+      },
+      {
+        "@type": "Offer",
+        name: "Premium — 1 year",
         price: String(PREMIUM_PRICE_INR),
         priceCurrency: "INR",
-        description: "Full access to all chapters, PYQs, mock tests, interview bank and analytics.",
-        priceValidUntil: "2027-03-31",
+        description: "Full Premium access for 365 days.",
         availability: "https://schema.org/InStock",
       },
     ],
