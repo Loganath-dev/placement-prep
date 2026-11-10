@@ -74,7 +74,7 @@ describe("Razorpay annual checkout",()=>{
  })
  it("honours rate limits",async()=>{
   mockAuth(USER);vi.mocked(rateLimit).mockResolvedValue({allowed:false,remaining:0})
-  expect((await orderPOST()).status).toBe(429)
+  expect((await orderPOST(req({planKey:PREMIUM_PLAN_KEY}))).status).toBe(429)
  })
 })
 
