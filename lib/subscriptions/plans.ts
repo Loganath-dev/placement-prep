@@ -5,19 +5,19 @@ import {
 
 export interface ResolvedPurchasePlan {
  planKey:string; amountPaise:number; entitlementDays:number|null;
- affiliateEligible:boolean; legacy:boolean;
+ affiliateEligible:boolean; affiliateCommissionPaise:number; legacy:boolean;
 }
 
 export const ACTIVE_PURCHASE_PLANS = {
  [PREMIUM_SIX_MONTH_PLAN_KEY]: {
   planKey: PREMIUM_SIX_MONTH_PLAN_KEY, name: "Premium — 6 months",
   amountPaise: PREMIUM_SIX_MONTH_AMOUNT_PAISE, entitlementDays: PREMIUM_SIX_MONTH_DURATION_DAYS,
-  affiliateEligible: true, legacy: false,
+  affiliateEligible: true, affiliateCommissionPaise: 2500, legacy: false,
  },
  [PREMIUM_PLAN_KEY]: {
   planKey: PREMIUM_PLAN_KEY, name: "Premium — 1 year",
   amountPaise: PREMIUM_AMOUNT_PAISE, entitlementDays: PREMIUM_DURATION_DAYS,
-  affiliateEligible: true, legacy: false,
+  affiliateEligible: true, affiliateCommissionPaise: 5000, legacy: false,
  },
 } satisfies Record<string,ResolvedPurchasePlan & {name:string}>
 
@@ -38,7 +38,7 @@ export function resolveRazorpayOrderPlan(order:{amount?:unknown;currency?:unknow
  }
  // Resolve only historical orders that predate explicit plan metadata.
  const legacy:Record<number,Omit<ResolvedPurchasePlan,"amountPaise">>={
-  14900:{planKey:"premium_3_months",entitlementDays:90,affiliateEligible:false,legacy:true},
+  14900:{planKey:"premium_3_months",entitlementDays:90,affiliateEligible:false,affiliateCommissionPaise:0,legacy:true},
   49900:{planKey:"premium_yearly",entitlementDays:365,affiliateEligible:false,legacy:true},
   24900:{planKey:"premium_lifetime_legacy",entitlementDays:null,affiliateEligible:false,legacy:true},
  }
