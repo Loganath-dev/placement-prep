@@ -344,7 +344,7 @@ export const TERMS: LegalDoc = {
   slug: "terms",
   title: "Terms & Conditions",
   effectiveDate: "6 June 2026",
-  lastUpdated: "19 June 2026",
+  lastUpdated: "10 November 2026",
   notice:
     "These Terms & Conditions, together with the Privacy Policy, form a legally binding agreement between you and StudyBench and constitute an \"electronic record\" under the Information Technology Act, 2000. Please read them carefully before using the Platform.",
   intro: [
@@ -434,7 +434,7 @@ export const TERMS: LegalDoc = {
         {
           k: "list",
           items: [
-            "The Platform offers a free tier and an optional paid **Premium** plan (currently priced at **₹149/year**, inclusive of applicable taxes unless stated otherwise).",
+            "The Platform offers a free tier and an optional paid **Premium** plan, currently priced at **₹249 per year**, inclusive of applicable taxes unless stated otherwise.",
             "Payments are processed by our third-party gateway (Razorpay). By purchasing, you also agree to the gateway's terms. We do not store your card or UPI credentials.",
             "Prices, features and taxes (including GST) may change prospectively; the price applicable at the time of your purchase governs that purchase.",
             "Unless expressly stated as auto-renewing at checkout, subscriptions do not auto-renew, and you will need to renew manually to continue Premium access.",
@@ -443,20 +443,20 @@ export const TERMS: LegalDoc = {
       ],
     },
     {
-      id: "refunds",
-      heading: "8. Cancellation and Refund Policy",
+      id: "payment-finality",
+      heading: "8. Payment Finality and No-Refund Policy",
       blocks: [
         {
           k: "p",
-          text: "Because Premium grants immediate access to digital educational content, fees are **generally non-refundable** once access has been provided, except where required by applicable law or stated below.",
+          text: "Please review the plan details and price before completing your purchase. A Premium purchase is a one-time payment for the stated access period. Once the payment is successfully confirmed and Premium access is activated, the fee is **non-refundable and non-transferable**. We do not provide refunds, credits, or prorated reimbursements for change of mind, accidental purchase, non-use, partial use, failure to complete lessons, or a decision to stop using the Platform.",
         },
         {
-          k: "list",
-          items: [
-            "**Failed/duplicate payments:** if you are charged but Premium is not activated, or you are charged more than once for the same plan, contact studybench07@gmail.com within 7 days for verification and a full refund of the erroneous amount.",
-            "**Cancellation:** you may cancel Premium at any time from Settings; cancellation stops future renewals and you retain access until the end of the paid period.",
-            "Approved refunds are processed to the original payment method within a reasonable period, typically 5-10 business days, subject to the gateway's timelines.",
-          ],
+          k: "p",
+          text: "If you stop using StudyBench or choose to close your account, this does not create a right to a refund. Your Premium access remains subject to the purchased access period and these Terms. The no-refund policy does not exclude any remedy or right that cannot lawfully be excluded, including correction of a duplicate charge or a payment for which the purchased access was not provided.",
+        },
+        {
+          k: "p",
+          text: "If a payment is debited but Premium access is not activated, or if the same purchase is charged more than once, contact studybench07@gmail.com with the transaction reference so we can investigate and correct the payment or access issue. Any remedy will be handled in accordance with applicable law and the payment provider's process.",
         },
       ],
     },
