@@ -52,7 +52,7 @@ export async function POST(request:Request) {
   if(plan.affiliateEligible) {
    // Do not swallow commission errors: the same verified payment can be
    // safely retried, and the unique payment_id keeps the credit idempotent.
-   await recordAnnualAffiliateCommission(admin,{userId:user.id,paymentId,paymentAmount:plan.amountPaise})
+   await recordAnnualAffiliateCommission(admin,{userId:user.id,paymentId,paymentAmount:plan.amountPaise,commissionAmount:plan.affiliateCommissionPaise})
   }
   return NextResponse.json({ok:true,paymentId,premiumUntil,planKey:plan.planKey})
  } catch(error) {
