@@ -5,7 +5,7 @@ import {
   FREE_CODING_PROBLEM_LIMIT, FREE_INTERVIEW_LIMIT, FREE_LESSONS_PER_TOPIC,
   FREE_MOCK_COMPANY, FREE_MOCK_LIMIT, FREE_PYQ_LIMIT, FREE_SECTION_INDEX,
   lockedCount, PLAN_FEATURES, PREMIUM_AMOUNT_PAISE, PREMIUM_DURATION_DAYS,
-  PREMIUM_PLAN_KEY, premiumPriceLabel, visibleCodingTestsForPlan, visibleForPlan,
+  PREMIUM_PLAN_KEY, PREMIUM_SIX_MONTH_AMOUNT_PAISE, PREMIUM_SIX_MONTH_DURATION_DAYS, PREMIUM_SIX_MONTH_PLAN_KEY, premiumPriceLabel, visibleCodingTestsForPlan, visibleForPlan,
   visibleMocksForPlan,
 } from "@/lib/access"
 import { MOCKS_PER_COMPANY, mocksForCompany } from "@/lib/data/mocks"
@@ -72,10 +72,13 @@ describe("approved StudyBench access policy", () => {
     expect(visibleCodingTestsForPlan(cases, true)).toEqual(cases)
   })
 
-  it("uses exactly ₹249, 24,900 paise and 365 days for Premium", () => {
-    expect(premiumPriceLabel()).toBe("₹249/year")
-    expect(PREMIUM_AMOUNT_PAISE).toBe(24_900)
+  it("defines the ₹299 six-month and ₹499 annual Premium plans", () => {
+    expect(premiumPriceLabel()).toBe("₹299/6 months or ₹499/year")
+    expect(PREMIUM_SIX_MONTH_AMOUNT_PAISE).toBe(29_900)
+    expect(PREMIUM_SIX_MONTH_DURATION_DAYS).toBe(183)
+    expect(PREMIUM_SIX_MONTH_PLAN_KEY).toBe("premium_6_months_299")
+    expect(PREMIUM_AMOUNT_PAISE).toBe(49_900)
     expect(PREMIUM_DURATION_DAYS).toBe(365)
-    expect(PREMIUM_PLAN_KEY).toBe("premium_annual_249")
+    expect(PREMIUM_PLAN_KEY).toBe("premium_annual_499")
   })
 })
