@@ -5,14 +5,14 @@ import { rateLimit } from "@/lib/rate-limit"
 import { createClient } from "@/lib/supabase/server"
 
 export async function POST(request:Request) {
- const body=await request.json().catch(()=>({})) as {planKey?:unknown}
- const plan=getActivePurchasePlan(body.planKey)
- if(!plan) return NextResponse.json({error:"Choose a valid Premium plan."},{status:400})
  const razorpay=getRazorpayEnvOrNull()
  if(!razorpay) return NextResponse.json({error:"Razorpay keys are not configured."},{status:500})
  const supabase=await createClient()
  const {data:{user}}=await supabase.auth.getUser()
  if(!user) return NextResponse.json({error:"Not authenticated."},{status:401})
+ const body=await request.json().catch(()=>({})) as {planKey?:unknown}
+ const plan=getActivePurchasePlan(body.planKey)
+ if(!plan) return NextResponse.json({error:"Choose a valid Premium plan."},{status:400})
  const {data:current,error}=await supabase.from("user_state").select("premium,premium_until").eq("id",user.id).maybeSingle()
  if(error) return NextResponse.json({error:"Could not verify your subscription status."},{status:500})
  if(current?.premium&&!current.premium_until)
