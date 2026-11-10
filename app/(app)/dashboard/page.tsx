@@ -16,7 +16,7 @@ import {
 import { SharePriCard } from "@/components/app/share-pri-card"
 import { DashboardLearningOverview } from "@/components/app/dashboard-learning-overview"
 import { UpgradeBanner } from "@/components/app/upgrade-prompt"
-import { premiumPriceLabel, PREMIUM_DURATION_DAYS } from "@/lib/access"
+import { PREMIUM_PRICE_INR, PREMIUM_SIX_MONTH_PRICE_INR, PREMIUM_SIX_MONTH_DURATION_DAYS, PREMIUM_DURATION_DAYS } from "@/lib/access"
 import { getCompany, SELECTABLE_COMPANIES } from "@/lib/data/companies"
 import { getSections } from "@/lib/data/content"
 import {
@@ -101,7 +101,9 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      {/* Hero — greeting, readiness snapshot and the single highest-impact action */}
+      <DashboardLearningOverview />
+
+      {/* Readiness is useful context, but the learning path is the primary action. */}
       <Card className="animate-in overflow-hidden border-primary/15 shadow-[0_28px_80px_-52px_oklch(0.25_0.12_260_/_55%)] duration-500 fade-in slide-in-from-bottom-2 motion-reduce:animate-none">
         <CardContent className="grid gap-6 p-5 sm:p-6 md:grid-cols-[minmax(0,15rem)_1fr] md:gap-8">
           {/* Readiness column */}
@@ -219,8 +221,6 @@ export default function DashboardPage() {
           </div>
         </CardContent>
       </Card>
-
-      <DashboardLearningOverview />
 
       {!state.premium && (
         <div className="grid gap-4 lg:grid-cols-[1.4fr_.8fr]">
@@ -370,15 +370,12 @@ function PaymentValueCard() {
           <p className="flex items-center gap-2 text-sm font-semibold text-primary-foreground/85">
             <Icon name="CreditCard" className="size-4" /> Premium value
           </p>
-          <div className="mt-3 flex items-end gap-2">
-            <p className="font-heading text-3xl font-bold">{premiumPriceLabel()}</p>
-            <p className="pb-1 text-sm text-primary-foreground/75">
-              {PREMIUM_DURATION_DAYS} days
-            </p>
+          <div className="mt-3 grid grid-cols-2 gap-3">
+            <div><p className="font-heading text-2xl font-bold">₹{PREMIUM_SIX_MONTH_PRICE_INR}</p><p className="text-xs text-primary-foreground/75">{PREMIUM_SIX_MONTH_DURATION_DAYS} days</p></div>
+            <div><p className="font-heading text-2xl font-bold">₹{PREMIUM_PRICE_INR}</p><p className="text-xs text-primary-foreground/75">{PREMIUM_DURATION_DAYS} days</p></div>
           </div>
           <p className="mt-2 text-sm leading-relaxed text-primary-foreground/82">
-            One annual subscription unlocks the complete company preparation
-            curriculum, practice banks and mock assessments for 365 days.
+            Choose six months or one year. Both plans unlock the complete Premium learning and practice experience.
           </p>
         </div>
         <Button asChild variant="secondary" className="w-full justify-between">
