@@ -99,6 +99,14 @@ describe("Razorpay payment verification",()=>{
   expect(grantPaymentEntitlement).toHaveBeenCalledWith(expect.anything(),paymentId)
   expect(recordAnnualAffiliateCommission).toHaveBeenCalledWith(expect.anything(),{userId:USER.id,paymentId,paymentAmount:49900,commissionAmount:5000})
  })
+ it("grants 183 days and ₹25 referral commission for a six-month purchase",async()=>{
+  mockAuth(USER)
+  mockOrder({notes:{user_id:USER.id,plan_key:PREMIUM_SIX_MONTH_PLAN_KEY},amount:29900,currency:"INR"},{id:paymentId,status:"captured",order_id:orderId,amount:29900,currency:"INR"})
+  const response=await verifyPOST(req({razorpay_order_id:orderId,razorpay_payment_id:paymentId,razorpay_signature:await signature()}))
+  expect(response.status).toBe(200)
+  expect(recordPaymentOnce).toHaveBeenCalledWith(expect.anything(),expect.objectContaining({amount:29900,planKey:PREMIUM_SIX_MONTH_PLAN_KEY,entitlementDays:183}))
+  expect(recordAnnualAffiliateCommission).toHaveBeenCalledWith(expect.anything(),{userId:USER.id,paymentId,paymentAmount:29900,commissionAmount:2500})
+ })
  it("rejects order ownership, order amount mismatch and uncaptured payments",async()=>{
   mockAuth(USER);mockOrder(annualOrder({notes:{user_id:"other",plan_key:PREMIUM_PLAN_KEY}}))
   const wrongOwner=await verifyPOST(req({razorpay_order_id:orderId,razorpay_payment_id:paymentId,razorpay_signature:await signature()}))
