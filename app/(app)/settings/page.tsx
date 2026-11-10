@@ -34,6 +34,7 @@ import {
   premiumPriceLabel,
 } from "@/lib/access"
 import { SELECTABLE_COMPANIES, getCompany } from "@/lib/data/companies"
+import { PREMIUM_PLAN_KEY, PREMIUM_SIX_MONTH_PLAN_KEY } from "@/lib/access"
 import { useStore } from "@/lib/store"
 import type { CompanyId, Profile } from "@/lib/types"
 
@@ -77,6 +78,7 @@ export default function SettingsPage() {
 
   const available = SELECTABLE_COMPANIES.filter((c) => !state.interested.includes(c.id))
   const [checkingOut, setCheckingOut] = React.useState(false)
+  const [selectedPlanKey, setSelectedPlanKey] = React.useState(PREMIUM_PLAN_KEY)
   const [creatorCode, setCreatorCode] = React.useState("")
   const [redeemingCode, setRedeemingCode] = React.useState(false)
   const [renderSecondarySections, setRenderSecondarySections] = React.useState(false)
@@ -102,7 +104,7 @@ export default function SettingsPage() {
     setCheckingOut(true)
     try {
       await loadRazorpayCheckout()
-      const orderResponse = await fetch("/api/razorpay/order", { method: "POST" })
+      const orderResponse = await fetch("/api/razorpay/order", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ planKey: selectedPlanKey }) })
       const order = await readApiJson<{ error?: string; keyId?: string; amount?: number; currency?: string; orderId?: string }>(
         orderResponse,
         "Could not start checkout.",
@@ -118,7 +120,7 @@ export default function SettingsPage() {
         amount: order.amount,
         currency: order.currency,
         name: "StudyBench",
-        description: "StudyBench Premium - 1 year",
+        description: selectedPlanKey === PREMIUM_SIX_MONTH_PLAN_KEY ? "StudyBench Premium - 6 months" : "StudyBench Premium - 1 year",
         order_id: order.orderId,
         prefill: { name: state.profile.name },
         theme: { color: "#2563eb" },
@@ -138,7 +140,7 @@ export default function SettingsPage() {
           }
           activatePremium(verified.premiumUntil)
           toast.success("Premium activated", {
-            description: "Payment verified and your plan is active for one year.",
+            description: selectedPlanKey === PREMIUM_SIX_MONTH_PLAN_KEY ? "Payment verified and your plan is active for six months." : "Payment verified and your plan is active for one year.",
           })
         },
       })
@@ -232,7 +234,7 @@ export default function SettingsPage() {
               <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
                 <div className="space-y-2">
                   <p className="font-heading text-lg font-semibold">StudyBench Premium</p>
-                  <LaunchOffer />
+                  <div className="flex flex-wrap gap-3"><button type="button" aria-pressed={selectedPlanKey === PREMIUM_SIX_MONTH_PLAN_KEY} onClick={() => setSelectedPlanKey(PREMIUM_SIX_MONTH_PLAN_KEY)} className="rounded-xl border border-border p-3 text-left aria-pressed:border-primary aria-pressed:bg-primary/5"><span className="block text-sm font-semibold">6 months · ₹299</span><span className="block text-xs text-muted-foreground">₹25 referral reward</span></button><button type="button" aria-pressed={selectedPlanKey === PREMIUM_PLAN_KEY} onClick={() => setSelectedPlanKey(PREMIUM_PLAN_KEY)} className="rounded-xl border border-border p-3 text-left aria-pressed:border-primary aria-pressed:bg-primary/5"><span className="block text-sm font-semibold">1 year · ₹499</span><span className="block text-xs text-muted-foreground">₹50 referral reward</span></button></div>
                   <p className="max-w-2xl text-sm text-muted-foreground">
                     Pay {premiumPriceLabel()} through Razorpay to unlock deeper company
                     preparation, more mocks and better feedback for {premiumTargetNames.join(", ")}.
@@ -245,7 +247,7 @@ export default function SettingsPage() {
                   disabled={checkingOut}
                   className="shrink-0"
                 >
-                  {checkingOut ? "Opening checkout..." : `Pay ${premiumPriceLabel()}`}
+                  {checkingOut ? "Opening checkout..." : `Pay ${selectedPlanKey === PREMIUM_SIX_MONTH_PLAN_KEY ? "₹299" : "₹499"}`}
                   {!checkingOut ? <Icon name="ArrowRight" className="size-4" /> : null}
                 </Button>
               </div>
