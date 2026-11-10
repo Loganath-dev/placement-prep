@@ -343,7 +343,7 @@ export const PRIVACY_POLICY: LegalDoc = {
 export const TERMS: LegalDoc = {
   slug: "terms",
   title: "Terms & Conditions",
-  effectiveDate: "6 June 2026",
+  effectiveDate: "10 November 2026",
   lastUpdated: "10 November 2026",
   notice:
     "These Terms & Conditions, together with the Privacy Policy, form a legally binding agreement between you and StudyBench and constitute an \"electronic record\" under the Information Technology Act, 2000. Please read them carefully before using the Platform.",
