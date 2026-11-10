@@ -21,7 +21,7 @@ export default async function ReferralsPage() {
     <div className="mx-auto max-w-5xl space-y-6 px-4 py-8">
       <div>
         <h1 className="font-heading text-3xl font-bold">Refer and earn</h1>
-        <p className="mt-1 text-muted-foreground">Earn a fixed ₹50 when a referred student completes an eligible ₹249 annual purchase.</p>
+        <p className="mt-1 text-muted-foreground">Earn ₹25 when a referred student completes a six-month ₹299 purchase, or ₹50 for a one-year ₹499 purchase.</p>
       </div>
       <section className="rounded-xl border border-border bg-card p-5">
         <p className="font-semibold">Your referral link</p>
