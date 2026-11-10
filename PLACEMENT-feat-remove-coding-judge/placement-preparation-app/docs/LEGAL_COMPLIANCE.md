@@ -25,7 +25,7 @@ for the signed record.
 | Intermediary duties & grievance | **IT (Intermediary Guidelines & Digital Media Ethics Code) Rules, 2021** | Privacy Policy §17; Terms §§10, 18 |
 | Cyber-incident reporting | **CERT-In Directions, 2022** | Privacy Policy §12 |
 | Contract formation & capacity | **Indian Contract Act, 1872 (s.10, s.11)** | Terms §1 |
-| Consumer protection / e-commerce | **Consumer Protection Act, 2019** + **CP (E-Commerce) Rules, 2020** | Terms §§3, 7, 8, 18 (no misleading claims, price/refund disclosure, grievance) |
+| Consumer protection / e-commerce | **Consumer Protection Act, 2019** + **CP (E-Commerce) Rules, 2020** | Terms §§3, 7, 8, 18 (no misleading claims, price and non-refund disclosure, grievance) |
 | Electronic record | **IT Act, 2000 (s.4)** | Terms notice |
 | Dispute resolution | **Arbitration and Conciliation Act, 1996** | Terms §20 |
 
@@ -54,7 +54,7 @@ for the signed record.
    Required under IT Rules 2021 r.3(2) and DPDP.
 3. **Seat / jurisdiction city** for arbitration and courts (Terms §20; Privacy §18).
 4. **Working contact mailboxes** — `privacy@`, `support@`, `grievance@studybench.in`.
-5. Confirm the **Premium price (₹149/year)**, GST treatment, and whether the plan
+5. Confirm the **Premium price (₹249/year)** and GST treatment, and whether the plan
    **auto-renews** (Terms §7 currently states *non-auto-renew unless stated at checkout*).
 
 ## 4. Recommended operational steps (not yet implemented in-app)
