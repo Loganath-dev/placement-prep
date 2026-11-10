@@ -1,7 +1,8 @@
 import type { CompanyId } from "@/lib/types"
 
 export const PREMIUM_PRICE_INR = 249
-export const PREMIUM_DURATION_LABEL = "lifetime"
+export const PREMIUM_DURATION_DAYS = 365
+export const PREMIUM_DURATION_LABEL = "year"
 export const PREMIUM_MONTHLY_EQUIVALENT_INR = Math.ceil(PREMIUM_PRICE_INR / 12)
 export const PREMIUM_FOOD_COMPARISON_LABEL = "Less than one canteen snack a month"
 export const FREE_PYQ_LIMIT = 15
@@ -56,13 +57,8 @@ export const PLAN_FEATURES = [
   },
 ] as const
 
-export function canAccessLearningChapter(
-  sectionIndex: number,
-  _chapterIndex: number,
-  premium: boolean,
-): boolean {
+export function canAccessLearningChapter(sectionIndex: number, _chapterIndex: number, premium: boolean): boolean {
   if (premium) return true
-  // Free users get the entire first section — all its chapters
   return sectionIndex === FREE_SECTION_INDEX
 }
 
@@ -71,11 +67,7 @@ export function canAccessLearningSection(sectionIndex: number, premium: boolean)
   return sectionIndex === FREE_SECTION_INDEX
 }
 
-export function canAccessChapterPractice(
-  sectionIndex: number,
-  chapterIndex: number,
-  premium: boolean,
-): boolean {
+export function canAccessChapterPractice(sectionIndex: number, chapterIndex: number, premium: boolean): boolean {
   return canAccessLearningChapter(sectionIndex, chapterIndex, premium)
 }
 
@@ -92,20 +84,13 @@ export function canAccessMockCompany(companyId: CompanyId, premium: boolean): bo
   return premium || companyId === FREE_MOCK_COMPANY
 }
 
-export function visibleMocksForPlan<T>(
-  mocks: T[],
-  companyId: CompanyId,
-  premium: boolean,
-): T[] {
+export function visibleMocksForPlan<T>(mocks: T[], companyId: CompanyId, premium: boolean): T[] {
   if (premium) return mocks
   if (!canAccessMockCompany(companyId, premium)) return []
   return mocks.slice(0, FREE_MOCK_LIMIT)
 }
 
-export function visibleCodingTestsForPlan<T extends { hidden?: boolean }>(
-  testCases: T[],
-  premium: boolean,
-): T[] {
+export function visibleCodingTestsForPlan<T extends { hidden?: boolean }>(testCases: T[], premium: boolean): T[] {
   return premium ? testCases : testCases.filter((testCase) => !testCase.hidden)
 }
 
