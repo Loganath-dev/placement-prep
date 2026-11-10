@@ -231,9 +231,7 @@ export default function SettingsPage() {
                   <p className="font-heading text-lg font-semibold">StudyBench Premium</p>
                   <div className="flex flex-wrap gap-3"><button type="button" aria-pressed={selectedPlanKey === PREMIUM_SIX_MONTH_PLAN_KEY} onClick={() => setSelectedPlanKey(PREMIUM_SIX_MONTH_PLAN_KEY)} className="rounded-xl border border-border p-3 text-left aria-pressed:border-primary aria-pressed:bg-primary/5"><span className="block text-sm font-semibold">6 months · ₹299</span><span className="block text-xs text-muted-foreground">Referrer earns ₹25</span></button><button type="button" aria-pressed={selectedPlanKey === PREMIUM_PLAN_KEY} onClick={() => setSelectedPlanKey(PREMIUM_PLAN_KEY)} className="rounded-xl border border-border p-3 text-left aria-pressed:border-primary aria-pressed:bg-primary/5"><span className="block text-sm font-semibold">1 year · ₹499</span><span className="block text-xs text-muted-foreground">Referrer earns ₹50</span></button></div>
                   <p className="max-w-2xl text-sm text-muted-foreground">
-                    Pay {premiumPriceLabel()} through Razorpay to unlock deeper company
-                    preparation, more mocks and better feedback for {premiumTargetNames.join(", ")}.
-                    Your Premium access lasts 365 days after the payment is verified. Your learning progress remains saved after Premium expires.
+                    Choose either plan through Razorpay to unlock deeper company preparation, more mocks and better feedback for {premiumTargetNames.join(", ")}. Your selected access period begins after payment verification. Your learning progress remains saved after Premium expires.
                   </p>
                 </div>
                 <Button
