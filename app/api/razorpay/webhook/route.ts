@@ -63,7 +63,7 @@ export async function POST(request:Request) {
   if(plan.affiliateEligible) {
    // A failed affiliate write must fail the webhook so Razorpay retries it.
    // Payment and entitlement writes are idempotent on the retry.
-   await recordAnnualAffiliateCommission(admin,{userId,paymentId,paymentAmount:plan.amountPaise})
+   await recordAnnualAffiliateCommission(admin,{userId,paymentId,paymentAmount:plan.amountPaise,commissionAmount:plan.affiliateCommissionPaise})
   }
   logger.info("[webhook] Premium activation handled",{event:eventName,userId,planKey:plan.planKey})
   return NextResponse.json({ok:true,event:eventName})
