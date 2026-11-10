@@ -72,7 +72,7 @@ export function DashboardLearningOverview() {
             <div>
               <div className="flex items-center justify-between">
                 <p className="font-heading font-semibold">Your momentum</p>
-                <Icon name="Flame" className="size-5 text-warning" />
+                <Icon name="Zap" className="size-5 text-warning" />
               </div>
               <div className="mt-4 grid grid-cols-2 gap-3">
                 <div className="rounded-xl bg-muted/55 p-3">
@@ -109,7 +109,7 @@ export function DashboardLearningOverview() {
         <QuickLink href="/coding" icon="Code2" title="Coding practice" detail="Solve problems and review attempts" />
         <QuickLink href="/mock" icon="ClipboardCheck" title="Mock tests" detail="Check your placement readiness" />
         <QuickLink href="/practice" icon="BookOpenCheck" title="Practice questions" detail="Strengthen concepts with questions" />
-        <QuickLink href="/analytics" icon="ChartNoAxesCombined" title="Your analytics" detail="Find strengths and weak areas" />
+        <QuickLink href="/analytics" icon="BarChart3" title="Your analytics" detail="Find strengths and weak areas" />
       </div>
     </section>
   )
