@@ -1,5 +1,5 @@
 import { afterEach,beforeEach,describe,expect,it,vi } from "vitest"
-import { PREMIUM_AMOUNT_PAISE,PREMIUM_PLAN_KEY } from "@/lib/access"
+import { PREMIUM_AMOUNT_PAISE,PREMIUM_PLAN_KEY,PREMIUM_SIX_MONTH_AMOUNT_PAISE,PREMIUM_SIX_MONTH_PLAN_KEY } from "@/lib/access"
 import { hmacSha256Hex } from "@/lib/crypto/edge-hmac"
 
 vi.mock("@/lib/supabase/server",()=>({createClient:vi.fn()}))
@@ -51,15 +51,26 @@ describe("Razorpay annual checkout",()=>{
   mockAuth(USER,{premium:true,premium_until:null})
   expect((await orderPOST()).status).toBe(409)
  })
- it("creates exactly one ₹249 annual plan order",async()=>{
+ it("creates the selected annual Premium plan order",async()=>{
   mockAuth(USER)
   const fetchMock=vi.fn(async(_url:string,init:RequestInit)=>({ok:true,json:async()=>({id:"order_1",amount:AMOUNT,currency:"INR"}),init}))
   vi.stubGlobal("fetch",fetchMock)
-  const response=await orderPOST()
+  const response=await orderPOST(req({planKey:PREMIUM_PLAN_KEY}))
   expect(response.status).toBe(200)
   const sent=JSON.parse(fetchMock.mock.calls[0][1].body as string)
-  expect(sent.amount).toBe(24900)
+  expect(sent.amount).toBe(49900)
   expect(sent.notes).toEqual({user_id:USER.id,plan_key:PREMIUM_PLAN_KEY})
+ })
+
+ it("creates a six-month ₹299 order with its own plan key",async()=>{
+  mockAuth(USER)
+  const fetchMock=vi.fn(async(_url:string,init:RequestInit)=>({ok:true,json:async()=>({id:"order_6m",amount:PREMIUM_SIX_MONTH_AMOUNT_PAISE,currency:"INR"}),init}))
+  vi.stubGlobal("fetch",fetchMock)
+  const response=await orderPOST(req({planKey:PREMIUM_SIX_MONTH_PLAN_KEY}))
+  expect(response.status).toBe(200)
+  const sent=JSON.parse(fetchMock.mock.calls[0][1].body as string)
+  expect(sent.amount).toBe(29900)
+  expect(sent.notes.plan_key).toBe(PREMIUM_SIX_MONTH_PLAN_KEY)
  })
  it("honours rate limits",async()=>{
   mockAuth(USER);vi.mocked(rateLimit).mockResolvedValue({allowed:false,remaining:0})
@@ -84,9 +95,9 @@ describe("Razorpay payment verification",()=>{
   mockAuth(USER);mockOrder(annualOrder())
   const response=await verifyPOST(req({razorpay_order_id:orderId,razorpay_payment_id:paymentId,razorpay_signature:await signature()}))
   expect(response.status).toBe(200)
-  expect(recordPaymentOnce).toHaveBeenCalledWith(expect.anything(),expect.objectContaining({amount:24900,planKey:PREMIUM_PLAN_KEY,entitlementDays:365}))
+  expect(recordPaymentOnce).toHaveBeenCalledWith(expect.anything(),expect.objectContaining({amount:49900,planKey:PREMIUM_PLAN_KEY,entitlementDays:365}))
   expect(grantPaymentEntitlement).toHaveBeenCalledWith(expect.anything(),paymentId)
-  expect(recordAnnualAffiliateCommission).toHaveBeenCalledWith(expect.anything(),{userId:USER.id,paymentId,paymentAmount:24900})
+  expect(recordAnnualAffiliateCommission).toHaveBeenCalledWith(expect.anything(),{userId:USER.id,paymentId,paymentAmount:49900,commissionAmount:5000})
  })
  it("rejects order ownership, order amount mismatch and uncaptured payments",async()=>{
   mockAuth(USER);mockOrder(annualOrder({notes:{user_id:"other",plan_key:PREMIUM_PLAN_KEY}}))
@@ -125,7 +136,7 @@ describe("Razorpay webhook reconciliation",()=>{
  })
  it("loads the Razorpay order and grants the verified annual plan",async()=>{
   vi.stubGlobal("fetch",vi.fn(async()=>({ok:true,json:async()=>annualOrder()})))
-  const payload={event:"payment.captured",payload:{payment:{entity:{id:"pay_2",status:"captured",order_id:"order_2",amount:24900,currency:"INR"}}}}
+  const payload={event:"payment.captured",payload:{payment:{entity:{id:"pay_2",status:"captured",order_id:"order_2",amount:49900,currency:"INR"}}}}
   const response=await webhookPOST(signed(payload,await sign(payload)))
   expect(response.status).toBe(200)
   expect(recordPaymentOnce).toHaveBeenCalledWith(expect.anything(),expect.objectContaining({planKey:PREMIUM_PLAN_KEY,entitlementDays:365}))
@@ -133,7 +144,7 @@ describe("Razorpay webhook reconciliation",()=>{
  })
  it("rejects webhook events whose payment is not captured",async()=>{
   vi.stubGlobal("fetch",vi.fn(async()=>({ok:true,json:async()=>annualOrder()})))
-  const payload={event:"payment.captured",payload:{payment:{entity:{id:"pay_3",status:"authorized",order_id:"order_3",amount:24900,currency:"INR"}}}}
+  const payload={event:"payment.captured",payload:{payment:{entity:{id:"pay_3",status:"authorized",order_id:"order_3",amount:49900,currency:"INR"}}}}
   const response=await webhookPOST(signed(payload,await sign(payload)))
   expect(response.status).toBe(409)
   expect(grantPaymentEntitlement).not.toHaveBeenCalled()
@@ -141,7 +152,7 @@ describe("Razorpay webhook reconciliation",()=>{
  it("returns a retryable webhook response when affiliate credit fails",async()=>{
   vi.stubGlobal("fetch",vi.fn(async()=>({ok:true,json:async()=>annualOrder()})))
   vi.mocked(recordAnnualAffiliateCommission).mockRejectedValueOnce(new Error("temporary database failure"))
-  const payload={event:"payment.captured",payload:{payment:{entity:{id:"pay_4",status:"captured",order_id:"order_4",amount:24900,currency:"INR"}}}}
+  const payload={event:"payment.captured",payload:{payment:{entity:{id:"pay_4",status:"captured",order_id:"order_4",amount:49900,currency:"INR"}}}}
   const response=await webhookPOST(signed(payload,await sign(payload)))
   expect(response.status).toBe(500)
   expect(grantPaymentEntitlement).toHaveBeenCalledWith(expect.anything(),"pay_4")
