@@ -81,6 +81,29 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, event: eventName, skipped: true })
     }
     await grantPremiumForPayment(admin, paymentId, userId, PREMIUM_DURATION_DAYS)
+
+    // Preserve the existing affiliate commission flow after the payment is granted.
+    try {
+      const { data: profile } = await admin.from("profiles").select("referred_by").eq("id", userId).maybeSingle()
+      if (profile?.referred_by && profile.referred_by !== userId) {
+        const { data: settings } = await admin.from("affiliate_settings").select("*").eq("id", 1).maybeSingle()
+        if (settings?.is_enabled) {
+          const commissionRate = settings.default_commission_rate
+          const paymentAmount = amount
+          const commissionAmount = Math.floor(paymentAmount * (commissionRate / 100))
+          const eligibleDate = new Date()
+          eligibleDate.setDate(eligibleDate.getDate() + settings.waiting_period_days)
+          await admin.from("affiliate_commissions").upsert({
+            referrer_id: profile.referred_by, buyer_id: userId, payment_id: paymentId,
+            payment_amount: paymentAmount, commission_amount: commissionAmount,
+            commission_rate: commissionRate, eligible_date: eligibleDate.toISOString(), status: "pending",
+          }, { onConflict: "payment_id", ignoreDuplicates: true })
+        }
+      }
+    } catch (affiliateError) {
+      captureError(affiliateError, { scope: "razorpay/webhook", stage: "affiliate", userId, paymentId })
+    }
+
     logger.info("[webhook] premium activation handled", { event: eventName, userId })
     return NextResponse.json({ ok: true, event: eventName })
   } catch (error) {
