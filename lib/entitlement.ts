@@ -33,7 +33,7 @@ export async function grantPaymentEntitlement(admin:AdminClient,paymentId:string
 }
 
 export async function recordAnnualAffiliateCommission(
- admin:AdminClient,input:{userId:string;paymentId:string;paymentAmount:number},
+ admin:AdminClient,input:{userId:string;paymentId:string;paymentAmount:number;commissionAmount:number},
 ):Promise<void> {
  const {data:profile,error:profileError}=await admin.from("profiles").select("referred_by").eq("id",input.userId).maybeSingle()
  if(profileError) throw new Error(`affiliate profile lookup failed: ${profileError.message}`)
@@ -48,7 +48,7 @@ export async function recordAnnualAffiliateCommission(
  const eligibleDate=new Date(Date.now()+days*86400000)
  const {error}=await admin.from("affiliate_commissions").upsert({
   referrer_id:referrerId,buyer_id:input.userId,payment_id:input.paymentId,
-  payment_amount:input.paymentAmount,commission_amount:5000,commission_rate:null,
+  payment_amount:input.paymentAmount,commission_amount:input.commissionAmount,commission_rate:null,
   eligible_date:eligibleDate.toISOString(),status:"pending",
  },{onConflict:"payment_id",ignoreDuplicates:true})
  if(error) throw new Error(`affiliate commission insert failed: ${error.message}`)
