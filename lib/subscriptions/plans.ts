@@ -34,7 +34,13 @@ export function resolveRazorpayOrderPlan(order:{amount?:unknown;currency?:unknow
  if(planKey) {
   const active=getActivePurchasePlan(planKey)
   if(active && amountPaise===active.amountPaise) return active
-  return null
+  // The previous release attached this explicit key to ₹249 / 365-day orders.
+  // Continue reconciling those already-created checkouts without re-selling it.
+  const explicitLegacy:Record<string,Omit<ResolvedPurchasePlan,"amountPaise"> & {amountPaise:number}>={
+   premium_annual_249:{planKey:"premium_annual_249",amountPaise:24900,entitlementDays:365,affiliateEligible:false,affiliateCommissionPaise:0,legacy:true},
+  }
+  const legacyPlan=explicitLegacy[planKey]
+  return legacyPlan && amountPaise===legacyPlan.amountPaise ? legacyPlan : null
  }
  // Resolve only historical orders that predate explicit plan metadata.
  const legacy:Record<number,Omit<ResolvedPurchasePlan,"amountPaise">>={
