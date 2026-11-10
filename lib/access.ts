@@ -1,10 +1,16 @@
 import type { CompanyId } from "@/lib/types"
 
-export const PREMIUM_PRICE_INR = 249
+export const PREMIUM_PRICE_INR = 499
 export const PREMIUM_DURATION_LABEL = "year"
 export const PREMIUM_DURATION_DAYS = 365
-export const PREMIUM_AMOUNT_PAISE = 24_900
-export const PREMIUM_PLAN_KEY = "premium_annual_249"
+export const PREMIUM_SIX_MONTH_PRICE_INR = 299
+export const PREMIUM_SIX_MONTH_DURATION_DAYS = 183
+export const PREMIUM_SIX_MONTH_AMOUNT_PAISE = 29_900
+export const PREMIUM_SIX_MONTH_PLAN_KEY = "premium_6_months_299"
+export const PREMIUM_ANNUAL_AMOUNT_PAISE = 49_900
+export const PREMIUM_ANNUAL_PLAN_KEY = "premium_annual_499"
+export const PREMIUM_AMOUNT_PAISE = PREMIUM_ANNUAL_AMOUNT_PAISE
+export const PREMIUM_PLAN_KEY = PREMIUM_ANNUAL_PLAN_KEY
 export const FREE_PYQ_LIMIT = 15
 export const FREE_INTERVIEW_LIMIT = 12
 export const FREE_CODING_PROBLEM_LIMIT = 0
@@ -84,5 +90,5 @@ export function planName(premium: boolean): "Premium" | "Free" {
 }
 
 export function premiumPriceLabel(): string {
-  return `₹${PREMIUM_PRICE_INR}/${PREMIUM_DURATION_LABEL}`
+  return `₹${PREMIUM_SIX_MONTH_PRICE_INR}/6 months or ₹${PREMIUM_PRICE_INR}/year`
 }
