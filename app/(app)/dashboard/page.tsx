@@ -14,6 +14,7 @@ import {
   ToneBadge,
 } from "@/components/app/ui-bits"
 import { SharePriCard } from "@/components/app/share-pri-card"
+import { DashboardLearningOverview } from "@/components/app/dashboard-learning-overview"
 import { UpgradeBanner } from "@/components/app/upgrade-prompt"
 import { premiumPriceLabel, PREMIUM_DURATION_DAYS } from "@/lib/access"
 import { getCompany, SELECTABLE_COMPANIES } from "@/lib/data/companies"
@@ -218,6 +219,8 @@ export default function DashboardPage() {
           </div>
         </CardContent>
       </Card>
+
+      <DashboardLearningOverview />
 
       {!state.premium && (
         <div className="grid gap-4 lg:grid-cols-[1.4fr_.8fr]">
