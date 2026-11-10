@@ -8,6 +8,7 @@ import { Icon } from "@/components/app/icon"
 import { CompanyAvatar } from "@/components/app/ui-bits"
 import { PriRing } from "@/components/app/pri-ring"
 import { PLAN_FEATURES, premiumPriceLabel } from "@/lib/access"
+import { LaunchOffer } from "@/components/app/launch-offer"
 import { track } from "@/lib/analytics"
 import { FAQS } from "@/lib/content/faq"
 import { SITE_URL } from "@/lib/content/blocks"
@@ -490,7 +491,7 @@ function PricingSection() {
             Free gets you started. Premium gives you the full placement engine.
           </h2>
           <p className="mt-2 text-muted-foreground">
-            Start without a card. Upgrade for {premiumPriceLabel()} when you want every
+            Start without a card. Choose ₹299 for 6 months or ₹499 for a year when you want every
             section, every company mock, full PYQ depth, coding practice and detailed analytics.
           </p>
         </div>
@@ -525,9 +526,9 @@ function PricingSection() {
                 <p className="inline-flex rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
                   Best for serious placement prep
                 </p>
-                <p className="mt-3 font-heading text-3xl font-bold">{premiumPriceLabel()}</p>
+                <LaunchOffer className="mt-3" />
                 <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
-                  Unlock deeper sections, full PYQ banks, company mock series, coding depth and better analytics. One annual subscription gives you 365 days of Premium access.
+                  Unlock deeper sections, full PYQ banks, company mock series, coding depth and better analytics. Choose the duration that suits your preparation timeline: 183 days or 365 days.
                 </p>
               </div>
               <div className="rounded-xl border border-primary/15 bg-primary/5 px-4 py-3">
