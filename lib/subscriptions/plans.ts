@@ -39,7 +39,7 @@ export function resolveRazorpayOrderPlan(order:{amount?:unknown;currency?:unknow
  // Resolve only historical orders that predate explicit plan metadata.
  const legacy:Record<number,Omit<ResolvedPurchasePlan,"amountPaise">>={
   14900:{planKey:"premium_3_months",entitlementDays:90,affiliateEligible:false,affiliateCommissionPaise:0,legacy:true},
-  49900:{planKey:"premium_yearly",entitlementDays:365,affiliateEligible:false,legacy:true},
+  49900:{planKey:"premium_yearly",entitlementDays:365,affiliateEligible:false,affiliateCommissionPaise:0,legacy:true},
   24900:{planKey:"premium_lifetime_legacy",entitlementDays:null,affiliateEligible:false,legacy:true},
  }
  return legacy[amountPaise] ? {...legacy[amountPaise],amountPaise} : null
