@@ -13,7 +13,6 @@ type RazorpayEvent = {
   payload?: {
     payment?: { entity?: { id?: string; order_id?: string; amount?: number; currency?: string; notes?: Record<string, string> } }
     order?: { entity?: { id?: string; amount?: number; currency?: string; notes?: Record<string, string> } }
-    refund?: { entity?: { payment_id?: string; amount?: number } }
   }
 }
 
@@ -32,25 +31,6 @@ export async function POST(request: Request) {
   catch { return NextResponse.json({ error: "Invalid webhook payload." }, { status: 400 }) }
   const eventName = typeof event.event === "string" ? event.event : ""
   const admin = createAdminClient()
-
-  // Only reconcile after the refund is processed; refund.created may still fail.
-  if (eventName === "refund.processed") {
-    const paymentId = event.payload?.refund?.entity?.payment_id
-    const refundAmount = event.payload?.refund?.entity?.amount
-    if (!paymentId || typeof refundAmount !== "number" || !Number.isInteger(refundAmount)) {
-      return NextResponse.json({ error: "Refund event is missing its payment ID or amount." }, { status: 400 })
-    }
-    try {
-      const { error } = await admin.rpc("reconcile_refunded_payment", {
-        p_payment_id: paymentId, p_refund_amount: refundAmount,
-      })
-      if (error) throw new Error(error.message)
-      return NextResponse.json({ ok: true, event: eventName })
-    } catch (error) {
-      captureError(error, { scope: "razorpay/webhook", stage: "refund", paymentId })
-      return NextResponse.json({ error: "Refund reconciliation failed; retry expected." }, { status: 500 })
-    }
-  }
 
   if (eventName !== "payment.captured" && eventName !== "order.paid") {
     return NextResponse.json({ ok: true, event: eventName || "ignored" })
