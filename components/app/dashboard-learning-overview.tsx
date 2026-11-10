@@ -105,11 +105,12 @@ export function DashboardLearningOverview() {
             </Button>
           </CardContent>
         </Card>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <QuickLink href="/coding" icon="Code2" title="Coding practice" detail="Solve problems and review attempts" />
         <QuickLink href="/mock" icon="ClipboardCheck" title="Mock tests" detail="Check your placement readiness" />
         <QuickLink href="/practice" icon="BookOpenCheck" title="Practice questions" detail="Strengthen concepts with questions" />
         <QuickLink href="/analytics" icon="BarChart3" title="Your analytics" detail="Find strengths and weak areas" />
+        <QuickLink href="/referrals" icon="Users" title="Refer & earn" detail="Earn ₹25 or ₹50 on eligible purchases" />
       </div>
     </section>
   )
