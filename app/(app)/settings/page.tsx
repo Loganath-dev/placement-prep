@@ -26,15 +26,10 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Icon } from "@/components/app/icon"
-import { LaunchOffer } from "@/components/app/launch-offer"
 import { PageHeader } from "@/components/app/page-header"
 import { CompanyAvatar } from "@/components/app/ui-bits"
-import {
-  PLAN_FEATURES,
-  premiumPriceLabel,
-} from "@/lib/access"
+import { PLAN_FEATURES, PREMIUM_PLAN_KEY, PREMIUM_SIX_MONTH_PLAN_KEY } from "@/lib/access"
 import { SELECTABLE_COMPANIES, getCompany } from "@/lib/data/companies"
-import { PREMIUM_PLAN_KEY, PREMIUM_SIX_MONTH_PLAN_KEY } from "@/lib/access"
 import { useStore } from "@/lib/store"
 import type { CompanyId, Profile } from "@/lib/types"
 
@@ -234,7 +229,7 @@ export default function SettingsPage() {
               <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
                 <div className="space-y-2">
                   <p className="font-heading text-lg font-semibold">StudyBench Premium</p>
-                  <div className="flex flex-wrap gap-3"><button type="button" aria-pressed={selectedPlanKey === PREMIUM_SIX_MONTH_PLAN_KEY} onClick={() => setSelectedPlanKey(PREMIUM_SIX_MONTH_PLAN_KEY)} className="rounded-xl border border-border p-3 text-left aria-pressed:border-primary aria-pressed:bg-primary/5"><span className="block text-sm font-semibold">6 months · ₹299</span><span className="block text-xs text-muted-foreground">₹25 referral reward</span></button><button type="button" aria-pressed={selectedPlanKey === PREMIUM_PLAN_KEY} onClick={() => setSelectedPlanKey(PREMIUM_PLAN_KEY)} className="rounded-xl border border-border p-3 text-left aria-pressed:border-primary aria-pressed:bg-primary/5"><span className="block text-sm font-semibold">1 year · ₹499</span><span className="block text-xs text-muted-foreground">₹50 referral reward</span></button></div>
+                  <div className="flex flex-wrap gap-3"><button type="button" aria-pressed={selectedPlanKey === PREMIUM_SIX_MONTH_PLAN_KEY} onClick={() => setSelectedPlanKey(PREMIUM_SIX_MONTH_PLAN_KEY)} className="rounded-xl border border-border p-3 text-left aria-pressed:border-primary aria-pressed:bg-primary/5"><span className="block text-sm font-semibold">6 months · ₹299</span><span className="block text-xs text-muted-foreground">Referrer earns ₹25</span></button><button type="button" aria-pressed={selectedPlanKey === PREMIUM_PLAN_KEY} onClick={() => setSelectedPlanKey(PREMIUM_PLAN_KEY)} className="rounded-xl border border-border p-3 text-left aria-pressed:border-primary aria-pressed:bg-primary/5"><span className="block text-sm font-semibold">1 year · ₹499</span><span className="block text-xs text-muted-foreground">Referrer earns ₹50</span></button></div>
                   <p className="max-w-2xl text-sm text-muted-foreground">
                     Pay {premiumPriceLabel()} through Razorpay to unlock deeper company
                     preparation, more mocks and better feedback for {premiumTargetNames.join(", ")}.
