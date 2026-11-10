@@ -46,7 +46,7 @@ export const FAQS: FaqItem[] = [
     category: "Pricing",
     question: "Is StudyBench free? What does Premium include?",
     answer:
-      "StudyBench has a free tier with starter learning content and sample practice. Premium is one annual subscription at ₹249 for 365 days. A verified purchase unlocks the complete Premium learning experience, including all available learning content, practice, mock assessments and progress analytics.",
+      "StudyBench has a free tier with starter learning content and sample practice. Premium is available for ₹299 for 6 months (183 days) or ₹499 for 1 year (365 days). A verified purchase unlocks the complete Premium learning experience, including all available learning content, practice, mock assessments and progress analytics.",
   },
   {
     id: "seventy-percent-gate",
