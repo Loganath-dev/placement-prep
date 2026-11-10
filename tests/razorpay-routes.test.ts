@@ -46,10 +46,10 @@ beforeEach(()=>{
 afterEach(()=>vi.unstubAllGlobals())
 
 describe("Razorpay annual checkout",()=>{
- it("requires authentication",async()=>{mockAuth(null);expect((await orderPOST()).status).toBe(401)})
+ it("requires authentication",async()=>{mockAuth(null);expect((await orderPOST(req({planKey:PREMIUM_PLAN_KEY}))).status).toBe(401)})
  it("blocks checkout for a grandfathered non-expiring account",async()=>{
   mockAuth(USER,{premium:true,premium_until:null})
-  expect((await orderPOST()).status).toBe(409)
+  expect((await orderPOST(req({planKey:PREMIUM_PLAN_KEY}))).status).toBe(409)
  })
  it("creates the selected annual Premium plan order",async()=>{
   mockAuth(USER)
