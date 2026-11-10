@@ -105,7 +105,27 @@ export function DashboardLearningOverview() {
             </Button>
           </CardContent>
         </Card>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <QuickLink href="/coding" icon="Code2" title="Coding practice" detail="Solve problems and review attempts" />
+        <QuickLink href="/mock" icon="ClipboardCheck" title="Mock tests" detail="Check your placement readiness" />
+        <QuickLink href="/practice" icon="BookOpenCheck" title="Practice questions" detail="Strengthen concepts with questions" />
+        <QuickLink href="/analytics" icon="ChartNoAxesCombined" title="Your analytics" detail="Find strengths and weak areas" />
       </div>
     </section>
+  )
+}
+
+function QuickLink({ href, icon, title, detail }: { href: string; icon: string; title: string; detail: string }) {
+  return (
+    <Link href={href} className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 transition-colors hover:border-primary/40 hover:bg-accent/30">
+      <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-muted text-foreground">
+        <Icon name={icon} className="size-4" />
+      </span>
+      <span className="min-w-0">
+        <span className="block text-sm font-semibold">{title}</span>
+        <span className="block text-xs text-muted-foreground">{detail}</span>
+      </span>
+      <Icon name="ArrowRight" className="ml-auto size-4 shrink-0 text-muted-foreground" />
+    </Link>
   )
 }
