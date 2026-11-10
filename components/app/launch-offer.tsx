@@ -1,19 +1,15 @@
 "use client"
 
-import { PREMIUM_DURATION_DAYS, PREMIUM_DURATION_LABEL, PREMIUM_PRICE_INR } from "@/lib/access"
 import { cn } from "@/lib/utils"
 
-/** Stable annual price. No countdown, fake scarcity, or promotional urgency. */
+/** Shared display for the two currently available Premium durations. */
 export function LaunchOffer({variant="full",className}:{variant?:"full"|"compact";className?:string}) {
- if(variant==="compact") return <div className={cn("flex flex-col",className)}>
-  <span className="font-heading text-base font-bold">₹{PREMIUM_PRICE_INR}/{PREMIUM_DURATION_LABEL}</span>
-  <span className="mt-0.5 text-xs text-muted-foreground">Annual subscription · {PREMIUM_DURATION_DAYS} days</span>
- </div>
- return <div className={cn("flex flex-col",className)}>
-  <p className="font-heading text-2xl font-bold">₹{PREMIUM_PRICE_INR}/{PREMIUM_DURATION_LABEL}</p>
-  <span className="mt-1 text-sm text-muted-foreground">Annual subscription · {PREMIUM_DURATION_DAYS} days of Premium access</span>
+ const size=variant==="compact" ? "text-base" : "text-xl"
+ return <div className={cn("flex flex-wrap gap-x-5 gap-y-2",className)}>
+  <span className="flex flex-col"><strong className={cn("font-heading font-bold",size)}>₹299 / 6 months</strong><span className="text-xs text-muted-foreground">183 days · ₹25 referral reward</span></span>
+  <span className="flex flex-col"><strong className={cn("font-heading font-bold",size)}>₹499 / 1 year</strong><span className="text-xs text-muted-foreground">365 days · ₹50 referral reward</span></span>
  </div>
 }
 
-/** Kept as a no-op for existing imports; the promotional banner was removed. */
+/** No countdown or fake scarcity. */
 export function LaunchOfferBanner({className}:{className?:string}) { void className; return null }
