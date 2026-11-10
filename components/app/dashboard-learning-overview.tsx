@@ -105,6 +105,7 @@ export function DashboardLearningOverview() {
             </Button>
           </CardContent>
         </Card>
+      </div>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <QuickLink href="/coding" icon="Code2" title="Coding practice" detail="Solve problems and review attempts" />
         <QuickLink href="/mock" icon="ClipboardCheck" title="Mock tests" detail="Check your placement readiness" />
