@@ -14,7 +14,8 @@
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "check:release-deps": "node scripts/check-release-dependencies.mjs"
   },
   "dependencies": {
     "@codemirror/lang-javascript": "^6.2.5",
