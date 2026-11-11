@@ -42,14 +42,13 @@ jobs:
       - name: Upgrade patched framework releases
         run: |
           pnpm add next@16.4.5 react@19.2.9 react-dom@19.2.9
-          pnpm add -D eslint-config-next@16.4.5
+          pnpm add -D eslint-config-next@16.4.5 vitest@4.1.12 vite@8.1.6
 
       - name: Regenerate lockfile
         run: pnpm install --no-frozen-lockfile
 
-      - name: Apply safe registry-advised dependency overrides
-        continue-on-error: true
-        run: pnpm audit --fix
+      - name: Update vulnerable transitive packages in the lockfile
+        run: pnpm audit --fix=update
 
       - name: Resolve final lockfile
         run: pnpm install --no-frozen-lockfile
