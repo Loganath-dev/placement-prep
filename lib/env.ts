@@ -22,8 +22,8 @@ export const ENV_SPEC: readonly EnvVarSpec[] = [
   { name: "RAZORPAY_WEBHOOK_SECRET", required: false, isPublic: false, feature: "payments (webhook)" },
   { name: "RESEND_API_KEY", required: false, isPublic: false, feature: "email" },
   { name: "RESEND_FROM_EMAIL", required: false, isPublic: false, feature: "email" },
-  { name: "UPSTASH_REDIS_REST_URL", required: true, isPublic: false, feature: "rate-limit (production)" },
-  { name: "UPSTASH_REDIS_REST_TOKEN", required: true, isPublic: false, feature: "rate-limit (production)" },
+  { name: "UPSTASH_REDIS_REST_URL", required: false, isPublic: false, feature: "rate-limit (production)" },
+  { name: "UPSTASH_REDIS_REST_TOKEN", required: false, isPublic: false, feature: "rate-limit (production)" },
   { name: "STUDYBENCH_ADMIN_EMAILS", required: false, isPublic: false, feature: "admin access" },
   { name: "STUDYBENCH_CREATOR_EMAILS", required: false, isPublic: false, feature: "creator access" },
 ] as const
