@@ -1,49 +1,48 @@
-﻿import { NextResponse } from "next/server"
+import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
+import { hasTrustedRequestOrigin } from "@/lib/security/request-origin"
 
 export const runtime = "edge"
 
 /**
- * Permanently deletes the signed-in user's account and all their data -
- * the DPDP "right to erasure" the Privacy Policy promises. Identity comes from
- * the session cookie (server client); the destructive work uses the service-role
- * admin client. Deleting the auth user cascades to every owned row via the
- * ON DELETE CASCADE foreign keys, but we also delete rows explicitly so erasure
- * is complete even if the cascade migration hasn't been applied yet.
+ * Erase user-owned application records transactionally, then delete the Auth
+ * identity. Financial references must be nullable and ON DELETE SET NULL
+ * before any irreversible action is attempted.
  */
-export async function POST() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    return NextResponse.json({ error: "Not authenticated." }, { status: 401 })
+export async function POST(request: Request) {
+  if (!hasTrustedRequestOrigin(request)) {
+    return NextResponse.json({ error: "Cross-origin request rejected." }, { status: 403 })
   }
+
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: "Not authenticated." }, { status: 401 })
 
   const admin = createAdminClient()
   const uid = user.id
 
-  // Intentionally NOT deleted: `payments` (financial ledger retained for
-  // reconciliation/GST; its user_id FK nulls out when the auth user is deleted)
-  // and `question_reports` (anonymized the same way, kept for content QA).
-  await Promise.allSettled([
-    admin.from("company_progress").delete().eq("user_id", uid),
-    admin.from("daily_challenges").delete().eq("id", uid),
-    admin.from("mistakes").delete().eq("user_id", uid),
-    admin.from("drive_outcomes").delete().eq("user_id", uid),
-    admin.from("coding_attempts").delete().eq("user_id", uid),
-    admin.from("user_state").delete().eq("id", uid),
-    admin.from("profiles").delete().eq("id", uid),
-  ])
+  const { error: schemaError } = await admin.rpc("assert_financial_erasure_schema_ready")
+  if (schemaError) {
+    console.error("[account/delete] Financial retention schema check failed", { userId: uid, message: schemaError.message })
+    return NextResponse.json({
+      error: "Account deletion is temporarily unavailable while financial-record retention is being secured. Please contact support.",
+    }, { status: 503 })
+  }
 
-  const { error } = await admin.auth.admin.deleteUser(uid)
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  const { error: cleanupError } = await admin.rpc("erase_user_data", { p_user_id: uid })
+  if (cleanupError) {
+    console.error("[account/delete] Application-data cleanup failed", { userId: uid, message: cleanupError.message })
+    return NextResponse.json({ error: "Account data could not be erased. Please retry." }, { status: 500 })
+  }
+
+  const { error: deleteError } = await admin.auth.admin.deleteUser(uid)
+  if (deleteError) {
+    console.error("[account/delete] Auth identity deletion failed after data cleanup", { userId: uid, message: deleteError.message })
+    return NextResponse.json({
+      error: "Your application data was erased, but account closure could not finish. Please contact support.",
+    }, { status: 500 })
   }
 
   return NextResponse.json({ ok: true })
 }
-
-
