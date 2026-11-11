@@ -58,7 +58,7 @@ begin
     target_expiry := null;
   elsif state_exists and current_premium and current_expiry is null then
     -- A null expiry on an active Premium row means lifetime access. Never
-    -- downgrade it to a finite period when the user buys another plan.
+    -- Never downgrade it to a finite period when the user buys another plan.
     target_expiry := null;
   else
     target_expiry := greatest(coalesce(current_expiry, now()), now())
