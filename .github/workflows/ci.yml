@@ -1,13 +1,15 @@
 name: CI
 
-# Gate every push and PR on the same checks we run locally: type-check, unit
-# tests, and a production build. The app lives in the 
-# subfolder, so all steps run there.
+# Run release checks on the canonical working branch and on pull requests.
+# Keep the Cloudflare OpenNext adapter build as the production build target.
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - chore/root-cleanup-canonical-app
   pull_request:
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -19,7 +21,7 @@ defaults:
 
 jobs:
   verify:
-    name: Type-check, test, build
+    name: Lint, type-check, tests, dependency security and Cloudflare build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -39,34 +41,41 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Dependency security audit
+        run: pnpm audit --audit-level high
+
+      - name: Patched framework dependency gate
+        run: pnpm check:release-deps
+
+      - name: Lint
+        run: pnpm lint
+
       - name: Type-check
         run: pnpm exec tsc --noEmit -p tsconfig.json
 
       - name: Unit tests
         run: pnpm test
 
-      - name: Production build
-        # Public placeholders so the client bundle compiles; the build phase does
-        # not require real secrets (see instrumentation.ts NEXT_PHASE guard).
+      - name: Production build (OpenNext / Cloudflare)
         env:
           NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-anon-key
-        run: pnpm exec next build
+        run: pnpm build
 
-  # Reminder job: schema changes live in supabase/migrations and are applied with
-  # `supabase db push`. A true drift check needs DB credentials — wire SUPABASE
-  # secrets and uncomment the step below when you want CI to enforce it.
   migrations:
-    name: Migrations present
+    name: Migration source inventory
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: List migrations
-        run: ls -1 supabase/migrations
-      # - name: Check migration drift
-      #   env:
-      #     SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-      #     SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
-      #   run: |
-      #     npx supabase link --project-ref <your-project-ref>
-      #     npx supabase db diff --linked --schema public
+      - name: Verify ordered migration inventory
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(find supabase/migrations -maxdepth 1 -type f -name '*.sql' | wc -l)" -ge 36
+          for version in $(seq -w 1 36); do
+            count=$(find supabase/migrations -maxdepth 1 -type f -name "${version}_*.sql" | wc -l)
+            if [ "$count" -ne 1 ]; then
+              echo "Expected exactly one migration for version $version, found $count"
+              exit 1
+            fi
+          done
