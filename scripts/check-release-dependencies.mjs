@@ -15,8 +15,15 @@ for (const [name, expected] of Object.entries(required)) {
   if (actual !== expected) {
     errors.push(`${name}: package.json has ${actual ?? 'no version'}; required ${expected}`)
   }
-  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-  const importer = new RegExp(`^\\s{6}${escaped}:\\n\\s{8}specifier: ${expected.replaceAll('.', '\\.') }\\n\\s{8}version: ${expected.replaceAll('.', '\\.') }(?:\\(|\\s|$)`, 'm')
+
+  // The package names and pinned versions are simple literals; escape dots for
+  // the exact pnpm importer specifier and resolved-version check.
+  const escapedName = name.replaceAll('.', '\\.')
+  const escapedVersion = expected.replaceAll('.', '\\.')
+  const importer = new RegExp(
+    `^\\s{6}${escapedName}:\\n\\s{8}specifier: ${escapedVersion}\\n\\s{8}version: ${escapedVersion}(?:\\(|\\s|$)`,
+    'm',
+  )
   if (!importer.test(lock)) {
     errors.push(`${name}: pnpm-lock.yaml does not resolve the required ${expected} version`)
   }
