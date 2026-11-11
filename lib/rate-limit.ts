@@ -1,9 +1,9 @@
 /**
- * Pluggable sliding-window rate limiter.
+ * Shared sliding-window rate limiter.
  *
- * Production requires a shared Upstash Redis backend. The per-instance memory
- * adapter is for local development only; Redis failures fail closed in
- * production rather than silently weakening limits across server instances.
+ * Production requires Upstash Redis. The Redis EVAL script is one atomic
+ * operation, so concurrent instances cannot race between counting and adding.
+ * The memory adapter is local-development-only; production failures fail closed.
  */
 
 export interface RateLimitResult {
@@ -34,6 +34,25 @@ class InMemoryAdapter implements RateLimitAdapter {
   }
 }
 
+const SLIDING_WINDOW_SCRIPT = `
+local key = KEYS[1]
+local now = tonumber(ARGV[1])
+local windowMs = tonumber(ARGV[2])
+local limit = tonumber(ARGV[3])
+local member = ARGV[4]
+
+redis.call('ZREMRANGEBYSCORE', key, 0, now - windowMs)
+local count = redis.call('ZCARD', key)
+if count >= limit then
+  redis.call('PEXPIRE', key, windowMs)
+  return {0, count}
+end
+
+redis.call('ZADD', key, now, member)
+redis.call('PEXPIRE', key, windowMs)
+return {1, count + 1}
+`
+
 class UpstashRestAdapter implements RateLimitAdapter {
   constructor(
     private readonly url: string,
@@ -43,13 +62,7 @@ class UpstashRestAdapter implements RateLimitAdapter {
 
   async check(key: string, limit: number, windowMs: number): Promise<RateLimitResult> {
     const now = Date.now()
-    const member = `${now}-${Math.random().toString(36).slice(2)}`
-    const commands = [
-      ["ZREMRANGEBYSCORE", key, "0", String(now - windowMs)],
-      ["ZADD", key, String(now), member],
-      ["ZCARD", key],
-      ["PEXPIRE", key, String(windowMs)],
-    ]
+    const member = `${now}-${crypto.randomUUID()}`
 
     try {
       const response = await fetch(`${this.url}/pipeline`, {
@@ -58,17 +71,30 @@ class UpstashRestAdapter implements RateLimitAdapter {
           Authorization: `Bearer ${this.token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(commands),
+        body: JSON.stringify([[
+          "EVAL",
+          SLIDING_WINDOW_SCRIPT,
+          "1",
+          key,
+          String(now),
+          String(windowMs),
+          String(limit),
+          member,
+        ]]),
         cache: "no-store",
         signal: AbortSignal.timeout(5_000),
       })
       if (!response.ok) throw new Error(`Upstash responded ${response.status}`)
 
       const payload = await response.json() as ({ result?: unknown; error?: string }[])
-      const zcard = payload[2]
-      if (!zcard || zcard.error != null) throw new Error(zcard?.error ?? "Upstash pipeline error")
-      const count = Number(zcard.result ?? 0)
-      return { allowed: count <= limit, remaining: Math.max(0, limit - count) }
+      const result = payload[0]
+      if (!result || result.error != null || !Array.isArray(result.result)) {
+        throw new Error(result?.error ?? "Invalid Upstash rate-limit response")
+      }
+      const [allowedValue, countValue] = result.result
+      const count = Number(countValue)
+      if (!Number.isFinite(count)) throw new Error("Invalid Upstash rate-limit count")
+      return { allowed: Number(allowedValue) === 1, remaining: Math.max(0, limit - count) }
     } catch (error) {
       console.error("[rate-limit] Upstash check failed:", error)
       if (process.env.NODE_ENV === "production") {
