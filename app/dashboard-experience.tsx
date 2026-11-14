@@ -150,6 +150,13 @@ export function DashboardExperience() {
 
   return (
     <div className="space-y-9">
+      <section className="sb-dashboard-enter" style={{ animationDelay: "25ms" }}>
+        <Link href="/referrals" className="group flex items-center justify-between gap-4 rounded-2xl border border-[#dfe8e3] bg-white p-5 transition-[transform,border-color] hover:-translate-y-0.5 hover:border-[#b9d8ce] sm:p-6">
+          <span><span className="block text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">STUDYBENCH AFFILIATE</span><span className="mt-1 block text-lg font-semibold text-slate-900">Join the affiliate programme</span><span className="mt-1 block text-sm text-slate-500">Share your link and earn ₹25 or ₹50 for eligible Premium referrals.</span></span>
+          <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-[#e9f4f0] text-[#168d73]"><ArrowRight className="size-5 transition-transform group-hover:translate-x-1" /></span>
+        </Link>
+      </section>
+
       <section className="sb-dashboard-enter">
         <p className="text-sm font-medium text-[#315fca]">YOUR LEARNING SPACE</p>
         <div className="mt-2 flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
@@ -302,12 +309,6 @@ export function DashboardExperience() {
             </div>
           })}
         </div>
-      </section>
-      <section className="sb-dashboard-enter grid gap-3 sm:grid-cols-2" style={{ animationDelay: "390ms" }}>
-        <Link href="/referrals" className="group flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 transition-[transform,border-color] hover:-translate-y-0.5 hover:border-[#b9cbed]">
-          <span><span className="block text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">STUDYBENCH AFFILIATE</span><span className="mt-1 block text-lg font-semibold text-slate-950">Join the affiliate programme</span><span className="mt-1 block text-sm text-slate-500">Share your link and earn ₹25 or ₹50 for eligible Premium referrals.</span></span>
-          <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-[#edf3ff] text-[#315fca]"><ArrowRight className="size-5 transition-transform group-hover:translate-x-1" /></span>
-        </Link>
       </section>
     </div>
   )

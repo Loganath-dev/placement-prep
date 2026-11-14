@@ -77,7 +77,8 @@ export function getMetadata({
   const url = `${SITE_URL}${path}`
   const image = ogImage ?? `${SITE_URL}/opengraph-image`
   return {
-    title: `${title} | ${SITE_NAME}`,
+    // The root layout's title template adds the site name to page titles.
+    title,
     description,
     keywords: KEYWORDS,
     alternates: {

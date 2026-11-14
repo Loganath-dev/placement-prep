@@ -31,6 +31,20 @@ type AffiliateData = {
 }
 const rupees = (paise: number) => `₹${(paise / 100).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`
 
+async function readApiResponse(response: Response): Promise<Record<string, any>> {
+  const body = await response.text()
+  if (body) {
+    try {
+      return JSON.parse(body) as Record<string, any>
+    } catch {
+      // Use a useful HTTP error below instead of exposing a JSON parser error.
+    }
+  }
+
+  if (!response.ok) throw new Error(`The request failed (${response.status}). Please try again.`)
+  throw new Error("The server returned an empty response. Please try again.")
+}
+
 export default function ReferralsPage() {
   const { userId } = useStore()
   const [data, setData] = React.useState<AffiliateData | null>(null)
@@ -47,7 +61,7 @@ export default function ReferralsPage() {
   const load = React.useCallback(async () => {
     try {
       const response = await fetch("/api/affiliate/dashboard", { cache: "no-store" })
-      const result = await response.json()
+      const result = await readApiResponse(response)
       if (!response.ok) throw new Error(result.error ?? "Could not load affiliate account.")
       setData(result as AffiliateData)
       if (result.account) {
@@ -76,7 +90,7 @@ export default function ReferralsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ termsAccepted, privacyAccepted, upiId, upiName }),
       })
-      const result = await response.json()
+      const result = await readApiResponse(response)
       if (!response.ok) throw new Error(result.error ?? "Could not activate affiliate account.")
       toast.success("Affiliate account activated. Your referral link is ready.")
       window.dispatchEvent(new Event("affiliate-account-updated"))
@@ -105,7 +119,7 @@ export default function ReferralsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ termsAccepted: updatedTermsAccepted, privacyAccepted: updatedPrivacyAccepted }),
       })
-      const result = await response.json()
+      const result = await readApiResponse(response)
       if (!response.ok) throw new Error(result.error ?? "Could not update affiliate consent.")
       toast.success("Updated affiliate terms accepted.")
       setUpdatedTermsAccepted(false)
@@ -128,7 +142,7 @@ export default function ReferralsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ upiId, upiName }),
       })
-      const result = await response.json()
+      const result = await readApiResponse(response)
       if (!response.ok) throw new Error(result.error ?? "Could not update payout details.")
       setData((current) => current?.account ? { ...current, account: { ...current.account, ...result.account } } : current)
       setEditingPayoutDetails(false)

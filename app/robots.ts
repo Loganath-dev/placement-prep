@@ -7,7 +7,7 @@ export default function robots(): MetadataRoute.Robots {
       // ── Primary crawler rules ──────────────────────────────────────────────
       {
         userAgent: "*",
-        allow: ["/", "/prep", "/blog", "/faq", "/privacy", "/terms"],
+        allow: ["/", "/prep", "/blog", "/faq", "/affiliate-program", "/privacy", "/terms"],
         // Keep the authenticated app out of the index — every (app) route plus
         // auth. Crawling these only wastes budget on login redirects.
         // /invite is noindex but explicit disallow prevents budget leakage.
@@ -25,6 +25,7 @@ export default function robots(): MetadataRoute.Robots {
           "/onboarding",
           "/plan",
           "/practice",
+          "/referrals",
           "/settings",
           "/api/",
         ],
@@ -56,9 +57,8 @@ export default function robots(): MetadataRoute.Robots {
       },
       {
         userAgent: "Google-Extended",
-        // Allow Google's AI Overview to surface StudyBench in answer boxes,
-        // but block Gemini model training on our proprietary question bank.
-        allow: ["/", "/prep", "/blog", "/faq"],
+        // This token controls Gemini training and grounding, not Google Search.
+        // Googlebot's rules above continue to allow Search indexing and AI Overviews.
         disallow: ["/"],
       },
       {

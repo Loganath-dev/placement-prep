@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { JsonLd } from "@/app/json-ld"
 import { LandingPage } from "@/app/landing-page"
 import { FAQS, faqJsonLd } from "@/lib/content/faq"
+import { SITE_URL } from "@/lib/content/blocks"
 import {
   courseJsonLd,
   organizationJsonLd,
@@ -10,10 +11,23 @@ import {
 } from "@/lib/seo"
 
 export const metadata: Metadata = {
-  title: "Structured learning platform for students",
+  title: "Campus Placement Preparation App for Freshers",
   description:
-    "Learn aptitude, logical and verbal ability, CS core, programming languages and data structures through structured learning paths on StudyBench.",
+    "Prepare for campus placements with guided aptitude, reasoning, verbal ability, CS fundamentals, coding practice, mock tests and company-specific learning paths.",
   alternates: { canonical: "/" },
+  openGraph: {
+    title: "Campus Placement Preparation App for Freshers | StudyBench",
+    description:
+      "Build placement skills with guided learning paths, aptitude and coding practice, mock tests and company-specific preparation.",
+    url: SITE_URL,
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Campus Placement Preparation App for Freshers | StudyBench",
+    description:
+      "Build placement skills with guided learning paths, aptitude and coding practice, mock tests and company-specific preparation.",
+  },
 }
 
 export default function HomePage() {

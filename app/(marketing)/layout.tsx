@@ -15,6 +15,9 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
             <Link href="/faq" className="px-2 text-muted-foreground hover:text-foreground">
               FAQ
             </Link>
+            <Link href="/affiliate-program" className="px-2 text-muted-foreground hover:text-foreground">
+              Affiliate
+            </Link>
             <Button asChild size="sm">
               <Link href="/auth/signup">Start free</Link>
             </Button>
@@ -33,6 +36,9 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
             </Link>
             <Link href="/faq" className="hover:text-foreground">
               FAQ
+            </Link>
+            <Link href="/affiliate-program" className="hover:text-foreground">
+              Affiliate programme
             </Link>
             <Link href="/privacy" className="hover:text-foreground">
               Privacy

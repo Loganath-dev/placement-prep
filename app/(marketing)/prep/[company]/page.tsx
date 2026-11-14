@@ -23,63 +23,26 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { company: companyId } = await params
   const company = COMPANY_BY_ID[companyId as CompanyId]
-  if (!company) return { title: "Company not found - StudyBench" }
+  if (!company) return { title: "Company not found" }
   const url = `${SITE_URL}/prep/${company.id}`
-  const title = `${company.name} Placement Preparation 2026 | ${SITE_NAME}`
+  const title = `${company.name} Placement Preparation 2026`
+  const brandedTitle = `${title} | ${SITE_NAME}`
   const description = `Free ${company.name} placement prep: exam pattern, eligibility, sample aptitude questions and coding tips for campus hiring 2026. Practise with StudyBench.`
   return {
     title,
     description,
     alternates: { canonical: url },
     openGraph: {
-      title,
+      title: brandedTitle,
       description,
       type: "website",
       url,
     },
     twitter: {
       card: "summary_large_image",
-      title,
+      title: brandedTitle,
       description,
     },
-  }
-}
-
-function qaPageJsonLd(companyId: CompanyId) {
-  const company = getCompany(companyId)
-  const sections = getSections(companyId)
-  const sampleQuestions: { q: string; a: string }[] = []
-  for (const section of sections) {
-    for (const chapter of section.chapters) {
-      const pathId = chapter.pathId ?? section.id
-      const pathIndex = section.chapters.filter((item) => (item.pathId ?? section.id) === pathId).findIndex((item) => item.id === chapter.id)
-      if (pathIndex >= FREE_CHAPTERS_PER_PATH) continue
-      const eq = chapter.quiz.find((qu) => qu.difficulty === "easy")
-      if (eq) {
-        sampleQuestions.push({
-          q: eq.prompt,
-          a: `${eq.options[eq.answer]}. ${eq.explanation}`,
-        })
-        if (sampleQuestions.length >= 6) break
-      }
-    }
-    if (sampleQuestions.length >= 6) break
-  }
-
-  return {
-    "@context": "https://schema.org",
-    "@type": "QAPage",
-    name: `${company.name} Placement Preparation - Sample Questions`,
-    description: `Practice questions and answers for ${company.name} campus placement preparation.`,
-    url: `${SITE_URL}/prep/${companyId}`,
-    mainEntity: sampleQuestions.map((item) => ({
-      "@type": "Question",
-      name: item.q,
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: item.a,
-      },
-    })),
   }
 }
 
@@ -133,7 +96,6 @@ export default async function PrepCompanyPage({
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-10 md:py-14">
-      <JsonLd data={qaPageJsonLd(companyId as CompanyId)} />
       <JsonLd data={breadcrumbJsonLd(companyId as CompanyId)} />
 
       {/* Breadcrumb */}

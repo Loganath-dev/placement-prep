@@ -3,10 +3,9 @@ import { BLOG_POSTS } from "@/lib/content/blog"
 import { SITE_URL } from "@/lib/content/blocks"
 import { COMPANIES } from "@/lib/data/companies"
 
-// Hard-coded to the date the page content was last meaningfully updated.
-// Google uses lastModified as a crawl-priority signal — stale dates get
-// deprioritised; accurate dates earn fresher crawl budgets.
-const STATIC_PAGES_UPDATED = "2026-07-28"
+// Keep lastModified aligned with meaningful content changes. Google ignores
+// frequency and priority hints and uses lastModified only when it is accurate.
+const STATIC_PAGES_UPDATED = "2026-11-14"
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -31,6 +30,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     {
       url: `${SITE_URL}/faq`,
       lastModified: new Date(STATIC_PAGES_UPDATED),
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
+      url: `${SITE_URL}/affiliate-program`,
+      lastModified: new Date("2026-11-14"),
       changeFrequency: "monthly",
       priority: 0.7,
     },

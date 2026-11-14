@@ -21,6 +21,7 @@ const NAV_LINKS = [
   { href: "#learning-paths", label: "Learning paths" },
   { href: "/blog", label: "Blog" },
   { href: "#pricing", label: "Pricing" },
+  { href: "#refer-earn", label: "Refer & earn" },
   { href: "/faq", label: "FAQ" },
 ]
 

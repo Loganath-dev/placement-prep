@@ -207,34 +207,32 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section className="border-y border-[#e7edf5] bg-[#f3f6fc]">
+        <section id="refer-earn" className="scroll-mt-20 border-y border-[#dcebe5] bg-[#eff7f3]">
           <div className="mx-auto grid max-w-6xl gap-8 px-5 py-14 sm:px-8 md:grid-cols-[1.05fr_.95fr] md:items-center md:py-18">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[.16em] text-[#315fca]">Refer & earn</p>
-              <h2 className="mt-3 max-w-xl text-3xl font-semibold leading-tight tracking-[-.045em] text-[#17243a] sm:text-4xl">Your study circle can grow with you.</h2>
-              <p className="mt-4 max-w-xl text-base leading-7 text-[#64738a]">Invite classmates who are serious about placement preparation. When an eligible friend completes a verified Premium purchase, you receive a fixed referral reward.</p>
+              <p className="text-xs font-semibold uppercase tracking-[.16em] text-[#16836d]">Learn · Help · Win together</p>
+              <h2 className="mt-3 max-w-xl text-3xl font-semibold leading-tight tracking-[-.045em] text-[#17243a] sm:text-4xl">Learn together. Help a friend prepare. Earn a referral reward.</h2>
+              <p className="mt-4 max-w-xl text-base leading-7 text-[#526b62]">Build your placement skills on StudyBench, then invite classmates to join your study circle. When a referred friend completes an eligible, verified Premium purchase, you earn a fixed reward. Your friend gets a structured way to prepare; you get rewarded for helping them find it.</p>
               <div className="mt-6 flex flex-wrap gap-3">
-                <Button asChild className="h-11 rounded-xl bg-[#315fca] px-5 text-white hover:bg-[#244fae]">
-                  <Link href="/auth/signup">Create an account to refer <Icon name="ArrowRight" className="ml-2 size-4" /></Link>
-                </Button>
-                <Button asChild variant="outline" className="h-11 rounded-xl border-[#d7e0ec] bg-white">
-                  <Link href="/terms">Read referral rules</Link>
+                <StartCta placement="refer_earn_primary" className="h-11 rounded-xl bg-[#16836d] px-5 text-white hover:bg-[#106d5a]">Start free & refer classmates</StartCta>
+                <Button asChild variant="outline" className="h-11 rounded-xl border-[#d3e4dc] bg-white text-[#35564a]">
+                  <Link href="/affiliate-program">See how rewards work</Link>
                 </Button>
               </div>
-              <p className="mt-3 text-xs leading-5 text-[#7b899d]">Referral participation requires an eligible account and acceptance of programme terms. Self-referrals, duplicate or fraudulent accounts and reversed payments are excluded.</p>
+              <p className="mt-3 text-xs leading-5 text-[#71877e]">Free to start. A verified email and acceptance of the affiliate terms are required to apply. Rewards apply only to eligible purchases; self-referrals, fraud and reversed payments are excluded.</p>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-2xl border border-[#dce5f1] bg-white p-5 shadow-[0_16px_40px_-32px_rgba(31,58,105,.28)]">
-                <p className="text-xs font-semibold uppercase tracking-wider text-[#8794a7]">Friend buys 6 months · ₹299</p>
-                <p className="mt-3 text-4xl font-bold tracking-tight text-[#17243a]">₹25</p>
-                <p className="mt-1 text-sm text-[#64738a]">Fixed referral reward</p>
+              <div className="rounded-2xl border border-[#d4e7dd] bg-white p-5 shadow-[0_16px_40px_-32px_rgba(31,88,67,.25)]">
+                <p className="text-xs font-semibold uppercase tracking-wider text-[#668276]">Friend chooses 6 months · ₹{PREMIUM_SIX_MONTH_PRICE_INR}</p>
+                <p className="mt-3 text-4xl font-bold tracking-tight text-[#126a57]">₹25</p>
+                <p className="mt-1 text-sm text-[#647a70]">Per eligible verified purchase</p>
               </div>
-              <div className="rounded-2xl border border-[#b9cbed] bg-white p-5 shadow-[0_16px_40px_-32px_rgba(31,58,105,.28)]">
-                <p className="text-xs font-semibold uppercase tracking-wider text-[#315fca]">Friend buys 1 year · ₹499</p>
-                <p className="mt-3 text-4xl font-bold tracking-tight text-[#17243a]">₹50</p>
-                <p className="mt-1 text-sm text-[#64738a]">Fixed referral reward</p>
+              <div className="rounded-2xl border border-[#b7d9cb] bg-white p-5 shadow-[0_16px_40px_-32px_rgba(31,88,67,.25)]">
+                <p className="text-xs font-semibold uppercase tracking-wider text-[#16836d]">Friend chooses 1 year · ₹{PREMIUM_ANNUAL_PRICE_INR}</p>
+                <p className="mt-3 text-4xl font-bold tracking-tight text-[#126a57]">₹50</p>
+                <p className="mt-1 text-sm text-[#647a70]">Per eligible verified purchase</p>
               </div>
-              <p className="text-xs leading-5 text-[#7b899d] sm:col-span-2">A 15-day review period applies. Approved rewards have a ₹250 minimum payout balance and are paid manually by UPI on the 25th of each month, subject to verification.</p>
+              <p className="text-xs leading-5 text-[#71877e] sm:col-span-2">A 15-day review period applies. Approved rewards are paid manually by UPI on the 25th when your approved balance reaches ₹250; otherwise, they carry forward. Rewards are fixed programme amounts, not guaranteed income.</p>
             </div>
           </div>
         </section>
@@ -265,7 +263,7 @@ export function LandingPage() {
       <footer className="border-t border-[#e5ebf3] bg-white">
         <div className="mx-auto flex max-w-6xl flex-col gap-4 px-5 py-8 text-sm text-[#7a8799] sm:px-8 md:flex-row md:items-center md:justify-between">
           <p>© {new Date().getFullYear()} StudyBench. Learn with purpose.</p>
-          <div className="flex flex-wrap gap-5"><Link href="/blog" className="hover:text-[#315fca]">Blog</Link><Link href="/privacy" className="hover:text-[#315fca]">Privacy</Link><Link href="/terms" className="hover:text-[#315fca]">Terms</Link><Link href="/faq" className="hover:text-[#315fca]">FAQ</Link></div>
+          <div className="flex flex-wrap gap-5"><Link href="/blog" className="hover:text-[#315fca]">Blog</Link><Link href="/affiliate-program" className="hover:text-[#315fca]">Affiliate programme</Link><Link href="/privacy" className="hover:text-[#315fca]">Privacy</Link><Link href="/terms" className="hover:text-[#315fca]">Terms</Link><Link href="/faq" className="hover:text-[#315fca]">FAQ</Link></div>
         </div>
       </footer>
     </div>

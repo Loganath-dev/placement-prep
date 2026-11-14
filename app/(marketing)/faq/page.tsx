@@ -8,7 +8,7 @@ import { FAQS, faqJsonLd, type FaqItem } from "@/lib/content/faq"
 import { SITE_URL } from "@/lib/content/blocks"
 
 export const metadata: Metadata = {
-  title: "Campus Placement Preparation FAQs | StudyBench",
+  title: "Campus Placement Preparation FAQs",
   description:
     "Answers to common questions about StudyBench learning paths, free and Premium access, content sources and data privacy.",
   alternates: { canonical: `${SITE_URL}/faq` },

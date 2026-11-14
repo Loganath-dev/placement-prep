@@ -3,7 +3,7 @@ import { LegalDocument } from "@/app/legal-doc"
 import { TERMS } from "@/lib/legal"
 
 export const metadata: Metadata = {
-  title: "Terms & Conditions - StudyBench",
+  title: "Terms & Conditions",
   description:
     "The terms governing your use of StudyBench, including Premium payments, payment finality, acceptable use, disclaimers and dispute resolution under Indian law.",
   alternates: { canonical: "/terms" },

@@ -7,7 +7,7 @@ import { BLOG_POSTS } from "@/lib/content/blog"
 import { SITE_NAME, SITE_URL } from "@/lib/content/blocks"
 
 export const metadata: Metadata = {
-  title: "Placement Preparation Blog - Guides for Freshers | StudyBench",
+  title: "Placement Preparation Blog - Guides for Freshers",
   description:
     "In-depth learning guides covering aptitude, logical reasoning, verbal ability, CS Core, programming fundamentals and DSA.",
   alternates: { canonical: `${SITE_URL}/blog` },

@@ -7,7 +7,7 @@ import { COMPANIES } from "@/lib/data/companies"
 import { SITE_NAME, SITE_URL } from "@/lib/content/blocks"
 
 export const metadata: Metadata = {
-  title: `Company Placement Prep Guides 2026 | ${SITE_NAME}`,
+  title: "Company Placement Prep Guides 2026",
   description:
     "Free placement preparation guides for TCS, Infosys, Wipro, Accenture, Zoho, Cognizant and more. Exam patterns, eligibility, and sample questions for campus hiring 2026.",
   alternates: { canonical: `${SITE_URL}/prep` },

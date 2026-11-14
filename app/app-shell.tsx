@@ -5,7 +5,6 @@ import * as React from "react"
 import { AdminSidebar, AdminTopbar, AppSidebar, AppTopbar, MobileBottomNav } from "@/app/nav"
 import { SyncErrorBanner } from "@/app/sync-error-banner"
 import { CommandPalette } from "@/app/command-palette"
-import { StudyTimer } from "@/app/study-timer"
 import { useStoreSelector } from "@/lib/store"
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -66,7 +65,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           {children}
         </main>
       </div>
-      {!isAdminArea ? <StudyTimer /> : null}
       {!isAdminArea ? <MobileBottomNav /> : null}
       {!isAdminArea ? <CommandPalette /> : null}
     </div>

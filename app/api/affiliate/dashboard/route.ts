@@ -15,6 +15,15 @@ type AffiliateCommissionRow = {
 }
 
 export async function GET() {
+  try {
+    return await getAffiliateDashboard()
+  } catch (error) {
+    console.error("Affiliate dashboard request failed:", error)
+    return NextResponse.json({ error: "Could not load affiliate account. Please try again." }, { status: 500 })
+  }
+}
+
+async function getAffiliateDashboard() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: "Not authenticated." }, { status: 401 })

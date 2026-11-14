@@ -27,15 +27,17 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params
   const post = getPost(slug)
-  if (!post) return { title: "Article not found - StudyBench" }
+  if (!post) return { title: "Article not found" }
   const url = `${SITE_URL}/blog/${post.slug}`
+  const title = post.title
+  const brandedTitle = `${title} | StudyBench`
   return {
-    title: `${post.title} | StudyBench`,
+    title,
     description: post.description,
     keywords: post.keywords,
     alternates: { canonical: url },
     openGraph: {
-      title: post.title,
+      title: brandedTitle,
       description: post.description,
       type: "article",
       url,
@@ -45,7 +47,7 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title: post.title,
+      title: brandedTitle,
       description: post.description,
     },
   }
