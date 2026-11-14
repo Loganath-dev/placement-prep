@@ -3,8 +3,6 @@ import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { hasTrustedRequestOrigin } from "@/lib/security/request-origin"
 
-export const runtime = "edge"
-
 /**
  * Permanently deletes the signed-in user's account and associated data.
  * Identity comes from the session cookie; destructive work uses the service-role

@@ -1,7 +1,6 @@
 import { ImageResponse } from "next/og"
 import { SITE_NAME } from "@/lib/content/blocks"
 
-export const runtime = "edge"
 export const alt = "StudyBench campus placement preparation app"
 export const size = {
   width: 1200,
@@ -54,7 +53,7 @@ export default function Image() {
           </div>
           <div style={{ fontSize: 38, fontWeight: 800 }}>{SITE_NAME}</div>
         </div>
-        <div>
+        <div style={{ display: "flex", flexDirection: "column" }}>
           <div style={{ fontSize: 68, fontWeight: 900, lineHeight: 1.05, maxWidth: 960 }}>
             Campus placement preparation for Indian freshers
           </div>

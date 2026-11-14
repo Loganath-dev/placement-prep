@@ -6,8 +6,6 @@ import { hmacSha256Hex, timingSafeStringEqual } from "@/lib/crypto/edge-hmac"
 import { grantPremiumForPayment, recordAffiliateCommission, recordPaymentOnce } from "@/lib/entitlement"
 import { createAdminClient } from "@/lib/supabase/admin"
 
-export const runtime = "edge"
-
 type RazorpayPaymentEntity = {
   id?: string
   order_id?: string

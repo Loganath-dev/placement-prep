@@ -14,7 +14,7 @@ export async function register() {
   const report = inspectEnv()
 
   for (const [feature, vars] of Object.entries(report.unconfiguredFeatures)) {
-    console.info(`[env] ${feature} is disabled (unset: ${vars.join(", ")})`)
+    console.warn(`[env] ${feature} is unconfigured (unset: ${vars.join(", ")})`)
   }
 
   if (!report.ok) {
