@@ -224,16 +224,10 @@ export function LearningSubjectPage({ subject }: { subject: Subject }) {
                   <div className="relative flex flex-col gap-5 before:absolute before:bottom-7 before:left-[48px] before:top-7 before:border-l-2 before:border-dashed before:border-border sm:before:hidden">
                     {card.chapters.map((chapter, index) => {
                       const chapterProgress = progress.chapters[chapter.id]
-                      const learning = chapterProgress?.learning
                       const passed = Boolean(chapterProgress?.passed)
                       const current = !passed && index === activeIndex
-                      const lessonsPassed = getPassedLessonIds(learning).size
-                      const allLessonsPassed = lessonsPassed >= (chapter.lessons?.length ?? 0) && (chapter.lessons?.length ?? 0) > 0
-                      const recallComplete = Boolean(learning?.recallCompletedAt)
-                      const practiceComplete = passed
                       const side = index % 2 === 0 ? "justify-start pl-2 sm:pl-4" : "justify-start pl-2 sm:justify-end sm:pr-4"
                       const href = `/learn/${card.companyId}/${card.sectionId}/${chapter.id}`
-                      const stageClass = "flex min-h-12 w-[min(100%,360px)] items-center justify-between gap-3 rounded-xl border px-3 py-2 text-left text-sm transition-colors"
                       return (
                         <div key={chapter.id} className={`flex flex-col gap-2 ${side}`}>
                           <Link href={href} aria-current={current ? "step" : undefined} className={`group relative z-10 flex w-[min(100%,420px)] items-center gap-3.5 rounded-2xl border p-3.5 transition-all duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${current ? "border-primary/45 bg-primary/[0.07] shadow-[0_8px_24px_hsl(var(--primary)/.10)]" : passed ? "border-emerald-200 bg-emerald-50/70 hover:border-emerald-300" : "border-border bg-card hover:border-primary/35 hover:bg-primary/[0.025]"}`}>
@@ -243,16 +237,6 @@ export function LearningSubjectPage({ subject }: { subject: Subject }) {
                             <span className="min-w-0 flex-1"><span className="line-clamp-2 text-sm font-semibold leading-5 text-foreground sm:text-[15px]">{chapter.title}</span><span className="mt-1 block text-xs text-muted-foreground">{chapter.lessons?.length ?? 0} lessons · {passed ? "Completed" : current ? "Continue learning" : "Up next"}</span></span>
                             <ArrowRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
                           </Link>
-                          <div className="ml-5 flex w-[min(100%,360px)] flex-col gap-2 border-l-2 border-dashed border-border pl-4 sm:ml-8">
-                            <Link href={`${href}#chapter-recall`} aria-disabled={!allLessonsPassed} tabIndex={allLessonsPassed ? undefined : -1} onClick={(event) => { if (!allLessonsPassed) event.preventDefault() }} className={`${stageClass} ${recallComplete ? "border-emerald-300 bg-emerald-50/60" : allLessonsPassed ? "border-primary/40 bg-primary/5 hover:bg-primary/10" : "border-border bg-muted/40 opacity-65"}`}>
-                              <span><span className="block font-semibold">Chapter Recall</span><span className="block text-xs text-muted-foreground">{recallComplete ? "Completed" : allLessonsPassed ? "Ready to review" : `Pass all lessons first · ${lessonsPassed}/${chapter.lessons?.length ?? 0}`}</span></span>
-                              {recallComplete ? <Check className="size-4 text-emerald-600" /> : <span className="text-xs">{allLessonsPassed ? "Start" : "Locked"}</span>}
-                            </Link>
-                            <Link href={`${href}#chapter-assessment`} aria-disabled={!recallComplete} tabIndex={recallComplete ? undefined : -1} onClick={(event) => { if (!recallComplete) event.preventDefault() }} className={`${stageClass} ${practiceComplete ? "border-emerald-300 bg-emerald-50/60" : recallComplete ? "border-primary/40 bg-primary/5 hover:bg-primary/10" : "border-border bg-muted/40 opacity-65"}`}>
-                              <span><span className="block font-semibold">Chapter Practice</span><span className="block text-xs text-muted-foreground">{practiceComplete ? `Passed · ${chapterProgress?.bestScore ?? 0}%` : recallComplete ? "Ready · 70% to pass" : "Complete Recall first"}</span></span>
-                              {practiceComplete ? <Check className="size-4 text-emerald-600" /> : <span className="text-xs">{recallComplete ? "Start" : "Locked"}</span>}
-                            </Link>
-                          </div>
                         </div>
                       )
                     })}
