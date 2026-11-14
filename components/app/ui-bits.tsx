@@ -108,7 +108,7 @@ export function ProbabilityInputs({
     .map((section) => ({
       label: section.short,
       value: sectionMastery(companyId, section.id, progress),
-      weight: PRI_WEIGHTS[section.id],
+      weight: section.id === "comm-interview" ? 0 : PRI_WEIGHTS[section.id],
     }))
     .sort((a, b) => a.value - b.value)
   const weakest = sections[0]
@@ -126,7 +126,6 @@ export function ProbabilityInputs({
           Estimate inputs
         </span>
         <span>PRI {pri}/100</span>
-        <span>Target {company.cutoffPRI}</span>
         <span>Mock avg {mock || "none"}</span>
         {weakest ? <span>Weakest {weakest.label} {weakest.value}%</span> : null}
       </div>

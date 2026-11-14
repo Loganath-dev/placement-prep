@@ -9,8 +9,6 @@ import { CompanyAvatar } from "@/components/app/ui-bits"
 import { PriRing } from "@/components/app/pri-ring"
 import {
   PLAN_FEATURES,
-  PREMIUM_FOOD_COMPARISON_LABEL,
-  PREMIUM_MONTHLY_EQUIVALENT_INR,
   premiumPriceLabel,
 } from "@/lib/access"
 import { track } from "@/lib/analytics"

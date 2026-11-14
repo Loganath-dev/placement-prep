@@ -365,7 +365,7 @@ export async function loadUserState(userId: string): Promise<Partial<AppState> |
     streak: { count: st.streak_count, lastActive: st.streak_last_active ?? "" },
     primary: st.primary_company,
     interested: st.interested ?? [],
-    badges: (badgeAwardsRes.data ?? []).map((row) => row.badge_id),
+    badges: (badgeAwardsRes.data ?? []).map((row: { badge_id: string }) => row.badge_id),
     topicStats: st.topic_stats ?? {},
     codingAttempts: st.coding_attempts ?? [],
     mistakes,

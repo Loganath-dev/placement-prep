@@ -240,15 +240,17 @@ export default function MockPage() {
                 const xpGained = Math.max(0, Number(payload.rewards?.xp ?? previousXp) - previousXp)
                 const verifiedById = new Map((payload.questionResults ?? []).map((item: { questionId: string; correct: boolean }) => [item.questionId, item.correct]))
                 const verifiedResults = results.map((result) => ({ ...result, correct: verifiedById.get(result.questionId ?? "") === true }))
-                const reviewById = new Map((payload.reviewQuestions ?? []).map((item: { id: string; answer: number; acceptedAnswers?: string[] }) => [item.id, item]))
-                const wrong = verifiedResults
-                  .filter((result) => !result.correct && result.questionId)
-                  .map((result) => {
-                    const question = questions.find((item) => item.id === result.questionId)
-                    const review = reviewById.get(result.questionId!)
-                    return question && review ? { ...question, answer: review.answer, acceptedAnswers: review.acceptedAnswers ?? [] } : null
-                  })
-                  .filter((question): question is Question => Boolean(question))
+                const reviewById = new Map<string, { id: string; answer: number; acceptedAnswers?: string[] }>(
+                  (payload.reviewQuestions ?? []).map((item: { id: string; answer: number; acceptedAnswers?: string[] }) => [item.id, item]),
+                )
+                const wrong: Question[] = verifiedResults.flatMap((result) => {
+                  if (result.correct || !result.questionId) return []
+                  const question = questions.find((item) => item.id === result.questionId)
+                  const review = reviewById.get(result.questionId)
+                  return question && review
+                    ? [{ ...question, answer: review.answer, acceptedAnswers: review.acceptedAnswers ?? [] }]
+                    : []
+                })
                 setWrongQuestions(wrong)
                 setLastAnalysis(
               buildMockAnalysis(verifiedResults, Number(payload.score), mock?.cutoffPercent ?? 70, {
