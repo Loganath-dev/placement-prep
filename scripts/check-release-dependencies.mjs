@@ -7,6 +7,8 @@ const required = {
   'eslint-config-next': '16.4.5',
   react: '19.2.9',
   'react-dom': '19.2.9',
+  vitest: '4.1.12',
+  vite: '8.1.6',
 }
 
 const errors = []
@@ -16,8 +18,8 @@ for (const [name, expected] of Object.entries(required)) {
     errors.push(`${name}: package.json has ${actual ?? 'no version'}; required ${expected}`)
   }
 
-  // The package names and pinned versions are simple literals; escape dots for
-  // the exact pnpm importer specifier and resolved-version check.
+  // Validate both the requested importer specifier and the resolved version.
+  // Parenthesized peer suffixes are allowed after the exact package version.
   const escapedName = name.replaceAll('.', '\\.')
   const escapedVersion = expected.replaceAll('.', '\\.')
   const importer = new RegExp(
@@ -30,10 +32,10 @@ for (const [name, expected] of Object.entries(required)) {
 }
 
 if (errors.length) {
-  console.error('RELEASE BLOCKED: vulnerable or unverified framework dependency versions remain.')
+  console.error('RELEASE BLOCKED: dependency manifest and lockfile are not in sync with patched versions.')
   for (const error of errors) console.error(`- ${error}`)
-  console.error('\nUpdate package.json and regenerate pnpm-lock.yaml together with pnpm, then run pnpm audit.')
+  console.error('\nRun `pnpm install --no-frozen-lockfile`, then `pnpm audit --audit-level high`, and commit the regenerated pnpm-lock.yaml.')
   process.exitCode = 1
 } else {
-  console.log('Framework dependency release gate passed.')
+  console.log('Framework and test-tool dependency release gate passed.')
 }

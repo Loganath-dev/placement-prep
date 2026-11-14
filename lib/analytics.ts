@@ -15,6 +15,7 @@
  *   onboarding_complete    — user finished onboarding
  *   chapter_start          — user opened a chapter
  *   quiz_attempt           — user submitted a chapter quiz
+ *   lesson_practice        — user submitted a lesson checkpoint
  *   mock_complete          — user finished a mock test
  *   daily_complete         — user finished a daily challenge category
  *   premium_upgrade        — user successfully activated premium
@@ -30,6 +31,7 @@ type EventName =
   | "onboarding_complete"
   | "chapter_start"
   | "quiz_attempt"
+  | "lesson_practice"
   | "mock_complete"
   | "daily_complete"
   | "premium_upgrade"

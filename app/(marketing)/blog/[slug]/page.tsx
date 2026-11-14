@@ -2,9 +2,9 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
-import { Icon } from "@/components/app/icon"
-import { JsonLd } from "@/components/app/json-ld"
-import { RichText, withBold } from "@/components/app/rich-text"
+import { Icon } from "@/components/app-icon"
+import { JsonLd } from "@/app/json-ld"
+import { RichText, withBold } from "@/app/rich-text"
 import {
   allPostSlugs,
   blogPostingJsonLd,
@@ -163,7 +163,7 @@ export default async function BlogPostPage({
               Turn this into a real plan
             </p>
             <p className="max-w-md text-sm text-muted-foreground">
-              StudyBench gives you company-pattern tracks, mocks, and an honest readiness score -
+              StudyBench gives you company-pattern learning tracks, practice questions and mock assessments -
               free to start.
             </p>
             <Link

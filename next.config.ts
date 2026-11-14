@@ -18,7 +18,7 @@ const supabaseWs = supabaseOrigin.replace(/^https/, "wss")
 
 // Content-Security-Policy. 'unsafe-inline' is required for Next's hydration
 // inline scripts and for React inline style attributes; 'unsafe-eval' is only
-// allowed in dev (HMR needs it). Tighten with nonces once a CSP nonce middleware
+// allowed in dev (HMR needs it). Tighten with nonces once a CSP nonce proxy
 // is in place.
 const csp = [
   "default-src 'self'",
@@ -27,9 +27,9 @@ const csp = [
   "frame-ancestors 'none'",
   "img-src 'self' data: blob:",
   "font-src 'self' data:",
-  `script-src 'self' 'unsafe-inline' https://checkout.razorpay.com${isProd ? "" : " 'unsafe-eval'"}`,
+  `script-src 'self' 'unsafe-inline' https://checkout.razorpay.com https://www.googletagmanager.com https://www.google-analytics.com https://va.vercel-scripts.com${isProd ? "" : " 'unsafe-eval'"}`,
   "style-src 'self' 'unsafe-inline'",
-  `connect-src 'self' ${supabaseOrigin} ${supabaseWs} https://api.razorpay.com`,
+  `connect-src 'self' ${supabaseOrigin} ${supabaseWs} https://api.razorpay.com https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://vitals.vercel-insights.com`,
   "form-action 'self'",
   "frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com",
   ...(isProd ? ["upgrade-insecure-requests"] : []),
@@ -53,9 +53,7 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: ["127.0.0.1"],
-  // output: "standalone" is required by @opennextjs/cloudflare but breaks Vercel.
-  // Enable it only during Cloudflare Pages builds (CF_PAGES is set automatically).
-  ...(process.env.CF_PAGES ? { output: "standalone" } : {}),
+  devIndicators: false,
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }]
   },

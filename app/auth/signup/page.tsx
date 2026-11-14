@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { PasswordInput } from "@/components/ui/password-input"
-import { Icon } from "@/components/app/icon"
-import { AuthShell, GoogleButton, OrDivider } from "@/components/app/auth-shared"
+import { Icon } from "@/components/app-icon"
+import { AuthShell, GoogleButton, OrDivider } from "@/app/auth-shared"
 import { track } from "@/lib/analytics"
 import { createClient } from "@/lib/supabase/client"
 
@@ -34,10 +34,14 @@ export default function SignupPage() {
     setError(null)
     track("marketing_cta_click", { placement: "signup_form_submit" })
     const supabase = createClient()
+    const referrerCode = searchParams.get("ref")?.trim().toUpperCase() ?? ""
+    const validReferrerCode = /^[A-F0-9]{12}$/.test(referrerCode) ? referrerCode : null
+    const callbackUrl = new URL("/auth/callback", window.location.origin)
+    if (validReferrerCode) callbackUrl.searchParams.set("ref", validReferrerCode)
     const { data, error: err } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+      options: { emailRedirectTo: callbackUrl.toString() },
     })
     setLoading(false)
     if (err) {
@@ -50,9 +54,14 @@ export default function SignupPage() {
     })
     // If email confirmation is off, a session is returned and the user enters the app.
     if (data.session && data.user) {
-      await supabase.from("profiles").insert({
-        id: data.user.id,
-      })
+      await supabase.from("profiles").upsert({ id: data.user.id }, { onConflict: "id" })
+      if (validReferrerCode) {
+        await fetch("/api/referrals/attribute", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ referrerCode: validReferrerCode }),
+        })
+      }
       router.push("/onboarding")
       router.refresh()
     } else {
@@ -88,10 +97,10 @@ export default function SignupPage() {
         <div className="mb-4 grid gap-2 rounded-xl border border-primary/15 bg-primary/5 p-3 text-sm">
           <p className="font-medium text-foreground">What you get immediately</p>
           <p className="text-muted-foreground">
-            Company tracks, starter chapters, sample PYQs, one mock baseline and a readiness score.
+            Learning paths, starter lessons, sample practice questions and a mock test.
           </p>
         </div>
-        <GoogleButton label="Sign up with Google" source="signup" />
+        <GoogleButton label="Sign up with Google" source="signup" referrerCode={searchParams.get("ref") ?? undefined} />
         <div className="my-4">
           <OrDivider />
         </div>

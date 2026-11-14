@@ -70,10 +70,10 @@ Do not blindly reverse a financial migration after real payments have been proce
 - Razorpay webhook URL, secret, subscribed events and delivery history are checked in the Razorpay dashboard.
 - Supabase production migration head matches the release manifest.
 
+
 ## Load-test command
 
 After deploying a staging build and confirming the public routes:
-
 ```bash
 k6 run -e BASE_URL="https://YOUR-STAGING-ORIGIN" tests/load/public-smoke.k6.js
 ```

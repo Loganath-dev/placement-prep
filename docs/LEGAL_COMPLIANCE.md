@@ -31,9 +31,9 @@ for the signed record.
 
 ## 2. Product-specific protections built in
 
-- **No job/results guarantee** — the PRI and placement probability are framed
+- **No job/results guarantee** — the learning-progress index is framed
   throughout as *estimates and study aids*, not assurances (Terms §3; mirrors the
-  in-app `PROBABILITY_DISCLAIMER`). This guards against "misleading advertisement"
+  in-app progress disclaimer). This guards against "misleading advertisement"
   exposure under the Consumer Protection Act.
 - **Trademark / no-affiliation** — TCS, Infosys, Wipro, Accenture, Zoho and
   Cognizant are identified as third-party marks; StudyBench disclaims affiliation
@@ -54,7 +54,7 @@ for the signed record.
    Required under IT Rules 2021 r.3(2) and DPDP.
 3. **Seat / jurisdiction city** for arbitration and courts (Terms §20; Privacy §18).
 4. **Working contact mailboxes** — `privacy@`, `support@`, `grievance@studybench.in`.
-5. Confirm the **Premium price (₹149/year)**, GST treatment, and whether the plan
+5. Confirm the **Premium prices (₹299 for 6 months and ₹499 for 1 year)**, GST treatment, and whether the plans
    **auto-renews** (Terms §7 currently states *non-auto-renew unless stated at checkout*).
 
 ## 4. Recommended operational steps (not yet implemented in-app)

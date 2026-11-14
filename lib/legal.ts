@@ -44,7 +44,7 @@ export const PRIVACY_POLICY: LegalDoc = {
   slug: "privacy",
   title: "Privacy Policy",
   effectiveDate: "6 June 2026",
-  lastUpdated: "6 June 2026",
+  lastUpdated: "10 November 2026",
   notice:
     "This Privacy Policy is published in accordance with the Digital Personal Data Protection Act, 2023, the Information Technology Act, 2000 and the rules made thereunder. It explains how we collect, use, share, store and protect your personal data, and the rights available to you.",
   intro: [
@@ -95,6 +95,7 @@ export const PRIVACY_POLICY: LegalDoc = {
             "Name, college/institution, branch/stream and expected graduation year.",
             "Academic indicators you choose to enter, such as CGPA.",
             "Your target companies and preparation preferences.",
+            "If you use a referral link, the referring account identifier associated with your signup; if you request referral payouts, your UPI ID and account-holder name.",
           ],
         },
         { k: "sub", text: "c) Usage & performance data" },
@@ -149,7 +150,7 @@ export const PRIVACY_POLICY: LegalDoc = {
           k: "list",
           items: [
             "Create and manage your account and authenticate you securely.",
-            "Personalise your preparation, compute your PRI and estimated placement probability, and recommend chapters, practice and mocks.",
+            "Personalise your preparation using your recorded learning progress, and recommend chapters, practice and mock tests.",
             "Operate gamification features (XP, levels, streaks, badges) and analytics (weakest/strongest topics).",
             "Process subscriptions and provide customer support.",
             "Maintain security, prevent fraud and abuse, and debug and improve the Platform.",
@@ -159,7 +160,7 @@ export const PRIVACY_POLICY: LegalDoc = {
         },
         {
           k: "p",
-          text: "We do **not** sell your personal data, and we do **not** use your data for automated decisions that produce legal or similarly significant effects on you. Your PRI and placement probability are study aids and **estimates only**, not determinations about your employability.",
+          text: "We do **not** sell your personal data, and we do **not** use your data for automated decisions that produce legal or similarly significant effects on you. Your learning-progress indicators describe activity within StudyBench. They are not determinations about your employability.",
         },
       ],
     },
@@ -344,7 +345,7 @@ export const TERMS: LegalDoc = {
   slug: "terms",
   title: "Terms & Conditions",
   effectiveDate: "6 June 2026",
-  lastUpdated: "19 June 2026",
+  lastUpdated: "10 November 2026",
   notice:
     "These Terms & Conditions, together with the Privacy Policy, form a legally binding agreement between you and StudyBench and constitute an \"electronic record\" under the Information Technology Act, 2000. Please read them carefully before using the Platform.",
   intro: [
@@ -370,7 +371,7 @@ export const TERMS: LegalDoc = {
       blocks: [
         {
           k: "p",
-          text: "StudyBench is an **educational and exam-preparation platform** that offers learning content, practice questions, previous-year-pattern questions, mock tests, company-wise tracks, interview and communication preparation, analytics, and a Placement Readiness Index (PRI) with an estimated placement probability. The Platform is a self-study aid; it is not a placement agency, recruiter, or employment service.",
+          text: "StudyBench is an **educational and exam-preparation platform** that offers learning content, practice questions, previous-year-pattern questions, mock tests, company-wise tracks, interview and communication preparation, analytics, and a learning-progress index based on completed lessons, practice and mock-test results. The Platform is a self-study aid; it is not a placement agency, recruiter, or employment service.",
         },
       ],
     },
@@ -380,7 +381,7 @@ export const TERMS: LegalDoc = {
       blocks: [
         {
           k: "p",
-          text: "**StudyBench does not guarantee any job, interview call, placement, examination result, score, or outcome.** The PRI, estimated placement probability, recommendations and analytics are generated from your in-app activity and are **estimates and study aids only** - they are not predictions, assurances, or representations about your actual employability or selection by any company. Selection decisions rest solely with the respective employers and depend on factors outside our control. You should not make financial or career decisions in reliance on these estimates as guarantees.",
+          text: "**StudyBench does not guarantee any job, interview call, placement, examination result, score, or outcome.** Progress scores, recommendations and analytics are generated from your in-app activity and are **study aids only** - they are not predictions, assurances, or representations about your actual employability or selection by any company. Selection decisions rest solely with the respective employers and depend on factors outside our control. You should not make financial or career decisions in reliance on these estimates as guarantees.",
         },
       ],
     },
@@ -398,7 +399,7 @@ export const TERMS: LegalDoc = {
         },
         {
           k: "p",
-          text: "Your Placement Readiness Index (PRI) and any readiness band, score or estimated probability are computed **only from your activity within the Platform**. They are study signals to guide your preparation and are **not a prediction, assurance, or guarantee** of selection, shortlisting, or any outcome in any real recruitment process.",
+          text: "Your learning-progress index and any progress band are computed **only from your activity within the Platform**. They are study signals to guide your preparation and are **not a prediction, assurance, or guarantee** of selection, shortlisting, or any outcome in any real recruitment process.",
         },
       ],
     },
@@ -434,35 +435,42 @@ export const TERMS: LegalDoc = {
         {
           k: "list",
           items: [
-            "The Platform offers a free tier and an optional paid **Premium** plan (currently priced at **₹149/year**, inclusive of applicable taxes unless stated otherwise).",
+            "The Platform offers a free tier and two optional paid **Premium** plans: **₹299 for 6 months (180 days)** or **₹499 for 1 year (365 days)**, inclusive of applicable taxes unless stated otherwise.",
             "Payments are processed by our third-party gateway (Razorpay). By purchasing, you also agree to the gateway's terms. We do not store your card or UPI credentials.",
             "Prices, features and taxes (including GST) may change prospectively; the price applicable at the time of your purchase governs that purchase.",
             "Unless expressly stated as auto-renewing at checkout, subscriptions do not auto-renew, and you will need to renew manually to continue Premium access.",
+            "A verified referred purchase earns a fixed reward of ₹25 for the ₹299 six-month plan or ₹50 for the ₹499 one-year plan. Historical purchases retain the reward terms applicable when they were made. Rewards are subject to a 15-day review period, exclusion of self-referrals, fraudulent activity and invalid or cancelled purchases, and a ₹250 minimum approved payout balance. Eligible payouts are processed manually by UPI on the 25th of each month, subject to the review period and payout verification.",
           ],
         },
       ],
     },
     {
-      id: "refunds",
-      heading: "8. Cancellation and Refund Policy",
+      id: "affiliate-programme",
+      heading: "8. Affiliate Programme and Referral Rewards",
       blocks: [
-        {
-          k: "p",
-          text: "Because Premium grants immediate access to digital educational content, fees are **generally non-refundable** once access has been provided, except where required by applicable law or stated below.",
-        },
-        {
-          k: "list",
-          items: [
-            "**Failed/duplicate payments:** if you are charged but Premium is not activated, or you are charged more than once for the same plan, contact studybench07@gmail.com within 7 days for verification and a full refund of the erroneous amount.",
-            "**Cancellation:** you may cancel Premium at any time from Settings; cancellation stops future renewals and you retain access until the end of the paid period.",
-            "Approved refunds are processed to the original payment method within a reasonable period, typically 5-10 business days, subject to the gateway's timelines.",
-          ],
-        },
+        { k: "p", text: "Participation in the StudyBench Affiliate Programme is optional and requires a separate application. You must read and affirmatively accept these Terms and the Privacy Policy before a referral link is issued. You must provide accurate UPI payout details belonging to you." },
+        { k: "list", items: [
+          "A verified purchase earns a fixed ₹25 reward for the 6-month Premium plan (₹299) or a fixed ₹50 reward for the 1-year Premium plan (₹499), subject to the 15-day review period and payout terms.",
+          "A reward is recorded only after the referred student's payment is successfully captured and verified by the payment gateway. A signup or an initiated/failed payment does not earn a reward.",
+          "Self-referrals, duplicate or fraudulent accounts, manipulated transactions, spam, misleading claims and referrals generated in breach of law or these Terms are ineligible. Invalid, cancelled or reversed transactions are excluded from rewards in accordance with applicable law and the programme rules.",
+          "Rewards are subject to a 15-day review period. The minimum approved balance for payout is ₹250. Eligible payouts are processed manually by UPI on the 25th of each month; if the threshold or review period is not met by that date, the balance carries forward.",
+          "You must keep your UPI ID and account-holder name accurate. StudyBench may request reasonable verification, suspend suspicious activity, reverse invalid rewards or pause the programme to prevent abuse.",
+          "Affiliate rewards are not salary, employment, agency fees or a guaranteed income. You may not represent yourself as an employee or authorised agent of StudyBench, promise placements, or make misleading statements about StudyBench or its plans."
+        ]},
+      ],
+    },
+    {
+      id: "payment-finality",
+      heading: "9. Payment Finality and No-Refund Policy",
+      blocks: [
+        { k: "p", text: "Please review the plan, access period and price before completing checkout. Once a Premium payment is successfully captured and the corresponding access is activated, the purchase is final. StudyBench does not offer refunds, credits or prorated reimbursements for change of mind, accidental purchase, non-use, partial use, failure to complete lessons or a decision to stop using the Platform." },
+        { k: "p", text: "Closing your account or choosing not to use the remaining Premium period does not create a refund entitlement. Premium plans do not auto-renew unless checkout expressly states otherwise." },
+        { k: "p", text: "This policy does not limit any consumer right or remedy that cannot lawfully be excluded. If you are charged but the purchased access is not activated, or the same transaction is debited more than once, contact studybench07@gmail.com with the payment reference so we can investigate and correct the access or erroneous duplicate charge in accordance with applicable law and payment-provider rules." },
       ],
     },
     {
       id: "licence",
-      heading: "9. Licence to Use the Platform",
+      heading: "10. Licence to Use the Platform",
       blocks: [
         {
           k: "p",
@@ -472,7 +480,7 @@ export const TERMS: LegalDoc = {
     },
     {
       id: "acceptable-use",
-      heading: "10. Acceptable Use and Prohibited Conduct",
+      heading: "11. Acceptable Use and Prohibited Conduct",
       blocks: [
         { k: "p", text: "You agree not to, and not to attempt to:" },
         {
@@ -490,7 +498,7 @@ export const TERMS: LegalDoc = {
     },
     {
       id: "ip",
-      heading: "11. Intellectual Property",
+      heading: "12. Intellectual Property",
       blocks: [
         {
           k: "p",
@@ -500,7 +508,7 @@ export const TERMS: LegalDoc = {
     },
     {
       id: "user-content",
-      heading: "12. User Content and Feedback",
+      heading: "13. User Content and Feedback",
       blocks: [
         {
           k: "p",
@@ -510,7 +518,7 @@ export const TERMS: LegalDoc = {
     },
     {
       id: "third-party-services",
-      heading: "13. Third-Party Services and Links",
+      heading: "14. Third-Party Services and Links",
       blocks: [
         {
           k: "p",
@@ -520,7 +528,7 @@ export const TERMS: LegalDoc = {
     },
     {
       id: "disclaimer",
-      heading: "14. Disclaimers",
+      heading: "15. Disclaimers",
       blocks: [
         {
           k: "p",
@@ -530,7 +538,7 @@ export const TERMS: LegalDoc = {
     },
     {
       id: "liability",
-      heading: "15. Limitation of Liability",
+      heading: "16. Limitation of Liability",
       blocks: [
         {
           k: "p",
@@ -540,7 +548,7 @@ export const TERMS: LegalDoc = {
     },
     {
       id: "indemnity",
-      heading: "16. Indemnity",
+      heading: "17. Indemnity",
       blocks: [
         {
           k: "p",
@@ -550,7 +558,7 @@ export const TERMS: LegalDoc = {
     },
     {
       id: "termination",
-      heading: "17. Suspension and Termination",
+      heading: "18. Suspension and Termination",
       blocks: [
         {
           k: "p",
@@ -560,7 +568,7 @@ export const TERMS: LegalDoc = {
     },
     {
       id: "grievance",
-      heading: "18. Grievance Redressal",
+      heading: "19. Grievance Redressal",
       blocks: [
         {
           k: "p",
@@ -571,7 +579,7 @@ export const TERMS: LegalDoc = {
     },
     {
       id: "changes",
-      heading: "19. Changes to the Terms or Service",
+      heading: "20. Changes to the Terms or Service",
       blocks: [
         {
           k: "p",
@@ -581,7 +589,7 @@ export const TERMS: LegalDoc = {
     },
     {
       id: "dispute",
-      heading: "20. Governing Law and Dispute Resolution",
+      heading: "21. Governing Law and Dispute Resolution",
       blocks: [
         {
           k: "p",
@@ -591,7 +599,7 @@ export const TERMS: LegalDoc = {
     },
     {
       id: "force-majeure",
-      heading: "21. Force Majeure",
+      heading: "22. Force Majeure",
       blocks: [
         {
           k: "p",
@@ -601,7 +609,7 @@ export const TERMS: LegalDoc = {
     },
     {
       id: "misc",
-      heading: "22. Miscellaneous",
+      heading: "23. Miscellaneous",
       blocks: [
         {
           k: "list",

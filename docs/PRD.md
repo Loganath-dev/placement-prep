@@ -1,4 +1,9 @@
+> **Product-truth update (10 November 2026):** This document contains historical planning language. The current product does not calculate or display placement probability, candidate percentile or hiring likelihood. Readiness scores and bands are based on the student's recorded learning activity only. See `PRODUCT_TRUTH_AND_ADMIN_AUDIT_2026-11-10.md` for current product behavior. This notice supersedes conflicting historical sections below.
+
 # Product Requirements Document — StudyBench
+
+> **Historical product proposal — not the current implementation contract.** This PRD contains retired Placement Readiness Index / Placement Probability concepts and other features that are not shipped. For the current product scope, plan prices and available features, use `README.md`, `docs/PRICING_AND_REFERRALS.md` and the live UI. Do not use this historical document as marketing copy or as evidence that a capability exists.
+
 
 > A multi-company campus-placement platform. A student prepares for **several companies at once**, sees an honest **Placement Readiness Index (PRI)** and an **estimated Placement Probability** for each, and works toward one outcome: getting placed in the company they want.
 
@@ -15,7 +20,7 @@
 | Owner | CEO / Product |
 | Date | 05 June 2026 |
 | Platforms | **Web (Phase 1 — primary)** → Android (Phase 2) → iOS (future) |
-| Pricing | Free tier + Premium ₹149/year (Razorpay) |
+| Pricing | Free tier + Premium ₹299/6 months or ₹499/year (Razorpay) |
 | UI direction | **Light & modern** — learning-blue primary on near-white surfaces; emerald = readiness, amber = streak/XP |
 
 ### Revision history
@@ -55,7 +60,7 @@ No competitor presents "how ready am I, and how likely am I, for each of my comp
 
 ### 3.1 Business goals
 1. Acquire and retain students preparing for multiple companies.
-2. Convert free users to ₹149/year Premium.
+2. Convert free users to Premium: ₹299 for 6 months or ₹499 for 1 year.
 3. Win on **content quality** and an honest, marketable **PRI + Placement Probability**.
 
 ### 3.2 Non-goals (out of scope for MVP)
@@ -101,14 +106,14 @@ Bulk/institutional licensing · AI features (AI mocks, adaptive learning, AI dou
 14. **Mock tests** (company-pattern) + final interview-round quiz.
 15. **Analytics** page — per-company progress **+ Weakest Topics + Strongest Topics**.
 16. Free vs Premium gating + ads on free tier.
-17. **Razorpay** payment (₹149/year).
-18. **Referral program** — share referral link; when one referred friend becomes paid Premium, referrer gets one free Premium month once per account.
+17. **Razorpay** payments: ₹299/180 days or ₹499/365 days.
+18. **Referral program** — earn ₹25 after a referred user completes a verified ₹299 six-month purchase or ₹50 after a verified ₹499 annual purchase. Rewards have a 15-day review period and are paid manually through UPI once the ₹250 minimum approved payout balance is reached, on the 25th of each month.
 19. **Settings** — target companies (primary + interested), account, notifications, subscription.
 
 ---
 
 ## 6. Assumptions & constraints
-- **Free tier:** unlocks the **first chapter of each section** per track; rest is Premium. *(O-1.)*
+- **Free tier:** the first **two lessons in every learning path** are free, including each programming language, DSA and SQL/DBMS; subsequent lessons and chapters require Premium.
 - **Web-first**, fully mobile-responsive at launch; Android next; iOS later.
 - Content for live tracks must pass the quality bar before going live (content is the critical path — §13).
 - Razorpay merchant account + ad SDK + legal/IP sign-off required.
@@ -240,9 +245,9 @@ XP for actions (§10.2) · Levels from cumulative XP (§10.3) · Daily streak wi
 
 ### 9.16 Free vs Premium and ads
 
-| Capability | Free | Premium (₹149/year) |
+| Capability | Free | Premium (₹299/6 months or ₹499/year) |
 |---|---|---|
-| Chapters per section | First chapter only | All chapters, all 7 tracks |
+| Learning access | First two lessons in every learning path | All lessons and chapters across every path |
 | Ads | Yes | None |
 | Daily Challenge | Yes (with ads) | Yes |
 | PYQs | Sample only | Full bank, all companies |
@@ -255,13 +260,13 @@ XP for actions (§10.2) · Levels from cumulative XP (§10.3) · Daily streak wi
 - **FR-9.16.2** Ads never interrupt an in-progress quiz.
 
 ### 9.17 Payments — Razorpay
-Single plan ₹149/year · Razorpay Checkout (UPI/card/netbanking/wallet) · server-side signature verification + webhooks · immediate entitlement on success · invoice email · status/expiry in Settings · renewal reminders (auto-renew vs manual — O-3) · no card data stored (Razorpay PCI flow).
+Two fixed-duration plans: ₹299/180 days or ₹499/365 days · Razorpay Checkout (UPI/card/netbanking/wallet) · server-side signature verification + webhooks · immediate entitlement on success · invoice email · status/expiry in Settings · renewal reminders (auto-renew vs manual — O-3) · no card data stored (Razorpay PCI flow).
 
 ### 9.18 Referral program
 - **FR-9.18.1** Every signed-in user can copy a referral link from Dashboard/Settings.
 - **FR-9.18.2** Referral attribution is captured once when the referred user signs up and completes onboarding; self-referrals are ignored.
-- **FR-9.18.3** Reward trigger: when a referred user completes a verified paid Premium purchase, the referrer receives **+1 month Premium**.
-- **FR-9.18.4** Reward cap: each referrer can receive this referral reward **only once total**, even if multiple referred friends later buy Premium.
+- **FR-9.18.3** A verified ₹299 six-month purchase earns the referrer ₹25; a verified ₹499 annual purchase earns ₹50.
+- **FR-9.18.4** Every eligible referred purchase earns its plan-specific fixed reward. Commissions wait 15 days for review and are paid manually through UPI once the ₹250 minimum approved payout balance is reached, on the 25th of each month.
 - **FR-9.18.5** Reward granting must be server-side, idempotent across Razorpay verify/webhook retries, and backed by a ledger table.
 
 ### 9.19 Settings

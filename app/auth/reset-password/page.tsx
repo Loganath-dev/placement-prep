@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { PasswordInput } from "@/components/ui/password-input"
-import { Icon } from "@/components/app/icon"
-import { AuthShell } from "@/components/app/auth-shared"
+import { Icon } from "@/components/app-icon"
+import { AuthShell } from "@/app/auth-shared"
 import { createClient } from "@/lib/supabase/client"
 
 const MIN_PASSWORD = 6

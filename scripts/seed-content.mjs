@@ -1,7 +1,8 @@
 // Seed the content_questions datastore from lib/data/content-seed.json.
 //
-// Idempotent: upserts on id, so re-running updates rows in place. Requires the
-// service role (premium rows must only be writable server-side). Run with:
+// Safe, additive seed: inserts missing IDs as drafts and never overwrites an
+// existing question's review/publication state. Requires the service role.
+// Run with:
 //
 //   NEXT_PUBLIC_SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... node scripts/seed-content.mjs
 //
@@ -24,7 +25,20 @@ if (!url || !key) {
 
 const admin = createClient(url, key, { auth: { persistSession: false } })
 
-const rows = seed.map((q) => ({
+const ids = seed.map((q) => q.id)
+const { data: existingRows, error: lookupError } = await admin
+  .from("content_questions")
+  .select("id")
+  .in("id", ids)
+
+if (lookupError) {
+  console.error("Could not inspect existing content before seeding:", lookupError.message)
+  process.exit(1)
+}
+
+const existingIds = new Set((existingRows ?? []).map((row) => row.id))
+const missing = seed.filter((q) => !existingIds.has(q.id))
+const rows = missing.map((q) => ({
   id: q.id,
   section: q.section,
   company_id: q.companyId ?? null,
@@ -34,15 +48,20 @@ const rows = seed.map((q) => ({
   options: q.options,
   answer: q.answer,
   explanation: q.explanation,
+  source_id: q.sourceId,
   option_notes: q.optionNotes,
   curated: true,
   tier: q.tier,
-  status: "live",
+  // New material is never student-visible merely because it was seeded.
+  status: "draft",
 }))
 
-const { error } = await admin.from("content_questions").upsert(rows, { onConflict: "id" })
-if (error) {
-  console.error("Seed failed:", error.message)
-  process.exit(1)
+if (rows.length) {
+  const { error } = await admin.from("content_questions").insert(rows)
+  if (error) {
+    console.error("Seed failed:", error.message)
+    process.exit(1)
+  }
 }
-console.log(`Seeded ${rows.length} questions into content_questions.`)
+
+console.log(`Inserted ${rows.length} new draft questions; left ${existingIds.size} existing records and their review states untouched.`)

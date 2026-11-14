@@ -3,7 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Icon } from "@/components/app/icon"
+import { Icon } from "@/components/app-icon"
 
 export default function RootSegmentError({
   error,

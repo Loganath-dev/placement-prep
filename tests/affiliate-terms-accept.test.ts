@@ -20,6 +20,7 @@ vi.mock("@/lib/supabase/admin", () => ({
 vi.mock("@/lib/rate-limit", () => ({ rateLimit }))
 
 import { POST } from "@/app/api/affiliate/terms/accept/route"
+import { AFFILIATE_PRIVACY_VERSION, AFFILIATE_TERMS_VERSION } from "@/lib/affiliate-terms"
 
 function request(body: unknown) {
   return new Request("http://localhost/api/affiliate/terms/accept", {
@@ -39,8 +40,8 @@ beforeEach(() => {
   maybeSingle.mockResolvedValue({
     data: {
       user_id: "affiliate-1",
-      terms_version: "affiliate-2026-11-10-v2",
-      privacy_version: "privacy-2026-11-10",
+      terms_version: AFFILIATE_TERMS_VERSION,
+      privacy_version: AFFILIATE_PRIVACY_VERSION,
       accepted_at: "2026-11-10T00:00:00.000Z",
     },
     error: null,
@@ -58,8 +59,8 @@ describe("POST /api/affiliate/terms/accept", () => {
     const response = await POST(request({ termsAccepted: true, privacyAccepted: true }))
     expect(response.status).toBe(200)
     expect(update).toHaveBeenCalledWith(expect.objectContaining({
-      terms_version: "affiliate-2026-11-10-v2",
-      privacy_version: "privacy-2026-11-10",
+      terms_version: AFFILIATE_TERMS_VERSION,
+      privacy_version: AFFILIATE_PRIVACY_VERSION,
     }))
     expect(eq).toHaveBeenCalledWith("user_id", "affiliate-1")
   })

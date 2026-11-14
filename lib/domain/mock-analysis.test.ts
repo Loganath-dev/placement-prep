@@ -15,10 +15,10 @@ describe("mock analysis domain", () => {
 
     expect(analysis.weakTopics[0]).toEqual({ topic: "Percentages", total: 2, wrong: 1 })
     expect(analysis.nextTasks[0]).toBe("Revise Percentages")
-    expect(analysis.carelessRisk).toContain("close to cutoff")
+    expect(analysis.carelessRisk).toContain("close to this mock's practice target")
   })
 
-  it("builds section percentile, loss buckets and heatmap data", () => {
+  it("builds section accuracy, loss buckets and heatmap data", () => {
     const analysis = buildMockAnalysis(
       [
         { topic: "Percentages", correct: false, difficulty: "medium", timeSpentSec: 120, questionIndex: 0 },
@@ -38,11 +38,35 @@ describe("mock analysis domain", () => {
     )
 
     expect(analysis.sectionStats).toHaveLength(2)
-    expect(analysis.sectionStats[0].estimatedPercentile).toBeGreaterThan(0)
+    expect(analysis.sectionStats[0].accuracy).toBe(50)
     expect(analysis.lossBreakdown.speed).toBe(1)
     expect(analysis.lossBreakdown.careless).toBe(1)
     expect(analysis.difficultyStats.find((item) => item.difficulty === "easy")?.total).toBe(2)
     expect(analysis.cutoffPrediction.status).toBe("near")
+  })
+
+  it("keeps repeated section types separate in the analysis", () => {
+    const analysis = buildMockAnalysis(
+      [
+        { topic: "Fractions", correct: true, questionIndex: 0 },
+        { topic: "Probability", correct: false, questionIndex: 1 },
+      ],
+      50,
+      70,
+      {
+        sections: [
+          { id: "quant", label: "Numerical Ability", questionCount: 1, durationMinutes: 2, source: "mixed" },
+          { id: "quant", label: "Advanced Numerical Ability", questionCount: 1, durationMinutes: 2, source: "mixed" },
+        ],
+      },
+    )
+
+    expect(analysis.sectionStats).toHaveLength(2)
+    expect(analysis.sectionStats.map((section) => section.accuracy)).toEqual([100, 0])
+    expect(analysis.sectionStats.map((section) => section.label)).toEqual([
+      "Numerical Ability",
+      "Advanced Numerical Ability",
+    ])
   })
 
   it("labels mock pressure from question count and timer", () => {

@@ -1,15 +1,18 @@
 import type { CompanyId } from "@/lib/types"
 
-export const PREMIUM_PRICE_INR = 249
-export const PREMIUM_DURATION_LABEL = "lifetime"
-export const PREMIUM_MONTHLY_EQUIVALENT_INR = Math.ceil(PREMIUM_PRICE_INR / 12)
-export const PREMIUM_FOOD_COMPARISON_LABEL = "Less than one canteen snack a month"
+export const PREMIUM_SIX_MONTH_PRICE_INR = 299
+export const PREMIUM_ANNUAL_PRICE_INR = 499
+export const PREMIUM_DURATION_DAYS = 365
+export const PREMIUM_DURATION_LABEL = "year"
+export const PREMIUM_SIX_MONTH_DURATION_DAYS = 180
 export const FREE_PYQ_LIMIT = 15
 export const FREE_INTERVIEW_LIMIT = 12
 // Coding practice is a Premium-only surface: free users see the locked page.
 export const FREE_CODING_PROBLEM_LIMIT = 0
 export const FREE_CHAPTER_PRACTICE_LIMIT = 50
 export const FREE_SECTION_INDEX = 0
+export const FREE_LESSONS_PER_PATH = 2
+export const FREE_CHAPTERS_PER_PATH = 1
 export const FREE_MOCK_LIMIT = 1
 export const FREE_MOCK_COMPANY: CompanyId = "general"
 
@@ -21,33 +24,23 @@ export const PLAN_FEATURES = [
   },
   {
     feature: "Learning chapters",
-    free: "Full Section 1 (all chapters) in every track — no cap",
-    premium: "Every section and chapter including advanced placement-level content",
+    free: "First two starter lessons in every learning path, including each programming language, DSA and SQL/DBMS",
+    premium: "Every chapter, full chapter practice sets and advanced placement-level content",
   },
   {
     feature: "PYQ bank",
     free: `${FREE_PYQ_LIMIT} questions per company for pattern sampling`,
-    premium: "Full company-wise bank with 500-600 priority questions per track",
+    premium: "Full company-wise question bank with explanations and review tools",
   },
   {
-    feature: "Interview questions",
-    free: `${FREE_INTERVIEW_LIMIT} starter questions per category with trainer guidance`,
-    premium: "Complete bank — technical, coding, HR, domain, managerial",
-  },
-  {
-    feature: "Coding ladder",
-    free: "Locked — coding depth is reserved for paying users",
-    premium: "All problems, hidden edge cases and full editorials",
-  },
-  {
-    feature: "GD, Communication & Resume",
-    free: "Core soft-skills access to get started",
-    premium: "Extended question banks, scenarios and practice prompts",
+    feature: "Programming roadmaps",
+    free: "Two starter lessons in each selected programming language, DSA and SQL/DBMS path",
+    premium: "All published programming-language, DSA and SQL/DBMS chapters with lesson practice",
   },
   {
     feature: "Mock tests",
-    free: `${FREE_MOCK_LIMIT} Core Prep mock with full analysis`,
-    premium: "Complete mock series for all companies with deeper review loops",
+    free: `First ${FREE_MOCK_LIMIT} mock in every employer series plus one general readiness mock`,
+    premium: "All 10 original practice simulations in every employer series",
   },
   {
     feature: "Analytics and readiness",
@@ -57,49 +50,59 @@ export const PLAN_FEATURES = [
 ] as const
 
 export function canAccessLearningChapter(
-  sectionIndex: number,
+  _sectionIndex: number,
   _chapterIndex: number,
   premium: boolean,
+  pathChapterIndex: number,
 ): boolean {
   if (premium) return true
-  // Free users get the entire first section — all its chapters
-  return sectionIndex === FREE_SECTION_INDEX
+  // Every learning path gives free users its first chapter. The curriculum
+  // keeps that starter chapter to two lessons, so every path has equal access.
+  return pathChapterIndex < FREE_CHAPTERS_PER_PATH
 }
 
-export function canAccessLearningSection(sectionIndex: number, premium: boolean): boolean {
-  if (premium) return true
-  return sectionIndex === FREE_SECTION_INDEX
+export function canAccessLearningSection(_sectionIndex: number, _premium: boolean): boolean {
+  // All paths remain discoverable; chapter-level access is enforced separately.
+  return true
 }
 
 export function canAccessChapterPractice(
   sectionIndex: number,
   chapterIndex: number,
   premium: boolean,
+  pathChapterIndex: number,
 ): boolean {
-  return canAccessLearningChapter(sectionIndex, chapterIndex, premium)
+  return canAccessLearningChapter(sectionIndex, chapterIndex, premium, pathChapterIndex)
 }
 
-export function freeLearningLabel(sectionName?: string): string {
-  if (!sectionName) return "Section 1 (all chapters)"
-  return `${sectionName} — all chapters free`
+export function freeLearningLabel(pathName?: string): string {
+  if (!pathName) return `${FREE_LESSONS_PER_PATH} starter lessons in every path`
+  return `${pathName} — first ${FREE_LESSONS_PER_PATH} lessons free`
 }
 
 export function visibleForPlan<T>(items: T[], premium: boolean, freeLimit: number): T[] {
   return premium ? items : items.slice(0, freeLimit)
 }
 
-export function canAccessMockCompany(companyId: CompanyId, premium: boolean): boolean {
-  return premium || companyId === FREE_MOCK_COMPANY
+/** Daily challenges must never widen the question access granted by chapter practice. */
+export function visibleDailyChallengeQuestions<T extends { difficulty: string }>(
+  questions: T[],
+  premium: boolean,
+  chapterPathKind?: "language" | "dsa" | "sql-dbms",
+): T[] {
+  if (premium) return questions
+  const eligible = chapterPathKind === "language" || chapterPathKind === "sql-dbms"
+    ? questions.filter((question) => question.difficulty !== "hard")
+    : questions
+  return eligible.slice(0, FREE_CHAPTER_PRACTICE_LIMIT)
 }
 
 export function visibleMocksForPlan<T>(
   mocks: T[],
-  companyId: CompanyId,
+  _companyId: CompanyId,
   premium: boolean,
 ): T[] {
-  if (premium) return mocks
-  if (!canAccessMockCompany(companyId, premium)) return []
-  return mocks.slice(0, FREE_MOCK_LIMIT)
+  return premium ? mocks : mocks.slice(0, FREE_MOCK_LIMIT)
 }
 
 export function visibleCodingTestsForPlan<T extends { hidden?: boolean }>(
@@ -118,5 +121,5 @@ export function planName(premium: boolean): "Premium" | "Free" {
 }
 
 export function premiumPriceLabel(): string {
-  return `₹${PREMIUM_PRICE_INR}/${PREMIUM_DURATION_LABEL}`
+  return `₹${PREMIUM_SIX_MONTH_PRICE_INR}/6 months or ₹${PREMIUM_ANNUAL_PRICE_INR}/year`
 }

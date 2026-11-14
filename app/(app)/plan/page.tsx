@@ -2,9 +2,9 @@
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Icon } from "@/components/app/icon"
-import { PageHeader } from "@/components/app/page-header"
-import { DeadlineBoard } from "@/components/app/deadline-board"
+import { Icon } from "@/components/app-icon"
+import { PageHeader } from "@/app/page-header"
+import { DeadlineBoard } from "@/app/deadline-board"
 import { WEEKLY_PLANS } from "@/lib/data/prep-guides"
 
 const LEVEL_LABEL = {
@@ -19,7 +19,7 @@ export default function PlanPage() {
       <PageHeader
         eyebrow="Weekly strategy"
         title="Placement Plan"
-        description="Follow a structured weekly routine for aptitude, coding, CS core, mocks and interview readiness."
+        description="Follow a structured weekly routine for aptitude, logical and verbal ability, CS Core, programming fundamentals and mock assessments."
       />
 
       <DeadlineBoard variant="calendar" />

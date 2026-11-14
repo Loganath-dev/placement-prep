@@ -11,13 +11,13 @@ export type TopicAccuracy = {
 
 export type SectionPerformance = {
   id: SectionId
+  sectionIndex: number
   label: string
   total: number
   correct: number
   wrong: number
   accuracy: number
   avgTimeSec: number
-  estimatedPercentile: number
 }
 
 export type DifficultyPerformance = {
@@ -101,20 +101,15 @@ function clamp(value: number, min: number, max: number): number {
 function sectionForIndex(
   sections: MockSection[] | undefined,
   index: number | undefined,
-): MockSection | null {
+): { section: MockSection; sectionIndex: number } | null {
   if (!sections?.length || index == null) return null
   let start = 0
-  for (const section of sections) {
+  for (const [sectionIndex, section] of sections.entries()) {
     const end = start + section.questionCount
-    if (index >= start && index < end) return section
+    if (index >= start && index < end) return { section, sectionIndex }
     start = end
   }
   return null
-}
-
-function percentileFor(score: number, avgTimeSec: number, targetTimeSec: number): number {
-  const speedBonus = targetTimeSec > 0 && avgTimeSec > 0 ? clamp((targetTimeSec - avgTimeSec) / targetTimeSec, -0.2, 0.2) * 20 : 0
-  return clamp(Math.round(score * 0.9 + speedBonus + 8), 1, 99)
 }
 
 function cutoffPredictionFor(
@@ -134,8 +129,8 @@ function cutoffPredictionFor(
   if (scorePct >= cutoff) {
     return {
       status: "clear",
-      label: "Cutoff likely cleared",
-      detail: "Your score is above the mock cutoff. Repeat once under the same timer to confirm consistency.",
+      label: "Practice target reached",
+      detail: "Your score met this mock's practice target. Repeat under the same timer to check whether the result is consistent.",
       questionsToCutoff: 0,
       projectedScore,
     }
@@ -144,8 +139,8 @@ function cutoffPredictionFor(
   if (questionsToCutoff <= 3 || projectedScore >= cutoff) {
     return {
       status: "near",
-      label: "Cutoff is within reach",
-      detail: `You need about ${questionsToCutoff} more correct answer${questionsToCutoff === 1 ? "" : "s"}. Speed repair can realistically close this gap.`,
+      label: "Practice target is within reach",
+      detail: `You need about ${questionsToCutoff} more correct answer${questionsToCutoff === 1 ? "" : "s"} to meet this mock's target. Review the time-pressure errors before retaking.`,
       questionsToCutoff,
       projectedScore,
     }
@@ -153,8 +148,8 @@ function cutoffPredictionFor(
 
   return {
     status: "risk",
-    label: "Cutoff risk is high",
-    detail: `You need about ${questionsToCutoff} more correct answers. Repair concepts before taking another full mock.`,
+    label: "Practice target not reached",
+    detail: `You need about ${questionsToCutoff} more correct answers to meet this mock's target. Repair concepts before taking another full mock.`,
     questionsToCutoff,
     projectedScore,
   }
@@ -173,7 +168,7 @@ export function buildMockAnalysis(
       : 75
 
   const topicMap = new Map<string, TopicAccuracy>()
-  const sectionMap = new Map<string, SectionPerformance>()
+  const sectionMap = new Map<number, SectionPerformance>()
   const difficultyMap = new Map<Difficulty, DifficultyPerformance>()
 
   let speedLoss = 0
@@ -214,26 +209,25 @@ export function buildMockAnalysis(
       difficultyMap.set(difficulty, current)
     }
 
-    const section = sectionForIndex(options.sections, result.questionIndex)
-    if (section) {
-      const current = sectionMap.get(section.id) ?? {
+    const sectionMatch = sectionForIndex(options.sections, result.questionIndex)
+    if (sectionMatch) {
+      const { section, sectionIndex } = sectionMatch
+      const current = sectionMap.get(sectionIndex) ?? {
         id: section.id,
+        sectionIndex,
         label: section.label,
         total: 0,
         correct: 0,
         wrong: 0,
         accuracy: 0,
         avgTimeSec: 0,
-        estimatedPercentile: 0,
       }
       current.total += 1
       current.correct += result.correct ? 1 : 0
       current.wrong += result.correct ? 0 : 1
       current.accuracy = pct(current.correct, current.total)
       current.avgTimeSec = avg([...Array(current.total - 1).fill(current.avgTimeSec), timeSpentSec])
-      const sectionTargetTime = Math.round((section.durationMinutes * 60) / Math.max(1, section.questionCount))
-      current.estimatedPercentile = percentileFor(current.accuracy, current.avgTimeSec, sectionTargetTime)
-      sectionMap.set(section.id, current)
+      sectionMap.set(sectionIndex, current)
     }
 
     if (!result.correct) {
@@ -277,16 +271,16 @@ export function buildMockAnalysis(
   )
   const sectionStats = options.sections?.length
     ? options.sections.map(
-        (section) =>
-          sectionMap.get(section.id) ?? {
+        (section, sectionIndex) =>
+          sectionMap.get(sectionIndex) ?? {
             id: section.id,
+            sectionIndex,
             label: section.label,
             total: 0,
             correct: 0,
             wrong: 0,
             accuracy: 0,
             avgTimeSec: 0,
-            estimatedPercentile: 0,
           },
       )
     : []
@@ -326,9 +320,9 @@ export function buildMockAnalysis(
     avgTimeSec,
     carelessRisk:
       scorePct >= cutoff
-        ? "You cleared the cutoff. Now reduce careless misses and repeat under full timer."
+        ? "You met this mock's practice target. Now reduce careless misses and repeat under the full timer."
         : gap <= 8
-          ? "You are close to cutoff. One weak topic or speed block is probably costing the attempt."
+          ? "You are close to this mock's practice target. One weak topic or speed block is probably costing the attempt."
           : "There is a concept gap. Do not take another full mock before repairing the top weak topics.",
     nextTasks: [
       weakTopics[0] ? `Revise ${weakTopics[0].topic}` : "Redo the toughest wrong question",

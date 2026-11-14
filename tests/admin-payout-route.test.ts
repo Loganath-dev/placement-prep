@@ -1,7 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from "vitest"
 
 const { rpc } = vi.hoisted(() => ({ rpc: vi.fn() }))
-vi.mock("@/lib/admin", () => ({ requireAdmin: vi.fn(async () => ({ id: "admin-user-1" })) }))
+vi.mock("@/lib/admin", () => ({ requireAdminMfa: vi.fn(async () => ({ id: "admin-user-1" })) }))
 vi.mock("@/lib/supabase/admin", () => ({ createAdminClient: vi.fn(() => ({ rpc })) }))
 
 import { POST } from "@/app/api/admin/referrals/payout/route"

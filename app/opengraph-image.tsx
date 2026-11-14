@@ -59,7 +59,7 @@ export default function Image() {
             Campus placement preparation for Indian freshers
           </div>
           <div style={{ marginTop: 28, fontSize: 30, color: "#475569", maxWidth: 920 }}>
-            Aptitude, coding, CS core, mocks, PYQs, interviews and readiness analytics in one app.
+            Aptitude, logical and verbal ability, CS Core, programming languages and DSA in one learning platform.
           </div>
         </div>
         <div style={{ display: "flex", gap: 14, fontSize: 24, color: "#1d4ed8", fontWeight: 700 }}>
@@ -67,7 +67,7 @@ export default function Image() {
           <span>-</span>
           <span>Mock tests</span>
           <span>-</span>
-          <span>Readiness score</span>
+          <span>Guided roadmaps</span>
         </div>
       </div>
     ),

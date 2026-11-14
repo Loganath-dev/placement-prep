@@ -1,16 +1,26 @@
+import "@/lib/server-only"
 import type { CompanyId, Question, SectionId } from "@/lib/types"
 import { generateDrills, generateDrillsByDifficulty, todaySeed } from "@/lib/data/question-bank"
 import { createStableIdFactory, idKey } from "@/lib/data/stable-id"
 
 /**
- * Previous-Year-Question bank. These are ORIGINAL reconstructions in
- * the style/pattern of each company's test - never verbatim copies of any real or
- * proprietary paper. `year` marks the pattern era, not a leaked paper.
+ * Practice library. Unless contentKind is explicitly `verified_previous_year`
+ * with a cited paper and year, these are original company-pattern or topic
+ * revision questions—not historical previous-year questions.
  */
+export type PracticeContentKind =
+  | "verified_previous_year"
+  | "company_pattern_practice"
+  | "topic_revision"
+  | "mock_question"
+
 export interface PYQ extends Question {
   section: SectionId
-  year: number
-  frequentlyAsked: boolean
+  /** Set only when the exact historical paper and year have been verified. */
+  year?: number
+  /** Legacy display hint; never inferred from generated question position. */
+  frequentlyAsked?: boolean
+  contentKind: PracticeContentKind
   /**
    * The OFFICIAL source whose published TEST PATTERN this question is modeled on.
    * Distinct from `sourceId` (the content author). The question text itself is
@@ -24,8 +34,8 @@ export function p(
   company: CompanyId,
   section: SectionId,
   topic: string,
-  year: number,
-  frequentlyAsked: boolean,
+  _legacyPatternYear: number,
+  _legacyFrequencyFlag: boolean,
   difficulty: Question["difficulty"],
   prompt: string,
   options: string[],
@@ -40,22 +50,23 @@ export function p(
     company,
     section,
     topic,
-    year,
-    frequentlyAsked,
+    // The legacy year/frequency arguments describe a pattern-era guess, not a verified paper.
+    // Do not expose them as historical metadata.
+    contentKind: company === "general" ? "topic_revision" : "company_pattern_practice",
     difficulty,
     prompt,
     options,
     answer,
     explanation,
     sourceId: "studybench-curriculum",
-    // Hand-authored, pattern-reviewed reconstructions â€” the curated/flagship layer
+    // Hand-authored, pattern-reviewed reconstructions — the curated/flagship layer
     // (distinct from the parametric generator volume used to top up sets).
     curated: true,
   }
 }
 
 /**
- * Flagship authoring helper â€” like p() but carries `optionNotes`: a rationale
+ * Flagship authoring helper — like p() but carries `optionNotes`: a rationale
  * for every option (why it's right or why the distractor is tempting). This is
  * the deepest expert-authoring tier; the quiz runner renders the notes on
  * reveal. optionNotes MUST be parallel to options (same length).
@@ -80,8 +91,7 @@ export function pf(
     company,
     section,
     topic,
-    year: 2026,
-    frequentlyAsked: true,
+    contentKind: "topic_revision",
     difficulty,
     prompt,
     options,
@@ -94,7 +104,7 @@ export function pf(
 }
 
 /**
- * Hand-authored flagship bank â€” original, deeply explained questions with
+ * Hand-authored flagship bank — original, deeply explained questions with
  * per-option rationale. Small by design and grown by hand; this is the quality
  * benchmark the generated volume tops up around, never a substitute for it.
  */
@@ -109,7 +119,7 @@ export const FLAGSHIP_PYQS: (PYQ & { company: CompanyId })[] = [
     0,
     "Take Rs 100. After +25% it is Rs 125; a 20% cut of 125 is 25, back to Rs 100. The successive-change formula a+b+ab/100 = 25-20-500/100 = 0 confirms it.",
     [
-      "Correct â€” the 20% cut is taken on the larger Rs 125, so it removes exactly the 25 that was added.",
+      "Correct — the 20% cut is taken on the larger Rs 125, so it removes exactly the 25 that was added.",
       "Tempting if you assume the percentages partly cancel to leave a small gain, but they cancel exactly here.",
       "This is the classic trap: 25-20 = 5 done on the same base. The base changes between the two steps, so you cannot just subtract.",
       "This adds the percentages (25+20). Successive changes multiply, they do not add.",
@@ -126,9 +136,9 @@ export const FLAGSHIP_PYQS: (PYQ & { company: CompanyId })[] = [
     "Total = 10 x 15 = 150. Remove 8 -> 142 over 9 numbers = 15.78.",
     [
       "The average only stays 15 if you remove a value equal to the current average (15), not 8.",
-      "Correct â€” removing a below-average value (8 < 15) pulls the average up: 142/9 = 15.78.",
+      "Correct — removing a below-average value (8 < 15) pulls the average up: 142/9 = 15.78.",
       "Too high. You would reach ~16.33 only if you removed a much smaller number; recompute 142/9.",
-      "This is the removed number's relation to nothing meaningful â€” the new average is a property of the remaining 9, not of 8 itself.",
+      "This is the removed number's relation to nothing meaningful — the new average is a property of the remaining 9, not of 8 itself.",
     ],
   ),
   pf(
@@ -142,7 +152,7 @@ export const FLAGSHIP_PYQS: (PYQ & { company: CompanyId })[] = [
     "Conditional probability: outcomes with sum 8 are (2,6),(3,5),(4,4),(5,3),(6,2) = 5 cases. Those containing a 5 are (3,5) and (5,3) = 2 cases. So 2/5.",
     [
       "1/6 is the unconditional chance of a single die being 5; the question restricts us to sum-8 outcomes, so the sample space shrinks.",
-      "Correct â€” restrict to the 5 ordered outcomes summing to 8, of which 2 contain a 5: 2/5.",
+      "Correct — restrict to the 5 ordered outcomes summing to 8, of which 2 contain a 5: 2/5.",
       "1/3 assumes 6 outcomes for sum 8; there are only 5 ordered pairs (4,4) is a single ordered outcome).",
       "2/9 uses 9 as the denominator, which does not match the 5 conditioning outcomes.",
     ],
@@ -157,7 +167,7 @@ export const FLAGSHIP_PYQS: (PYQ & { company: CompanyId })[] = [
     0,
     "'The only daughter of my mother' is the woman herself. So the man's mother is the woman -> she is his mother.",
     [
-      "Correct â€” 'the only daughter of my mother' can only be the speaker, so the man's mother is the woman.",
+      "Correct — 'the only daughter of my mother' can only be the speaker, so the man's mother is the woman.",
       "Sister would require the man's mother to be the woman's mother, but the clue points to the woman herself.",
       "Aunt would need the man's mother to be the woman's sibling; the clue says daughter, identifying the speaker.",
       "Grandmother skips a generation the clue does not support.",
@@ -173,9 +183,9 @@ export const FLAGSHIP_PYQS: (PYQ & { company: CompanyId })[] = [
     0,
     "North 4, East 3, South 4 cancels the North-South leg, leaving 3 km East of start.",
     [
-      "Correct â€” the 4 km North and 4 km South cancel; only the 3 km East leg remains.",
+      "Correct — the 4 km North and 4 km South cancel; only the 3 km East leg remains.",
       "5 km is the straight-line distance only if the vertical legs did not cancel; here they do, so it is a pure 3 km East.",
-      "Direction is right: she ends East, not West â€” track the two right turns from North -> East -> South.",
+      "Direction is right: she ends East, not West — track the two right turns from North -> East -> South.",
       "She never nets any Southward distance; the South leg only undoes the North leg.",
     ],
   ),
@@ -190,7 +200,7 @@ export const FLAGSHIP_PYQS: (PYQ & { company: CompanyId })[] = [
     "'All pens are books' guarantees some books are pens (conversion) -> II follows. 'Some books are red' does not pin the red books to the pen subset, so I is only possible, not certain.",
     [
       "I does not follow: the red books need not overlap with the pens, so 'some pens are red' is not guaranteed.",
-      "Correct â€” only II follows. 'All pens are books' converts to 'some books are pens'; the red overlap is unproven.",
+      "Correct — only II follows. 'All pens are books' converts to 'some books are pens'; the red overlap is unproven.",
       "Both cannot follow because conclusion I is merely possible, not certain.",
       "Neither is wrong because II is a valid conversion of a universal affirmative.",
     ],
@@ -210,8 +220,8 @@ export const FLAGSHIP_PYQS: (PYQ & { company: CompanyId })[] = [
     1,
     "'Reduced delays' = punctuality improved; 'still grumbled about fares' = the fare grievance persisted. The sentence pairs an improvement with a remaining complaint.",
     [
-      "Contradicts 'reduced delays' â€” punctuality did improve.",
-      "Correct â€” it captures both halves: delays fell, fare complaints stayed.",
+      "Contradicts 'reduced delays' — punctuality did improve.",
+      "Correct — it captures both halves: delays fell, fare complaints stayed.",
       "Nothing says fares were reduced; commuters grumbled about them, implying the opposite.",
       "'Still grumbled' signals lingering dissatisfaction, not overall satisfaction.",
     ],
@@ -231,8 +241,8 @@ export const FLAGSHIP_PYQS: (PYQ & { company: CompanyId })[] = [
     1,
     "With 'neither...nor', the verb agrees with the nearer subject ('employees', plural) -> 'were'. The correlative pair is 'neither...nor', never 'neither...or'.",
     [
-      "'was' is singular but the nearer subject 'employees' is plural â€” agreement fails.",
-      "Correct â€” proximity rule: the verb matches 'employees' (plural), so 'were'.",
+      "'was' is singular but the nearer subject 'employees' is plural — agreement fails.",
+      "Correct — proximity rule: the verb matches 'employees' (plural), so 'were'.",
       "'is' is singular and also wrong tense-agreement with the plural nearer subject.",
       "'neither...or' is not a valid correlative; it must be 'neither...nor'.",
     ],
@@ -247,10 +257,10 @@ export const FLAGSHIP_PYQS: (PYQ & { company: CompanyId })[] = [
     1,
     "A hash table offers O(1) average for insert/delete/lookup by key (assuming good hashing); the others are O(log n) or O(n) for at least one of these.",
     [
-      "A balanced BST is O(log n), not O(1), for these operations â€” it keeps order, which a hash table does not.",
-      "Correct â€” hashing gives O(1) average insert/delete/lookup, trading away ordering.",
+      "A balanced BST is O(log n), not O(1), for these operations — it keeps order, which a hash table does not.",
+      "Correct — hashing gives O(1) average insert/delete/lookup, trading away ordering.",
       "A sorted array is O(log n) to find but O(n) to insert/delete because elements must shift.",
-      "A singly linked list is O(n) to look up by key â€” there is no index into it.",
+      "A singly linked list is O(n) to look up by key — there is no index into it.",
     ],
   ),
   pf(
@@ -264,7 +274,7 @@ export const FLAGSHIP_PYQS: (PYQ & { company: CompanyId })[] = [
     "Re-reading the same row and getting a different committed value is a non-repeatable read. A dirty read involves uncommitted data; a phantom read is about new rows matching a query, not a changed existing row.",
     [
       "A dirty read is reading uncommitted data; here the second transaction committed before the re-read.",
-      "Correct â€” same row, two reads, different committed values is the definition of a non-repeatable read.",
+      "Correct — same row, two reads, different committed values is the definition of a non-repeatable read.",
       "A phantom read concerns new/removed rows matching a range query, not a single row's changed value.",
       "A lost update is when two writes clobber each other; this scenario involves reads, not a clobbered write.",
     ],
@@ -279,10 +289,10 @@ export const FLAGSHIP_PYQS: (PYQ & { company: CompanyId })[] = [
     0,
     "To cross a platform the train covers its own length + platform = 200 + 300 = 500 m in 25 s -> 20 m/s (= 72 km/h).",
     [
-      "Correct â€” distance is length + platform = 500 m over 25 s = 20 m/s.",
+      "Correct — distance is length + platform = 500 m over 25 s = 20 m/s.",
       "12 m/s uses only the platform (300/25) and forgets the train's own length.",
       "8 m/s uses only the train length (200/25); crossing requires both lengths.",
-      "72 is the speed in km/h (20 m/s x 3.6), not m/s â€” watch the unit asked.",
+      "72 is the speed in km/h (20 m/s x 3.6), not m/s — watch the unit asked.",
     ],
   ),
   pf(
@@ -296,7 +306,7 @@ export const FLAGSHIP_PYQS: (PYQ & { company: CompanyId })[] = [
     "A balanced BST has height ~log2(n), and search follows one root-to-leaf path, so it is O(log n).",
     [
       "O(1) would require direct indexing (like a hash/array), not a comparison-based descent.",
-      "Correct â€” search walks one path of height log n in a balanced tree.",
+      "Correct — search walks one path of height log n in a balanced tree.",
       "O(n) is the worst case for a degenerate (unbalanced) tree; 'balanced' rules that out.",
       "O(n log n) is a sorting-style cost, not a single lookup.",
     ],
@@ -525,8 +535,8 @@ export const PYQS: (PYQ & { company: CompanyId })[] = [
   p("general", "coding", "Number Systems", 2024, false, "easy", "The binary representation of 8 is:", ["1000", "1010", "1100", "100"], 0, "8 = 1000 in binary."),
   p("general", "cs-core", "Fundamentals", 2023, false, "easy", "1 KB equals how many bytes?", ["1000", "1024", "100", "512"], 1, "1 KB = 1024 bytes."),
 
-  // ===================== Expanded set 5 â€” deeper topic coverage =====================
-  // TCS â€” compound interest, probability, advanced number system, pointers, data interpretation
+  // ===================== Expanded set 5 — deeper topic coverage =====================
+  // TCS — compound interest, probability, advanced number system, pointers, data interpretation
   p("tcs", "quant", "Compound Interest", 2024, true, "medium", "Compound interest on Rs 2000 at 10% per annum for 2 years is:", ["Rs 400", "Rs 420", "Rs 440", "Rs 380"], 1, "CI = 2000 x (1.1)^2 - 2000 = 2420 - 2000 = Rs 420."),
   p("tcs", "quant", "Probability", 2023, true, "medium", "A bag has 3 red and 5 blue balls. Probability of picking a red ball is:", ["3/8", "5/8", "1/3", "3/5"], 0, "Favourable 3, total 8 -> 3/8."),
   p("tcs", "quant", "Probability", 2024, false, "medium", "Two dice are rolled. Probability that the sum is 7 is:", ["1/6", "7/36", "6/36", "5/36"], 0, "Pairs summing to 7: (1,6),(2,5),(3,4),(4,3),(5,2),(6,1) = 6 out of 36 = 1/6."),
@@ -535,13 +545,13 @@ export const PYQS: (PYQ & { company: CompanyId })[] = [
   p("tcs", "quant", "Time & Work", 2024, false, "medium", "A and B together can do a job in 6 days. A alone can in 10 days. B alone can in:", ["12 days", "15 days", "18 days", "24 days"], 1, "B's rate = 1/6 - 1/10 = 1/15 -> 15 days."),
   p("tcs", "reasoning", "Analogy", 2024, true, "easy", "Book : Library :: Star : ?", ["Moon", "Sky", "Galaxy", "Sun"], 2, "A book is kept in a library; a star belongs to a galaxy."),
   p("tcs", "reasoning", "Direction", 2023, false, "medium", "A man walks 5 km North, turns right and walks 12 km. His distance from the start is:", ["13 km", "17 km", "10 km", "15 km"], 0, "Pythagoras: sqrt(5^2 + 12^2) = sqrt(169) = 13 km."),
-  p("tcs", "verbal", "Reading Comprehension", 2024, false, "medium", "Passage: 'The growth of AI is rapid, but ethical concerns grow with it.' The tone is:", ["purely optimistic", "purely critical", "balanced or cautious", "dismissive"], 2, "The passage names both a positive (rapid growth) and a concern (ethics) â€” balanced."),
+  p("tcs", "verbal", "Reading Comprehension", 2024, false, "medium", "Passage: 'The growth of AI is rapid, but ethical concerns grow with it.' The tone is:", ["purely optimistic", "purely critical", "balanced or cautious", "dismissive"], 2, "The passage names both a positive (rapid growth) and a concern (ethics) — balanced."),
   p("tcs", "verbal", "Sentence correction", 2023, false, "easy", "Pick the grammatically correct sentence:", ["The news are good.", "The news is good.", "The news were good.", "The news have been good."], 1, "'News' is uncountable and singular -> 'is'."),
   p("tcs", "coding", "C Pointers", 2024, true, "hard", "In C, if int *p = &x and *p = 20, then x becomes:", ["Unchanged", "20", "Address of p", "0"], 1, "A pointer dereference *p = 20 writes 20 into the variable x."),
   p("tcs", "coding", "C Output", 2024, false, "medium", "In C, what does printf(\"%d\", !0) print?", ["0", "1", "-1", "Error"], 1, "!0 is logical NOT of false, which is 1 (true) in C."),
   p("tcs", "coding", "C Output", 2023, true, "medium", "int a = 5; int b = a++ + ++a; printf(\"%d\", b). Output (undefined per standard, common result):", ["11", "12", "10", "13"], 1, "Post-increment uses 5, then pre-increment gives 7 -> 5 + 7 = 12 (common interpretation)."),
 
-  // Infosys â€” clocks, calendars, advanced syllogism, pseudocode debugging
+  // Infosys — clocks, calendars, advanced syllogism, pseudocode debugging
   p("infosys", "quant", "Compound Interest", 2024, true, "medium", "Find CI on Rs 1000 at 20% per annum for 2 years (compounded annually):", ["Rs 400", "Rs 440", "Rs 420", "Rs 350"], 1, "CI = 1000 x (1.2)^2 - 1000 = 1440 - 1000 = Rs 440."),
   p("infosys", "quant", "Mixture & Alligation", 2023, true, "medium", "A 60-litre mixture has milk and water in ratio 2:1. Milk = 40 L, water = 20 L. To change the ratio to 1:1, litres of water to add:", ["10", "20", "15", "25"], 1, "For ratio 1:1, water must equal milk = 40 L. Currently 20 L water, so add 40 - 20 = 20 L."),
   p("infosys", "reasoning", "Clocks", 2024, true, "medium", "The angle between the clock hands at 4:00 is:", ["60 degrees", "120 degrees", "90 degrees", "150 degrees"], 1, "|30 x 4 - 0| = 120 degrees."),
@@ -553,7 +563,7 @@ export const PYQS: (PYQ & { company: CompanyId })[] = [
   p("infosys", "coding", "Pseudocode", 2023, false, "medium", "for i in 1..5: if (i % 2 != 0) print(i). Output:", ["1 3 5", "2 4", "1 2 3 4 5", "1 3"], 0, "Odd numbers from 1 to 5 are 1, 3, 5."),
   p("infosys", "coding", "Pseudocode", 2024, false, "medium", "s=0; for i in 1..n: s+=i*i. For n=3, s=?", ["6", "14", "9", "12"], 1, "1 + 4 + 9 = 14."),
 
-  // Wipro â€” essay-style verbal, tenses, data interpretation, algebra
+  // Wipro — essay-style verbal, tenses, data interpretation, algebra
   p("wipro", "quant", "Compound Interest", 2024, true, "medium", "CI - SI difference on Rs 1000 at 10% for 2 years is:", ["Rs 10", "Rs 20", "Rs 5", "Rs 15"], 0, "Difference = P x (R/100)^2 = 1000 x 0.01 = Rs 10."),
   p("wipro", "quant", "Algebra", 2023, false, "easy", "If x + 5 = 12, then x =", ["5", "7", "8", "6"], 1, "x = 12 - 5 = 7."),
   p("wipro", "quant", "Data Interpretation", 2024, false, "medium", "A shop sold 80 items in Jan and 100 in Feb. The % change is:", ["20%", "25%", "30%", "15%"], 1, "Increase = 20 on base 80 -> 20/80 x 100 = 25%."),
@@ -564,7 +574,7 @@ export const PYQS: (PYQ & { company: CompanyId })[] = [
   p("wipro", "coding", "Operators", 2024, false, "easy", "In Java/Python, what is 2 ** 10?", ["20", "1024", "512", "100"], 1, "2 to the power 10 = 1024."),
   p("wipro", "coding", "Strings", 2023, false, "easy", "The length of the string 'PLACEMENT' is:", ["8", "9", "10", "7"], 1, "P-L-A-C-E-M-E-N-T = 9 characters."),
 
-  // Accenture â€” OS scheduling, network layers, database transactions, cloud details
+  // Accenture — OS scheduling, network layers, database transactions, cloud details
   p("accenture", "cs-core", "OS Scheduling", 2024, true, "medium", "Round Robin CPU scheduling uses a fixed:", ["Memory limit", "Time quantum", "Priority value", "Stack size"], 1, "Round Robin cycles through processes giving each a fixed time quantum."),
   p("accenture", "cs-core", "OS Memory", 2023, false, "medium", "Virtual memory allows a process to use more memory than physically available by using:", ["CPU registers", "Cache", "Disk as extension of RAM", "ROM"], 2, "Virtual memory extends RAM using disk (swap space)."),
   p("accenture", "cs-core", "Networks", 2024, true, "medium", "The OSI layer responsible for routing packets is:", ["Transport", "Network", "Data Link", "Physical"], 1, "The Network layer (Layer 3) handles routing via IP."),
@@ -575,7 +585,7 @@ export const PYQS: (PYQ & { company: CompanyId })[] = [
   p("accenture", "quant", "Ratio", 2023, false, "easy", "If a:b = 2:3 and b:c = 3:4, then a:b:c =", ["2:3:4", "4:6:8", "2:6:4", "6:9:12"], 0, "b is common; a:b:c = 2:3:4."),
   p("accenture", "coding", "Pseudocode", 2024, false, "medium", "int x = 10; x = x < 5 ? x + 1 : x - 1; print(x). Output:", ["9", "11", "10", "5"], 0, "10 < 5 is false -> execute x - 1 = 9."),
 
-  // Zoho â€” advanced algorithm, recursion, bit ops, string problems
+  // Zoho — advanced algorithm, recursion, bit ops, string problems
   p("zoho", "coding", "Bit Manipulation", 2024, true, "hard", "To check if an integer n is a power of 2, the condition is:", ["n & (n-1) == 0", "n % 2 == 0", "n >> 1 == 1", "n | 1 == n"], 0, "Powers of 2 have exactly one set bit; n & (n-1) clears that bit -> 0 for powers of 2."),
   p("zoho", "coding", "Recursion", 2023, true, "medium", "In the Tower of Hanoi with 3 discs, the minimum number of moves is:", ["6", "7", "8", "9"], 1, "Minimum moves = 2^n - 1 = 2^3 - 1 = 7."),
   p("zoho", "coding", "Strings", 2024, true, "hard", "The number of distinct characters in 'mississippi' is:", ["4", "5", "6", "3"], 0, "m, i, s, p -> 4 distinct characters."),
@@ -585,7 +595,7 @@ export const PYQS: (PYQ & { company: CompanyId })[] = [
   p("zoho", "coding", "Number Logic", 2023, false, "medium", "A number is a perfect number if it equals the sum of its proper divisors. Is 6 a perfect number?", ["Yes", "No", "Only sometimes", "Cannot say"], 0, "Proper divisors of 6 are 1, 2, 3; 1+2+3 = 6 -> yes, 6 is perfect."),
   p("zoho", "coding", "Output", 2024, false, "medium", "for(i=1; i<=4; i++) print(i*i). The output is:", ["1 4 9 16", "1 2 3 4", "2 4 6 8", "4 9 16 25"], 0, "i*i for i=1,2,3,4 gives 1,4,9,16."),
 
-  // Cognizant â€” SQL queries, DBMS normalization, automata-fix patterns
+  // Cognizant — SQL queries, DBMS normalization, automata-fix patterns
   p("cognizant", "cs-core", "SQL", 2024, true, "medium", "Which SQL keyword is used to avoid duplicate rows in the result?", ["UNIQUE", "DISTINCT", "NODUPLICATE", "FILTER"], 1, "SELECT DISTINCT removes duplicate output rows."),
   p("cognizant", "cs-core", "SQL", 2023, true, "medium", "The SQL aggregate function that returns the number of rows is:", ["SUM()", "AVG()", "COUNT()", "MAX()"], 2, "COUNT() returns the number of rows matching a condition."),
   p("cognizant", "cs-core", "DBMS", 2024, false, "medium", "Removing transitive dependencies is the goal of:", ["1NF", "2NF", "3NF", "4NF"], 2, "3NF removes non-key columns that depend on other non-key columns (transitive dependency)."),
@@ -596,7 +606,7 @@ export const PYQS: (PYQ & { company: CompanyId })[] = [
   p("cognizant", "coding", "Output", 2023, false, "easy", "x = 3; y = 4; print(x * x + y * y). Output:", ["25", "49", "7", "12"], 0, "3*3 + 4*4 = 9 + 16 = 25."),
   p("cognizant", "quant", "Permutations", 2024, false, "medium", "The number of ways to arrange the letters of the word 'STAR' is:", ["12", "24", "6", "48"], 1, "All letters different -> 4! = 24."),
 
-  // General (Core Prep) â€” bridging easy/medium concepts students commonly miss
+  // General (Core Prep) — bridging easy/medium concepts students commonly miss
   p("general", "quant", "Compound Interest", 2024, false, "medium", "CI - SI for 2 years at 5% on Rs 2000 is:", ["Rs 5", "Rs 10", "Rs 15", "Rs 20"], 0, "Difference = P(R/100)^2 = 2000 x (0.05)^2 = 2000 x 0.0025 = Rs 5."),
   p("general", "quant", "Probability", 2023, false, "easy", "A coin is tossed once. Probability of heads is:", ["1/4", "1/3", "1/2", "1"], 2, "One favourable outcome out of two total -> 1/2."),
   p("general", "quant", "Ratio", 2024, false, "easy", "If a:b = 4:6, the simplified ratio is:", ["2:3", "4:6", "8:12", "1:2"], 0, "Divide both by 2 -> 2:3."),
@@ -609,7 +619,7 @@ export const PYQS: (PYQ & { company: CompanyId })[] = [
   p("general", "cs-core", "OOP", 2024, false, "easy", "Which OOP concept allows a child class to use a parent class's method?", ["Polymorphism", "Inheritance", "Abstraction", "Encapsulation"], 1, "Inheritance lets a child class reuse methods and properties of the parent."),
   p("general", "cs-core", "Networks", 2023, false, "easy", "The full form of HTTP is:", ["HyperText Transfer Pro", "HyperText Transfer Protocol", "High Text Transfer Protocol", "HyperText Transmission Protocol"], 1, "HTTP = HyperText Transfer Protocol."),
 
-  // ===================== Expanded set 6 â€” hand-authored, company-pattern aligned =====================
+  // ===================== Expanded set 6 — hand-authored, company-pattern aligned =====================
   // Difficulty mix per company: ~40% hard, ~40% medium, ~20% easy.
 
   // --- TCS (NQT pattern: numerical + reasoning + verbal + C-flavoured programming logic) ---
@@ -730,7 +740,7 @@ export const PYQS: (PYQ & { company: CompanyId })[] = [
   p("general", "coding", "Recursion", 2024, true, "hard", "With fib(0) = 0 and fib(1) = 1, the value of fib(5) is:", ["3", "5", "8", "13"], 1, "Sequence: 0, 1, 1, 2, 3, 5 -> fib(5) = 5."),
   p("general", "cs-core", "Number Systems", 2023, false, "hard", "The binary number 1101 in decimal is:", ["11", "12", "13", "14"], 2, "8 + 4 + 0 + 1 = 13."),
 
-  // ===================== Expanded set 7 â€” hard-tier bank (toughest 25% of each company's paper) =====================
+  // ===================== Expanded set 7 — hard-tier bank (toughest 25% of each company's paper) =====================
   // --- TCS hard ---
   p("tcs", "quant", "Compound Interest", 2024, true, "hard", "A sum doubles in 4 years at compound interest. In how many years will it become 8 times?", ["8 years", "12 years", "16 years", "24 years"], 1, "8 = 2^3, so it needs three doubling periods: 3 x 4 = 12 years."),
   p("tcs", "quant", "Races", 2023, false, "hard", "A runs 1.5 times as fast as B. If A gives B a 60 m head start, how long should the race be so they finish together?", ["120 m", "150 m", "180 m", "200 m"], 2, "Let race = d. Times equal: d/1.5 = (d - 60)/1 -> d = 1.5d - 90 -> d = 180 m."),
@@ -825,7 +835,7 @@ export const PYQS: (PYQ & { company: CompanyId })[] = [
   p("cognizant", "reasoning", "Series", 2024, false, "easy", "Find the next term: 1, 4, 9, 16, ?", ["20", "24", "25", "36"], 2, "Perfect squares 1,4,9,16; next = 5^2 = 25."),
   p("cognizant", "reasoning", "Coding-Decoding", 2023, true, "medium", "If CAT is coded as 3-1-20, then DOG is coded as:", ["4-15-7", "4-14-7", "3-15-7", "4-15-8"], 0, "Using letter positions: D=4, O=15, G=7."),
   p("cognizant", "reasoning", "Blood Relations", 2024, true, "medium", "P is the mother of Q. Q is the father of R. How is P related to R?", ["Mother", "Aunt", "Grandmother", "Sister"], 2, "P is Q's mother and Q is R's father, so P is R's grandmother."),
-  p("cognizant", "verbal", "Vocabulary", 2024, false, "easy", "Choose the synonym of 'Rapid':", ["Slow", "Quick", "Late", "Calm"], 1, "'Rapid' means happening fast - quick."),
+p("cognizant", "verbal", "Vocabulary", 2024, false, "easy", "Choose the antonym of 'rapid':", ["Slow", "Quick", "Late", "Calm"], 0, "'Rapid' means fast, so its opposite is slow."),
   p("cognizant", "verbal", "Sentence Completion", 2023, false, "medium", "Choose the correct word: 'He has been working here ___ 2018.'", ["for", "since", "from", "by"], 1, "'Since' is used with a point in time (2018)."),
   p("cognizant", "coding", "C Output", 2024, true, "easy", "In C, what does printf(\"%d\", 2 + 3 * 4); print?", ["14", "20", "24", "9"], 0, "Multiplication first: 3 x 4 = 12, then 2 + 12 = 14."),
   p("cognizant", "cs-core", "Operating Systems", 2024, true, "medium", "Under which CPU scheduling policy can a low-priority process starve?", ["FCFS", "Round Robin", "Priority", "None of these"], 2, "Low-priority processes may wait indefinitely under priority scheduling."),
@@ -833,12 +843,12 @@ export const PYQS: (PYQ & { company: CompanyId })[] = [
 
   // ===================== Accenture (cognitive + technical, authored) =====================
   p("accenture", "quant", "Algebra", 2024, true, "medium", "If 5x = 45, then x^2 equals:", ["72", "81", "90", "64"], 1, "x = 9, so x^2 = 81."),
-  p("accenture", "quant", "Percentages", 2024, true, "medium", "30% of 30% of 1000 is:", ["60", "90", "100", "300"], 1, "0.30 x 0.30 x 1000 = 90."),
+  p("accenture", "quant", "Percentages", 2024, true, "medium", "A value of 1000 is reduced by 30%, then reduced by another 30%. What is the final value?", ["400", "490", "510", "700"], 1, "After the first reduction: 1000 x 0.70 = 700. After the second: 700 x 0.70 = 490."),
   p("accenture", "quant", "Ratio", 2023, false, "medium", "Rs 880 is divided between A and B in the ratio 5:6. B's share is:", ["Rs 400", "Rs 480", "Rs 440", "Rs 360"], 1, "B = 6/11 x 880 = Rs 480."),
   p("accenture", "reasoning", "Classification", 2024, true, "medium", "Find the odd one out: 121, 144, 169, 200", ["121", "144", "169", "200"], 3, "121, 144, 169 are perfect squares (11^2, 12^2, 13^2); 200 is not."),
-  p("accenture", "reasoning", "Series", 2024, false, "easy", "Find the next term: 7, 14, 28, 56, ?", ["98", "112", "120", "104"], 1, "Each term doubles: 56 x 2 = 112."),
+p("accenture", "reasoning", "Series", 2024, false, "easy", "Find the next term: 9, 18, 36, 72, ?", ["108", "144", "126", "150"], 1, "Each term doubles: 72 x 2 = 144."),
   p("accenture", "reasoning", "Direction Sense", 2023, false, "medium", "Facing south, you turn 90 degrees clockwise. You now face:", ["East", "West", "North", "South"], 1, "From south, a clockwise quarter turn faces west."),
-  p("accenture", "verbal", "Vocabulary", 2024, false, "easy", "Choose the synonym of 'Generous':", ["Stingy", "Kind", "Selfish", "Mean"], 1, "'Generous' means willing to give - kind/liberal."),
+p("accenture", "verbal", "Vocabulary", 2024, false, "easy", "Choose the antonym of 'generous':", ["Stingy", "Kind", "Selfish", "Mean"], 0, "'Generous' means willing to give freely; its opposite is stingy."),
   p("accenture", "verbal", "Error Spotting", 2023, false, "medium", "Identify the error: 'She don't like tea.'", ["She", "don't", "like", "tea"], 1, "Third-person singular needs 'doesn't': 'She doesn't like tea.'"),
   p("accenture", "coding", "Pseudocode", 2024, true, "medium", "What is printed?  a = 2; b = 3; a = a + b; b = a - b; print a, b;", ["5 2", "2 3", "3 2", "5 3"], 0, "a = 2+3 = 5; b = 5-3 = 2; output is 5 2."),
   p("accenture", "coding", "Complexity", 2024, true, "medium", "Two nested loops, each running n times, give a time complexity of:", ["O(n)", "O(n^2)", "O(log n)", "O(n log n)"], 1, "n iterations inside n iterations = n x n = O(n^2)."),
@@ -868,7 +878,7 @@ export const PYQS: (PYQ & { company: CompanyId })[] = [
   p("infosys", "quant", "Ratio", 2024, false, "hard", "Rs 60 is divided among 200 children; each girl gets 20 paise and each boy 40 paise. The number of girls is:", ["80", "100", "120", "150"], 1, "Let girls = g: 0.20g + 0.40(200 - g) = 60 -> 80 - 0.20g = 60 -> g = 100."),
 
   // ===== Wipro Elite NLTH (aptitude / reasoning / coding / verbal pattern) =====
-  p("wipro", "reasoning", "Series", 2024, true, "medium", "Find the next term: 2, 5, 10, 17, 26, ?", ["35", "37", "38", "40"], 1, "Each term is n^2 + 1 (1+1, 4+1, 9+1, ...); next = 6^2 + 1 = 37."),
+  p("wipro", "reasoning", "Series", 2024, true, "medium", "Find the next term: 3, 8, 15, 24, 35, ?", ["40", "46", "48", "50"], 2, "The terms follow n^2 - 1 for n = 2, 3, 4, 5, 6. The next term is 7^2 - 1 = 48."),
   p("wipro", "quant", "Percentages", 2024, true, "easy", "If 40% of a number is 56, the number is:", ["120", "140", "160", "150"], 1, "Number = 56 / 0.40 = 140."),
   p("wipro", "coding", "C Output", 2024, true, "easy", "What does this print?  int s = 0; for (i = 1; i <= 4; i++) s += i; print s;", ["6", "10", "16", "4"], 1, "It sums 1 + 2 + 3 + 4 = 10."),
   p("wipro", "verbal", "Spelling", 2023, false, "easy", "Which of these words is spelled correctly?", ["Definitely", "Definitly", "Definately", "Defenitely"], 0, "The correct spelling is 'Definitely'."),
@@ -1031,8 +1041,7 @@ function communicationPyqsFor(company: CompanyId, count: number): (PYQ & { compa
       company,
       section: "comm-interview",
       topic: template.topic,
-      year: i % 2 === 0 ? 2026 : 2025,
-      frequentlyAsked: i % 2 === 0,
+      contentKind: company === "general" ? "topic_revision" : "company_pattern_practice",
       difficulty,
       prompt: `${template.prompt} (${company === "general" ? "core" : company.toUpperCase()} ${scenario} pattern set ${cycle})`,
       options: [...template.options],
@@ -1075,8 +1084,7 @@ function generatedSectionPyqs(
       id: `pyq-${company}-${sectionId}-${i + 1}`,
       company,
       section: sectionId,
-      year: i % 2 === 0 ? 2026 : 2025,
-      frequentlyAsked: i % 3 === 0,
+      contentKind: company === "general" ? "topic_revision" : "company_pattern_practice",
       sourceId: "studybench-curriculum",
       patternSourceId: COMPANY_SOURCE[company],
     }))

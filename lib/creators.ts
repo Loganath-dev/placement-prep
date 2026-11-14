@@ -1,11 +1,12 @@
-/**
- * Founder/operator identities. This list is intentionally server-owned: it is
- * used to derive privileged access and must never be accepted from client input.
- */
-export const CREATOR_EMAILS = ["lnath6630@gmail.com", "studybench07@gmail.com"] as const
+// Creator access must come from trusted Auth app_metadata or a server-only
+// environment allowlist. Never grant privileges from user_metadata.
+function configuredCreators(): Set<string> {
+  return new Set((process.env.STUDYBENCH_CREATOR_EMAILS ?? "").split(",").map((value) => value.trim().toLowerCase()).filter(Boolean))
+}
 
-export function isCreatorEmail(email: string | null | undefined): boolean {
-  if (!email) return false
-  const normalized = email.trim().toLowerCase()
-  return CREATOR_EMAILS.some((creatorEmail) => creatorEmail === normalized)
+export function isCreatorUser(user: { email?: string | null; email_confirmed_at?: string | null; app_metadata?: Record<string, unknown> } | null | undefined): boolean {
+  if (!user?.email_confirmed_at) return false
+  if (user.app_metadata?.role === "creator" || user.app_metadata?.role === "admin") return true
+  const email = user.email?.trim().toLowerCase()
+  return Boolean(email && configuredCreators().has(email))
 }

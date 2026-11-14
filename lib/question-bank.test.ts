@@ -24,6 +24,18 @@ describe("question generator", () => {
     }
   })
 
+  it("never creates synthetic distractors or repeats the correct option", () => {
+    for (const section of DRILL_SECTIONS) {
+      for (let seed = 1; seed <= 100; seed++) {
+        const questions = generateDrills(section.id, 100, seed)
+        for (const question of questions) {
+          expect(new Set(question.options).size).toBe(4)
+          expect(question.options[question.answer]).not.toMatch(/\s\(\d+\)$/)
+        }
+      }
+    }
+  }, 120_000)
+
   it("is deterministic for a given seed", () => {
     const a = generateDrills("quant", 10, 12345)
     const b = generateDrills("quant", 10, 12345)

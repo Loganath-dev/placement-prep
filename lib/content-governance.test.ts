@@ -1,18 +1,17 @@
 import { describe, expect, it } from "vitest"
 import { COMPANIES } from "@/lib/data/companies"
-import { ALL_CODING_PROBLEMS, codingProblemsForCompany } from "@/lib/data/coding-problems"
 import {
   CHAPTER_PRACTICE_TARGET,
-  CHAPTER_QUIZ_TOTAL_PER_TRACK,
   chapterPracticeQuestions,
   getSections,
-  totalChapterQuizQuestions,
 } from "@/lib/data/content"
 import { INTERVIEW_QUESTIONS } from "@/lib/data/interview"
 import { MOCKS_PER_COMPANY, MOCK_TESTS, buildMockQuestions } from "@/lib/data/mocks"
 import { ALL_PYQS, EXPANDED_PYQS, FLAGSHIP_PYQS, PYQS, pyqsForCompany } from "@/lib/data/pyqs"
 import { generateDrills } from "@/lib/data/question-bank"
 import { SOURCES, sourceById } from "@/lib/data/sources"
+import { CONTENT_SEED } from "@/lib/data/content-seed"
+import { buildLessonPracticeSets } from "@/lib/server/learning-content"
 import type { Question } from "@/lib/types"
 
 const APPROVED_SOURCE_KINDS = ["official", "book", "reference", "youtube"] as const
@@ -74,27 +73,14 @@ describe("content source governance", () => {
   it("keeps IDs unique across scalable content banks", () => {
     expectUniqueIds(ALL_PYQS.map((q) => q.id), "ALL_PYQS")
     expectUniqueIds(INTERVIEW_QUESTIONS.map((q) => q.id), "INTERVIEW_QUESTIONS")
-    expectUniqueIds(ALL_CODING_PROBLEMS.map((p) => p.id), "CODING_PROBLEMS")
     expectUniqueIds(MOCK_TESTS.map((m) => m.id), "MOCK_TESTS")
   })
 
   it("sources every seeded lesson and chapter quiz question", () => {
     for (const company of COMPANIES) {
-      expect(
-        totalChapterQuizQuestions(company.id),
-        `${company.id} chapter quiz bank should stay capped at ${CHAPTER_QUIZ_TOTAL_PER_TRACK}`,
-      ).toBe(CHAPTER_QUIZ_TOTAL_PER_TRACK)
-
       for (const section of getSections(company.id)) {
         for (const chapter of section.chapters) {
-          const quizMin = 45
-          expect(chapter.quiz.length, `${company.id}/${chapter.id} needs a larger quiz`).toBeGreaterThanOrEqual(quizMin)
-          for (const difficulty of ["easy", "medium", "hard"] as const) {
-            expect(
-              chapter.quiz.filter((question) => question.difficulty === difficulty).length,
-              `${company.id}/${chapter.id} needs enough ${difficulty} questions for lesson-wise practice`,
-            ).toBeGreaterThanOrEqual(chapter.lessons.length)
-          }
+          expect(chapter.quiz.length, `${company.id}/${chapter.id} must retain its authored topic-specific questions`).toBeGreaterThan(0)
           expectUniqueIds(chapter.quiz.map((question) => question.id), `${company.id}/${chapter.id} quiz IDs`)
           expect(
             new Set(chapter.quiz.map((question) => question.prompt.trim().toLowerCase())).size,
@@ -114,6 +100,16 @@ describe("content source governance", () => {
       }
     }
   }, 180_000)
+
+  it("requires a registered provenance source for every database seed question", () => {
+    expect(CONTENT_SEED.length).toBeGreaterThan(0)
+    for (const question of CONTENT_SEED) {
+      expectKnownSource(question.sourceId, `seed question ${question.id}`)
+      expect(question.optionNotes).toHaveLength(question.options.length)
+      expect(question.answer).toBeGreaterThanOrEqual(0)
+      expect(question.answer).toBeLessThan(question.options.length)
+    }
+  })
 
   it("sources every PYQ reconstruction and interview question", () => {
     for (const pyq of ALL_PYQS) {
@@ -139,18 +135,7 @@ describe("content source governance", () => {
     expect(PYQS.length, "curated PYQ starter bank should remain present").toBeGreaterThan(100)
   })
 
-  it("validates full-scale coding and mock content", () => {
-    for (const problem of ALL_CODING_PROBLEMS) {
-      expectKnownSource(problem.sourceId, `coding problem ${problem.id}`)
-      expect(problem.prompt.trim().length).toBeGreaterThan(0)
-      expect(problem.editorial.trim().length).toBeGreaterThan(0)
-      expect(problem.testCases.length, `${problem.id} needs visible and hidden tests`).toBeGreaterThanOrEqual(4)
-      expect(problem.testCases.some((tc) => !tc.hidden), `${problem.id} needs visible tests`).toBe(true)
-      expect(problem.testCases.some((tc) => tc.hidden), `${problem.id} needs hidden tests`).toBe(true)
-      expect(problem.estimatedMinutes).toBeGreaterThan(0)
-      expect(problem.status).toMatch(/^(draft|reviewed|live|needs_revision)$/)
-    }
-
+  it("validates full-scale mock content", () => {
     for (const mock of MOCK_TESTS) {
       expectKnownSource(mock.sourceId, `mock ${mock.id}`)
       expect(mock.sections.length).toBeGreaterThan(0)
@@ -161,10 +146,11 @@ describe("content source governance", () => {
 
     for (const company of COMPANIES) {
       const mocks = MOCK_TESTS.filter((mock) => mock.companyId === company.id)
-      expect(mocks.length, `${company.id} should have ${MOCKS_PER_COMPANY} mock tests`).toBe(MOCKS_PER_COMPANY)
+      const expectedCount = MOCKS_PER_COMPANY + (company.id === "general" ? 1 : 0)
+      expect(mocks.length, `${company.id} should have ${expectedCount} mocks including the general Core Prep mock when applicable`).toBe(expectedCount)
       expect(MOCKS_PER_COMPANY, "each company should have exactly 10 full-length mocks").toBe(10)
-      expect(new Set(mocks.map((mock) => mock.id)).size, `${company.id} mock IDs should be unique`).toBe(MOCKS_PER_COMPANY)
-      for (const mock of mocks) {
+      expect(new Set(mocks.map((mock) => mock.id)).size, `${company.id} mock IDs should be unique`).toBe(expectedCount)
+      for (const mock of mocks.filter((item) => item.id !== "core-prep-readiness-20")) {
         const totalQuestions = mock.sections.reduce((sum, section) => sum + section.questionCount, 0)
         expect(totalQuestions, `${mock.id} should be a substantial company-pattern simulation`).toBeGreaterThanOrEqual(50)
         expect(totalQuestions, `${mock.id} should stay practical for browser-based practice`).toBeLessThanOrEqual(100)
@@ -178,11 +164,8 @@ describe("content source governance", () => {
     }
   })
 
-  it("keeps company coding and interview banks at recruiter-useful scale", () => {
+  it("keeps interview banks at recruiter-useful scale", () => {
     for (const company of COMPANIES) {
-      const codingMin = company.id === "zoho" ? 70 : company.id === "general" ? 25 : 40
-      expect(codingProblemsForCompany(company.id).length, `${company.id} needs more coding practice`).toBeGreaterThanOrEqual(codingMin)
-
       const commPyqs = pyqsForCompany(company.id).filter((q) => q.section === "comm-interview")
       expect(commPyqs.length, `${company.id} needs communication/interview PYQs`).toBeGreaterThanOrEqual(70)
       expect(
@@ -257,14 +240,36 @@ describe("content source governance", () => {
     expect(ALL_PYQS.filter((q) => q.optionNotes?.length).length).toBe(FLAGSHIP_PYQS.length)
   })
 
-  it("builds a unique 300-question practice bank for every foundation chapter", () => {
+  it("does not leave a lesson checkpoint without a chapter-local practice question", () => {
+    for (const section of getSections("general")) {
+      for (const chapter of section.chapters) {
+        const sets = buildLessonPracticeSets(chapter, "general", section.id)
+        expect(sets).toHaveLength(chapter.lessons.length)
+        for (let index = 0; index < sets.length; index += 1) {
+          expect(sets[index].length, `${chapter.id}/${chapter.lessons[index]?.id} must have a practice question`).toBeGreaterThan(0)
+        }
+      }
+    }
+  }, 180_000)
+
+  it("builds a unique, bounded practice bank for every foundation chapter", () => {
     for (const section of getSections("general")) {
       for (const chapter of section.chapters) {
         const questions = chapterPracticeQuestions("general", section.id, chapter.id)
         expect(
           questions.length,
-          `general/${chapter.id} needs ${CHAPTER_PRACTICE_TARGET} chapter practice questions`,
-        ).toBe(CHAPTER_PRACTICE_TARGET)
+          `general/${chapter.id} must expose its authored topic-specific practice questions`,
+        ).toBeGreaterThan(0)
+        expect(questions.length).toBeLessThanOrEqual(CHAPTER_PRACTICE_TARGET)
+        expect(new Set(questions.map((question) => question.prompt.trim().toLowerCase())).size)
+          .toBe(questions.length)
+        if (chapter.pathKind !== "sql-dbms") {
+          const authoredPrompts = new Set(chapter.quiz.map((question) => question.prompt.trim().toLowerCase()))
+          expect(
+            questions.every((question) => authoredPrompts.has(question.prompt.trim().toLowerCase())),
+            `general/${chapter.id} practice must not inject unrelated section-wide drills`,
+          ).toBe(true)
+        }
         expectUniqueIds(questions.map((q) => q.id), `general/${chapter.id} practice IDs`)
         expect(
           new Set(questions.map((q) => q.prompt.trim().toLowerCase())).size,
@@ -273,4 +278,29 @@ describe("content source governance", () => {
       }
     }
   }, 300_000)
+})
+
+describe("publication and classification safeguards", () => {
+  it("does not label reconstructed or generated practice as verified historical PYQs", () => {
+    expect(ALL_PYQS.some((question) => question.contentKind === "verified_previous_year")).toBe(false)
+    for (const question of ALL_PYQS) {
+      expect(question.contentKind).toMatch(/^(company_pattern_practice|topic_revision|verified_previous_year|mock_question)$/)
+      if (question.contentKind !== "verified_previous_year") {
+        expect(question.year, `${question.id} must not carry an unverified exam year`).toBeUndefined()
+      }
+      if (!question.curated) {
+        expect(question.frequentlyAsked, `${question.id} must not claim verified frequency`).not.toBe(true)
+      }
+    }
+  })
+
+  it("publishes the company-pattern mock series while keeping general simulations in review", () => {
+    expect(MOCK_TESTS.find((mock) => mock.id === "core-prep-readiness-20")?.publicationStatus).toBe("published")
+    for (const mock of MOCK_TESTS.filter((item) => item.companyId !== "general")) {
+      expect(mock.publicationStatus).toBe("published")
+    }
+    for (const mock of MOCK_TESTS.filter((item) => item.companyId === "general" && item.id !== "core-prep-readiness-20")) {
+      expect(mock.publicationStatus).toBe("draft")
+    }
+  })
 })

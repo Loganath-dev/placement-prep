@@ -7,9 +7,10 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { PasswordInput } from "@/components/ui/password-input"
-import { Icon } from "@/components/app/icon"
-import { AuthShell, GoogleButton, OrDivider } from "@/components/app/auth-shared"
+import { Icon } from "@/components/app-icon"
+import { AuthShell, GoogleButton, OrDivider } from "@/app/auth-shared"
 import { createClient } from "@/lib/supabase/client"
+import { safeInternalRedirectPath } from "@/lib/security/redirect"
 
 function LoginForm() {
   const router = useRouter()
@@ -55,8 +56,7 @@ function LoginForm() {
       if (!profile) {
         safeNext = "/onboarding"
       } else {
-        const next = searchParams.get("next")
-        safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard"
+        safeNext = safeInternalRedirectPath(searchParams.get("next"), window.location.origin)
       }
     }
 

@@ -1,12 +1,19 @@
+import "@/lib/server-only"
 import { generateDrills, generateDrillsByDifficulty } from "@/lib/data/question-bank"
 import { pyqsForCompany } from "@/lib/data/pyqs"
+import { CORE_PREP_MOCK, CORE_PREP_MOCK_QUESTIONS } from "@/lib/data/core-prep-mock"
 import type { CompanyId, Difficulty, MockTest, Question, SectionId } from "@/lib/types"
 
 const review = {
   originalStatus: "reconstructed",
-  status: "reviewed",
-  reviewedBy: "StudyBench SME Review",
-  lastReviewed: "2026-06-07",
+  status: "live",
+  publicationStatus: "published",
+} as const
+
+const generalSimulationReview = {
+  originalStatus: "original",
+  status: "draft",
+  publicationStatus: "draft",
 } as const
 
 
@@ -140,7 +147,7 @@ const SIMULATION_BASES: MockTest[] = [
       { id: "coding", label: "Coding Logic", questionCount: 18, durationMinutes: 26, source: "mixed" },
       { id: "cs-core", label: "CS Core", questionCount: 18, durationMinutes: 20, source: "mixed" },
     ],
-    ...review,
+    ...generalSimulationReview,
   },
 ]
 
@@ -175,6 +182,7 @@ export const MOCKS_PER_COMPANY = SIMULATIONS_PER_COMPANY
 
 export const MOCK_TESTS: MockTest[] = [
   ...SIMULATION_BASES.flatMap(expandSimulation),
+  CORE_PREP_MOCK,
 ]
 
 const MOCKS_BY_COMPANY = MOCK_TESTS.reduce(
@@ -195,6 +203,15 @@ const MOCKS_BY_COMPANY = MOCK_TESTS.reduce(
 
 export function mocksForCompany(companyId: CompanyId): MockTest[] {
   return MOCKS_BY_COMPANY[companyId]
+}
+
+/** Only explicitly published simulations may enter student-facing APIs. */
+export function isMockPublishedForStudents(mock: Pick<MockTest, "publicationStatus">): boolean {
+  return mock.publicationStatus === "published"
+}
+
+export function publishedMocksForCompany(companyId: CompanyId): MockTest[] {
+  return mocksForCompany(companyId).filter(isMockPublishedForStudents)
 }
 
 const MOCK_QUESTION_CACHE = new Map<string, Question[]>()
@@ -338,6 +355,12 @@ export function buildMockQuestions(mock: MockTest, seed = 20260607): Question[] 
   const cacheKey = `${mock.id}:${seed}`
   const cached = MOCK_QUESTION_CACHE.get(cacheKey)
   if (cached) return cached
+
+  if (mock.id === CORE_PREP_MOCK.id) {
+    const questions = CORE_PREP_MOCK_QUESTIONS
+    MOCK_QUESTION_CACHE.set(cacheKey, questions)
+    return questions
+  }
 
   if (mock.difficultyMix) {
     const sim = buildSimulationQuestions(mock, seed)

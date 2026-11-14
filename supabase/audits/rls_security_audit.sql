@@ -74,6 +74,7 @@ select
   count(*) filter (where premium = false and premium_until is not null) as inactive_with_expiry
 from public.user_state;
 
+
 -- 8. Sensitive column-level update grants. Review these together with triggers.
 select
   has_column_privilege('authenticated', 'public.profiles', 'upi_id', 'UPDATE') as auth_can_update_profile_upi_id,
@@ -81,6 +82,7 @@ select
   has_column_privilege('authenticated', 'public.profiles', 'referred_by', 'UPDATE') as auth_can_update_referred_by,
   has_column_privilege('authenticated', 'public.user_state', 'premium', 'UPDATE') as auth_can_update_premium,
   has_column_privilege('authenticated', 'public.user_state', 'premium_until', 'UPDATE') as auth_can_update_premium_until;
+
 
 -- 9. Financial foreign-key delete behavior. Retained financial rows should use
 -- nullable references with ON DELETE SET NULL, not CASCADE.

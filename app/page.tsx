@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
-import { JsonLd } from "@/components/app/json-ld"
-import { LandingPage } from "@/components/app/landing-page"
+import { JsonLd } from "@/app/json-ld"
+import { LandingPage } from "@/app/landing-page"
 import { FAQS, faqJsonLd } from "@/lib/content/faq"
 import {
   courseJsonLd,
@@ -10,9 +10,9 @@ import {
 } from "@/lib/seo"
 
 export const metadata: Metadata = {
-  title: "Placement preparation app for freshers in India",
+  title: "Structured learning platform for students",
   description:
-    "Prepare for campus placements with company-wise tracks, aptitude, coding, interview prep, PYQs, mock tests and readiness analytics on StudyBench.",
+    "Learn aptitude, logical and verbal ability, CS core, programming languages and data structures through structured learning paths on StudyBench.",
   alternates: { canonical: "/" },
 }
 

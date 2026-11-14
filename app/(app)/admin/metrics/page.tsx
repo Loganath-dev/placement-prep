@@ -1,5 +1,4 @@
-import { requireAdmin } from "@/lib/admin"
-import { PREMIUM_PRICE_INR } from "@/lib/access"
+import { requireAdminMfa } from "@/lib/admin"
 import { createAdminClient } from "@/lib/supabase/admin"
 
 export const dynamic = "force-dynamic"
@@ -7,7 +6,15 @@ export const dynamic = "force-dynamic"
 async function getMetrics() {
   const admin = createAdminClient()
   const now = new Date()
-  const todayStr = now.toISOString().slice(0, 10)
+  const istParts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(now)
+  const istDate = Object.fromEntries(istParts.map((part) => [part.type, part.value]))
+  const todayStart = `${istDate.year}-${istDate.month}-${istDate.day}T00:00:00+05:30`
+  const tomorrowStart = new Date(new Date(todayStart).getTime() + 24 * 60 * 60 * 1000).toISOString()
   const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString()
   const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString()
 
@@ -25,29 +32,38 @@ async function getMetrics() {
     totalUsers,
     eventCountsWeek,
     recentPayments,
+    revenuePaymentsMonth,
   ] = await Promise.all([
     // Signups today
-    admin.auth.admin.listUsers({ page: 1, perPage: 1 }).then(async () => {
-      const { count } = await admin
-        .from("profiles")
-        .select("id", { count: "exact", head: true })
-        .gte("created_at", todayStr)
-      return count ?? 0
-    }),
+    admin
+      .from("profiles")
+      .select("id", { count: "exact", head: true })
+      .gte("created_at", todayStart)
+      .lt("created_at", tomorrowStart)
+      .then(({ count, error }) => {
+        if (error) throw new Error(`Could not load today's signups: ${error.message}`)
+        return count ?? 0
+      }),
 
     // Signups last 7 days
     admin
       .from("profiles")
       .select("id", { count: "exact", head: true })
       .gte("created_at", weekAgo)
-      .then(({ count }) => count ?? 0),
+      .then(({ count, error }) => {
+        if (error) throw new Error(`Could not load platform counts: ${error.message}`)
+        return count ?? 0
+      }),
 
     // Signups last 30 days
     admin
       .from("profiles")
       .select("id", { count: "exact", head: true })
       .gte("created_at", monthAgo)
-      .then(({ count }) => count ?? 0),
+      .then(({ count, error }) => {
+        if (error) throw new Error(`Could not load platform counts: ${error.message}`)
+        return count ?? 0
+      }),
 
     // Onboarding completions last 7 days
     admin
@@ -55,7 +71,10 @@ async function getMetrics() {
       .select("id", { count: "exact", head: true })
       .eq("event", "marketing_cta_click")
       .gte("occurred_at", weekAgo)
-      .then(({ count }) => count ?? 0),
+      .then(({ count, error }) => {
+        if (error) throw new Error(`Could not load platform counts: ${error.message}`)
+        return count ?? 0
+      }),
 
     // Onboarding completions last 7 days
     admin
@@ -63,7 +82,10 @@ async function getMetrics() {
       .select("id", { count: "exact", head: true })
       .eq("event", "onboarding_complete")
       .gte("occurred_at", weekAgo)
-      .then(({ count }) => count ?? 0),
+      .then(({ count, error }) => {
+        if (error) throw new Error(`Could not load platform counts: ${error.message}`)
+        return count ?? 0
+      }),
 
     // Quiz attempts last 7 days
     admin
@@ -71,7 +93,10 @@ async function getMetrics() {
       .select("id", { count: "exact", head: true })
       .eq("event", "quiz_attempt")
       .gte("occurred_at", weekAgo)
-      .then(({ count }) => count ?? 0),
+      .then(({ count, error }) => {
+        if (error) throw new Error(`Could not load platform counts: ${error.message}`)
+        return count ?? 0
+      }),
 
     // Mock completions last 7 days
     admin
@@ -79,7 +104,10 @@ async function getMetrics() {
       .select("id", { count: "exact", head: true })
       .eq("event", "mock_complete")
       .gte("occurred_at", weekAgo)
-      .then(({ count }) => count ?? 0),
+      .then(({ count, error }) => {
+        if (error) throw new Error(`Could not load platform counts: ${error.message}`)
+        return count ?? 0
+      }),
 
     // Premium upgrades last 7 days
     admin
@@ -87,7 +115,10 @@ async function getMetrics() {
       .select("id", { count: "exact", head: true })
       .eq("event", "premium_upgrade")
       .gte("occurred_at", weekAgo)
-      .then(({ count }) => count ?? 0),
+      .then(({ count, error }) => {
+        if (error) throw new Error(`Could not load platform counts: ${error.message}`)
+        return count ?? 0
+      }),
 
     // Premium upgrades last 30 days
     admin
@@ -95,27 +126,38 @@ async function getMetrics() {
       .select("id", { count: "exact", head: true })
       .eq("event", "premium_upgrade")
       .gte("occurred_at", monthAgo)
-      .then(({ count }) => count ?? 0),
+      .then(({ count, error }) => {
+        if (error) throw new Error(`Could not load platform counts: ${error.message}`)
+        return count ?? 0
+      }),
 
     // Total premium users
     admin
       .from("user_state")
       .select("id", { count: "exact", head: true })
       .eq("premium", true)
-      .then(({ count }) => count ?? 0),
+      .or(`premium_until.is.null,premium_until.gt.${now.toISOString()}`)
+      .then(({ count, error }) => {
+        if (error) throw new Error(`Could not load platform counts: ${error.message}`)
+        return count ?? 0
+      }),
 
     // Total users
     admin
       .from("profiles")
       .select("id", { count: "exact", head: true })
-      .then(({ count }) => count ?? 0),
+      .then(({ count, error }) => {
+        if (error) throw new Error(`Could not load platform counts: ${error.message}`)
+        return count ?? 0
+      }),
 
     // Event counts by type last 7 days
     admin
       .from("analytics_events")
       .select("event")
       .gte("occurred_at", weekAgo)
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error) throw new Error(`Could not load analytics events: ${error.message}`)
         const counts: Record<string, number> = {}
         for (const row of data ?? []) {
           counts[row.event] = (counts[row.event] ?? 0) + 1
@@ -129,12 +171,25 @@ async function getMetrics() {
       .select("payment_id, amount, currency, created_at, source")
       .order("created_at", { ascending: false })
       .limit(10)
-      .then(({ data }) => data ?? []),
+      .then(({ data, error }) => {
+        if (error) throw new Error(`Could not load recent payments: ${error.message}`)
+        return data ?? []
+      }),
+
+    // Actual captured revenue across both active plans
+    admin
+      .from("payments")
+      .select("amount")
+      .gte("created_at", monthAgo)
+      .then(({ data, error }) => {
+        if (error) throw new Error(`Could not calculate gross payment volume: ${error.message}`)
+        return (data ?? []).reduce((sum: number, row: { amount: number }) => sum + (row.amount ?? 0), 0) / 100
+      }),
   ])
 
-  const conversionRate =
+  const upgradeToSignupRatio =
     signupsMonth > 0 ? ((premiumUpgradesMonth / signupsMonth) * 100).toFixed(1) : "0.0"
-  const revenueMonthInr = premiumUpgradesMonth * PREMIUM_PRICE_INR
+  const revenueMonthInr = revenuePaymentsMonth
 
   return {
     signupsToday,
@@ -148,15 +203,16 @@ async function getMetrics() {
     premiumUpgradesMonth,
     totalPremium,
     totalUsers,
-    conversionRate,
+    upgradeToSignupRatio,
     revenueMonthInr,
     eventCountsWeek,
     recentPayments,
+    revenuePaymentsMonth,
   }
 }
 
 export default async function AdminMetricsPage() {
-  await requireAdmin()
+  await requireAdminMfa()
   const m = await getMetrics()
 
   return (
@@ -164,7 +220,7 @@ export default async function AdminMetricsPage() {
       <div>
         <h1 className="font-heading text-3xl font-bold">Admin Metrics</h1>
         <p className="mt-1 text-muted-foreground">
-          Live funnel data · service-role · visible only to admins
+          Live platform activity and performance.
         </p>
       </div>
 
@@ -174,8 +230,8 @@ export default async function AdminMetricsPage() {
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           <KpiCard label="Total users" value={m.totalUsers} />
           <KpiCard label="Premium users" value={m.totalPremium} />
-          <KpiCard label="Conversion (30d)" value={`${m.conversionRate}%`} />
-          <KpiCard label="Revenue (30d est.)" value={`₹${m.revenueMonthInr.toLocaleString()}`} />
+          <KpiCard label="Upgrade events / signups (30d)" value={`${m.upgradeToSignupRatio}%`} />
+          <KpiCard label="Gross payments (30d)" value={`₹${m.revenueMonthInr.toLocaleString()}`} />
         </div>
       </section>
 

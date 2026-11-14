@@ -2,8 +2,13 @@ import { NextResponse } from "next/server"
 import { rateLimit } from "@/lib/rate-limit"
 import { createClient } from "@/lib/supabase/server"
 import { buildWeeklyDigestEmail, sendEmail } from "@/lib/email/resend"
+import { hasTrustedRequestOrigin } from "@/lib/security/request-origin"
 
 export async function POST(request: Request) {
+  if (!hasTrustedRequestOrigin(request)) {
+    return NextResponse.json({ error: "Cross-origin request rejected." }, { status: 403 })
+  }
+
   const supabase = await createClient()
   const {
     data: { user },

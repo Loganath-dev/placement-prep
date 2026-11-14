@@ -1,5 +1,5 @@
 ﻿import type { Metadata } from "next"
-import { LegalDocument } from "@/components/app/legal-doc"
+import { LegalDocument } from "@/app/legal-doc"
 import { PRIVACY_POLICY } from "@/lib/legal"
 
 export const metadata: Metadata = {

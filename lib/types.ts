@@ -32,11 +32,20 @@ export interface ContentSource {
 
 export interface Question {
   id: string
+  /** Exercise format. Defaults to multiple-choice for legacy question banks. */
+  type?: "mcq" | "fill_blank"
+  /** Accepted normalized responses for fill-in-the-blank questions. */
+  acceptedAnswers?: string[]
+  hint?: string
   topic: string
+  /** Optional explicit lesson mapping for curated lesson checkpoint banks. */
+  lessonId?: string
+  /** Optional reviewed concept tags used to map questions to lessons. */
+  topicTags?: string[]
   difficulty: Difficulty
   prompt: string
   options: string[]
-  answer: number // index into options
+  answer: number // MCQ option index; -1 for typed-response questions
   explanation: string
   sourceId?: string
   /**
@@ -59,8 +68,8 @@ export interface ContentReviewMeta {
   sourceId: string
   originalStatus: OriginalStatus
   status: ContentStatus
-  reviewedBy: string
-  lastReviewed: string
+  reviewedBy?: string
+  lastReviewed?: string
 }
 
 export interface Lesson {
@@ -78,6 +87,10 @@ export interface Chapter {
   summary: string
   lessons: Lesson[]
   quiz: Question[]
+  /** Optional sub-path grouping inside a broader section (e.g. Python within Coding). */
+  pathId?: string
+  pathName?: string
+  pathKind?: "language" | "dsa" | "sql-dbms"
 }
 
 export interface Section {
@@ -107,9 +120,6 @@ export interface Company {
   accent: string
   sector: string
   blurb: string
-  /** Probability tuning — how strong (PRI) you typically need to be. */
-  cutoffPRI: number
-  slope: number
   eligibility?: Eligibility
   isGeneral?: boolean
 }
@@ -119,6 +129,44 @@ export interface ChapterProgress {
   passed: boolean // >= 70%
   skipped: boolean
   attempts: number
+  /** Flashcard and final assessment state; included in company_progress.chapters JSONB. */
+  learning?: ChapterLearningProgress
+}
+
+export type LearningCardType = "concept" | "worked-example" | "application"
+
+export interface LearningCard {
+  id: string
+  lessonId: string
+  title: string
+  type: LearningCardType
+  answer: string
+}
+
+export interface SavedLearningCard {
+  id: string
+  title: string
+  href: string
+}
+
+export interface ChapterLearningProgress {
+  completedCardIds: string[]
+  /** Legacy card-completion marker retained for backwards compatibility. */
+  completedLessonIds: string[]
+  /** Lesson IDs whose checkpoint was passed (>=60%). */
+  passedLessonIds?: string[]
+  lastViewedCardId?: string
+  completedAt?: number
+  /** Timestamp when the student reviewed all Chapter Recall cards. */
+  recallCompletedAt?: number
+  practiceAttempts: Array<{
+    score: number
+    correct: number
+    total: number
+    completedAt: number
+    lessonId?: string
+  }>
+  savedCards: SavedLearningCard[]
 }
 
 export interface CompanyProgress {
@@ -154,6 +202,10 @@ export interface DailyChallengeState {
   general: boolean
   aptitude: boolean
   coding: boolean
+  /** ISO week key (Monday UTC) for the personalized weekly review. */
+  weeklyDate?: string
+  weeklyCompleted?: boolean
+  weeklyScore?: number
 }
 
 // ---- Interview prep ---------------------------------------------------------
@@ -210,7 +262,11 @@ export interface MockSection {
   source: "lesson-quiz" | "pyq" | "drill-generator" | "mixed"
 }
 
+export type MockPublicationStatus = "draft" | "in_review" | "approved" | "published" | "archived"
+
 export interface MockTest extends ContentReviewMeta {
+  /** Explicit publication workflow; student APIs must expose published only. */
+  publicationStatus: MockPublicationStatus
   id: string
   companyId: CompanyId
   title: string
@@ -231,9 +287,12 @@ export interface MockTest extends ContentReviewMeta {
 /** A question the student answered incorrectly, saved for focused review. */
 export interface Mistake {
   questionId: string
+  type?: "mcq" | "fill_blank"
+  acceptedAnswers?: string[]
+  responseText?: string
   prompt: string
   options: string[]
-  answer: number // index of the correct option
+  answer: number // MCQ option index; -1 for typed-response questions
   chosen: number // index the student picked
   explanation: string
   topic: string
@@ -280,12 +339,21 @@ export interface DriveOutcome {
   notes?: string
 }
 
+export interface LearningPreferences {
+  focusArea: "aptitude" | "reasoning" | "cs-core" | "programming" | "dsa"
+  /** Language path IDs selected during onboarding (e.g. lang-python, lang-java). */
+  selectedLanguages: string[]
+  confidence: "starting" | "some-basics" | "independent"
+  dailyMinutes: 10 | 20 | 30 | 45
+}
+
 export interface AppState {
   onboarded: boolean
   premium: boolean
   premiumUntil?: string
   entitlementSource?: "creator" | "purchase" | "free"
   profile: Profile
+  learningPreferences?: LearningPreferences
   interested: CompanyId[]
   primary: CompanyId
   xp: number

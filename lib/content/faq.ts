@@ -18,35 +18,28 @@ export const FAQS: FaqItem[] = [
     category: "Getting started",
     question: "What is StudyBench?",
     answer:
-      "StudyBench is an all-in-one campus placement preparation platform for Indian students and freshers. It brings together company-pattern learning tracks, aptitude and coding practice, previous-year-pattern questions, mock tests, interview and communication prep, and an honest Placement Readiness Index (PRI) that shows how prepared you are and exactly what to do next.",
+      "StudyBench is a structured learning platform for students. It brings together guided paths for aptitude, logical and verbal ability, CS Core, programming languages and data structures, with lessons, practice questions, mock tests and progress tracking.",
   },
   {
-    id: "how-pri-works",
+    id: "how-progress-works",
     category: "Preparation",
-    question: "How does the Placement Readiness Index (PRI) work?",
+    question: "How is my learning progress tracked?",
     answer:
-      "The PRI is a 0-100 readiness score per company. It combines your mastery across quantitative aptitude, logical reasoning, verbal ability, coding and DSA, CS core and communication/interview, along with your mock-test performance. It is honest by design - only chapters you actually pass (60% or higher) count, so skipping content never inflates your score.",
-  },
-  {
-    id: "is-probability-guarantee",
-    category: "Preparation",
-    question: "Is the estimated placement probability a guarantee of a job?",
-    answer:
-      "No. The placement probability is an estimate based on your in-app performance, shown to help you gauge progress and prioritise your effort. It is not a guarantee of selection, an interview call, or a job offer. Final hiring decisions rest entirely with the employers.",
+      "StudyBench tracks completed lessons, chapter practice and mock-test attempts so you can see what you have finished and which concepts may need another review. Progress is shown as learning activity, not as a prediction of academic or placement outcomes.",
   },
   {
     id: "which-companies",
     category: "Getting started",
     question: "Which companies and tests can I prepare for on StudyBench?",
     answer:
-      "StudyBench covers the six recruiters that most Indian students target - the largest IT services firms and leading product/SaaS companies - plus core skill practice for early-year students. Each track mirrors that recruiter's known pattern, including aptitude, coding, written/communication and interview rounds.",
+      "StudyBench offers company-specific learning tracks alongside shared foundations. Students can choose a track and practise relevant aptitude, reasoning, verbal ability, CS Core and assessment topics.",
   },
   {
     id: "is-it-free",
     category: "Pricing",
     question: "Is StudyBench free? What does Premium include?",
     answer:
-      "StudyBench has a free tier that opens every company track with starter chapters, sample practice and a mock baseline. Premium costs ₹249 for a lifetime and unlocks every section, every chapter, the full previous-year question bank, every mock test, the complete interview question bank with trainer guidance, and detailed analytics.",
+      "StudyBench has a free tier with introductory lessons and sample practice. Premium unlocks the complete learning curriculum, the full previous-year question bank, additional mock tests and detailed learning analytics.",
   },
   {
     id: "seventy-percent-gate",
@@ -60,21 +53,21 @@ export const FAQS: FaqItem[] = [
     category: "Content & data",
     question: "Where does the learning content come from? Is it copied?",
     answer:
-      "All content is original. It is authored in-house by our trainers and reconstructed from publicly available concepts, standard reference books and officially published eligibility information. We never copy proprietary or leaked test papers - previous-year questions are original reconstructions written in each recruiter's question pattern.",
+      "StudyBench lessons and practice items are written or reconstructed in our own words using registered public, official and standard learning references. Source records track provenance. We do not reproduce proprietary or leaked test papers. Question banks are published as reviewed only after the relevant content-review checks are completed.",
   },
   {
     id: "topics-covered",
     category: "Preparation",
     question: "What topics and sections does StudyBench cover?",
     answer:
-      "Every company track has six sections: Quantitative Aptitude, Logical Reasoning, Verbal Ability, Coding & DSA, CS Core (DBMS, OS, Computer Networks, OOP and SQL), and Communication & Interview. Core Prep helps you strengthen these skills before moving deeper into company-specific practice.",
+      "StudyBench covers Quantitative Aptitude, Logical Reasoning, Verbal Ability, CS Core (DBMS, OS, Computer Networks, OOP and SQL), programming-language fundamentals and Data Structures & Algorithms. Company tracks let you apply these foundations to specific assessment patterns.",
   },
   {
     id: "daily-challenges",
     category: "Preparation",
     question: "How do daily challenges, streaks and XP work?",
     answer:
-      "Daily challenges give you a quick set of questions each day across Mixed, Aptitude and Coding categories. Completing them earns XP and keeps your streak alive, with bonus XP at 7-, 30- and 100-day milestones. Consistent daily practice is one of the strongest predictors of placement success.",
+      "Daily challenges give you short practice sets across learning topics. Completing them earns XP and keeps your streak active, with bonus XP at milestone intervals. Consistent practice helps reinforce what you learn.",
   },
   {
     id: "data-protection",

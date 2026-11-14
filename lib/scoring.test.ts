@@ -3,15 +3,16 @@ import {
   PRI_WEIGHTS,
   EMPTY_PROGRESS,
   computePRI,
-  placementProbability,
   priBand,
-  probabilityBand,
   levelThreshold,
   levelFromXP,
   sectionMastery,
   overallReadiness,
   expectedPriGain,
   outcomeCalibration,
+  quizXp,
+  dailyChallengeXp,
+  firstMockXp,
 } from "@/lib/scoring"
 import { getSections } from "@/lib/data/content"
 import type { AppState, CompanyProgress, DriveOutcome } from "@/lib/types"
@@ -20,6 +21,24 @@ describe("PRI weights", () => {
   it("sum to exactly 1", () => {
     const sum = Object.values(PRI_WEIGHTS).reduce((a, b) => a + b, 0)
     expect(sum).toBeCloseTo(1, 6)
+  })
+})
+
+describe("XP reward idempotency policy", () => {
+  it("rewards correct quiz answers only on the first attempt and a pass only once", () => {
+    expect(quizXp(3, true, true)).toBe(80)
+    expect(quizXp(3, false, false)).toBe(0)
+    expect(quizXp(0, false, true)).toBe(50)
+  })
+
+  it("gives no XP for replaying a completed daily challenge", () => {
+    expect(dailyChallengeXp(4, true)).toBe(70)
+    expect(dailyChallengeXp(4, false)).toBe(0)
+  })
+
+  it("awards mock XP only for the first mock in a company track", () => {
+    expect(firstMockXp(true)).toBe(100)
+    expect(firstMockXp(false)).toBe(0)
   })
 })
 
@@ -83,32 +102,12 @@ describe("sectionMastery", () => {
   })
 })
 
-describe("placementProbability", () => {
-  it("is bounded to [2, 97] regardless of input", () => {
-    expect(placementProbability("tcs", -1000)).toBeGreaterThanOrEqual(2)
-    expect(placementProbability("tcs", 100000)).toBeLessThanOrEqual(97)
-  })
-
-  it("increases as PRI increases", () => {
-    expect(placementProbability("tcs", 80)).toBeGreaterThan(placementProbability("tcs", 40))
-  })
-})
-
 describe("priBand", () => {
   it("maps scores to the right band", () => {
     expect(priBand(80).tone).toBe("success")
     expect(priBand(60).tone).toBe("info")
     expect(priBand(40).tone).toBe("warning")
     expect(priBand(10).tone).toBe("danger")
-  })
-})
-
-describe("probabilityBand", () => {
-  it("maps probabilities to the right band", () => {
-    expect(probabilityBand(80).tone).toBe("success")
-    expect(probabilityBand(50).tone).toBe("info")
-    expect(probabilityBand(30).tone).toBe("warning")
-    expect(probabilityBand(10).tone).toBe("danger")
   })
 })
 

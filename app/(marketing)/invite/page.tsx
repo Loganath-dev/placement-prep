@@ -1,8 +1,8 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
-import { Icon } from "@/components/app/icon"
-import { JsonLd } from "@/components/app/json-ld"
+import { Icon } from "@/components/app-icon"
+import { JsonLd } from "@/app/json-ld"
 import { SITE_NAME, SITE_URL } from "@/lib/content/blocks"
 
 export const metadata: Metadata = {
@@ -22,9 +22,8 @@ const breadcrumb = {
 
 const FEATURES = [
   { icon: "BookOpenCheck", label: "Company prep tracks", detail: "TCS, Infosys, Wipro, Accenture, Zoho, Cognizant" },
-  { icon: "Target", label: "Placement Readiness Index", detail: "Honest 0-100 score that shows where you actually stand" },
   { icon: "Trophy", label: "Mock tests", detail: "Company-pattern full-length mocks with detailed analysis" },
-  { icon: "Code2", label: "Coding practice", detail: "DSA problems with in-browser code execution" },
+  { icon: "GraduationCap", label: "Guided learning", detail: "Programming languages, CS Core and DSA roadmaps" },
 ]
 
 export default async function InvitePage() {
@@ -45,7 +44,7 @@ export default async function InvitePage() {
             Start preparing with {SITE_NAME}
           </h1>
           <p className="mt-3 text-lg leading-relaxed text-muted-foreground">
-            Free campus placement prep for TCS, Infosys, Wipro, Accenture and more — with a real readiness score.
+            Structured learning paths, practice questions and mock assessments for students.
           </p>
         </div>
 
@@ -67,7 +66,7 @@ export default async function InvitePage() {
               Create your free account
             </p>
             <p className="max-w-sm text-sm text-muted-foreground">
-              No credit card needed. Free gives you all of Section 1 in every company track.
+              No credit card needed. Start with two free lessons in every learning path, including programming languages, DSA and SQL/DBMS.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-3">
               <Link

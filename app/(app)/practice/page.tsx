@@ -3,10 +3,10 @@
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import * as React from "react"
-import { Icon } from "@/components/app/icon"
-import { PageHeader } from "@/components/app/page-header"
-import { CompanyAvatar } from "@/components/app/ui-bits"
-import { CompanyPicker } from "@/components/app/company-picker"
+import { Icon } from "@/components/app-icon"
+import { PageHeader } from "@/app/page-header"
+import { CompanyAvatar } from "@/app/ui-bits"
+import { CompanyPicker } from "@/app/company-picker"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -17,14 +17,9 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { COMPANY_BY_ID, getCompany } from "@/lib/data/companies"
-import { SECTION_META } from "@/lib/data/content"
-import { pyqsForCompany, type PYQ } from "@/lib/data/pyqs"
-import {
-  FREE_PYQ_LIMIT,
-  lockedCount,
-  premiumPriceLabel,
-  visibleForPlan,
-} from "@/lib/access"
+import { SECTION_META } from "@/lib/data/content-catalog"
+import type { PYQ } from "@/lib/data/pyqs"
+import { lockedCount } from "@/lib/access"
 import { useStore } from "@/lib/store"
 import type { CompanyId } from "@/lib/types"
 import { cn } from "@/lib/utils"
@@ -36,37 +31,53 @@ export default function PracticePage() {
   const [selectedCompany, setSelectedCompany] = React.useState<CompanyId | null>(null)
   const [section, setSection] = React.useState<string>("all")
   const [difficulty, setDifficulty] = React.useState<string>("all")
-  const [year, setYear] = React.useState<string>("all")
-  const [faOnly, setFaOnly] = React.useState(false)
+  const [kind, setKind] = React.useState<string>("all")
+  const [questions, setQuestions] = React.useState<(PYQ & { company: CompanyId })[]>([])
+  const [totalCount, setTotalCount] = React.useState(0)
+  const [loading, setLoading] = React.useState(true)
+  const [loadError, setLoadError] = React.useState<string | null>(null)
   const company = selectedCompany ?? queryCompany ?? state.primary ?? "general"
-
   const c = getCompany(company)
-  const all = React.useMemo(() => pyqsForCompany(company), [company])
-  const years = React.useMemo(
-    () => [...new Set(all.map((q) => q.year))].sort((a, b) => b - a),
-    [all],
-  )
-  const list = React.useMemo(() => {
-    let next = all
-    if (section !== "all") next = next.filter((q) => q.section === section)
-    if (difficulty !== "all") next = next.filter((q) => q.difficulty === difficulty)
-    if (year !== "all") next = next.filter((q) => String(q.year) === year)
-    if (faOnly) next = next.filter((q) => q.frequentlyAsked)
-    return next
-  }, [all, difficulty, faOnly, section, year])
 
-  const visible = React.useMemo(
-    () => visibleForPlan(list, state.premium, FREE_PYQ_LIMIT),
-    [list, state.premium],
-  )
-  const hiddenCount = lockedCount(list.length, visible.length)
+  // PYQ content is server-only. Fetch the filtered, entitlement-limited result
+  // through the existing API instead of importing the content bank into the browser.
+  React.useEffect(() => {
+    const controller = new AbortController()
+    async function loadQuestions() {
+      setLoading(true)
+      setLoadError(null)
+      const params = new URLSearchParams({ company, section, difficulty, kind })
+      try {
+        const response = await fetch(`/api/content/pyqs?${params.toString()}`, {
+          signal: controller.signal,
+          cache: "no-store",
+        })
+        const payload = await response.json()
+        if (!response.ok) throw new Error(payload.error || "Unable to load practice questions.")
+        setQuestions(payload.questions ?? [])
+        setTotalCount(payload.totalCount ?? 0)
+      } catch (error) {
+        if (controller.signal.aborted) return
+        setLoadError(error instanceof Error ? error.message : "Unable to load practice questions.")
+        setQuestions([])
+        setTotalCount(0)
+      } finally {
+        if (!controller.signal.aborted) setLoading(false)
+      }
+    }
+    void loadQuestions()
+    return () => controller.abort()
+  }, [company, section, difficulty, kind])
+
+  const visible = questions
+  const hiddenCount = lockedCount(totalCount, visible.length)
 
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Pattern practice"
-        title="Practice PYQs"
-        description="Previous-year style questions by company, rewritten for practice in each test pattern."
+        eyebrow="Practice"
+        title="Practice library"
+        description="Build your skills with focused practice questions and topic revision. Previous-year questions are identified separately only when their paper and year are verified."
       />
 
       <CompanyPicker
@@ -75,8 +86,7 @@ export default function PracticePage() {
           setSelectedCompany(id)
           setSection("all")
           setDifficulty("all")
-          setYear("all")
-          setFaOnly(false)
+          setKind("all")
         }}
       />
 
@@ -137,41 +147,34 @@ export default function PracticePage() {
             <SelectItem value="hard">Hard</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={year} onValueChange={setYear}>
-          <SelectTrigger className="w-36">
+        <Select value={kind} onValueChange={setKind}>
+          <SelectTrigger className="w-56">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All years</SelectItem>
-            {years.map((y) => (
-              <SelectItem key={y} value={String(y)}>
-                {y}
-              </SelectItem>
-            ))}
+            <SelectItem value="all">All practice types</SelectItem>
+            <SelectItem value="verified_previous_year">Verified previous-year questions</SelectItem>
+            <SelectItem value="company_pattern_practice">Practice questions</SelectItem>
+            <SelectItem value="topic_revision">Topic revision</SelectItem>
+            <SelectItem value="mock_question">Mock questions</SelectItem>
           </SelectContent>
         </Select>
-        <button
-          type="button"
-          onClick={() => setFaOnly((v) => !v)}
-          className={cn(
-            "flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
-            faOnly ? "border-primary bg-primary/10 text-primary" : "border-border hover:bg-muted/50",
-          )}
-        >
-          <Icon name="Star" className="size-3.5" /> Frequently asked
-        </button>
         <span className="text-sm text-muted-foreground">
-          {list.length} question{list.length === 1 ? "" : "s"}
+          {visible.length} question{visible.length === 1 ? "" : "s"}
         </span>
       </div>
 
-      {visible.length === 0 ? (
+      {loading ? (
+        <Card><CardContent className="py-10 text-center text-sm text-muted-foreground">Loading practice questions…</CardContent></Card>
+      ) : loadError ? (
+        <Card><CardContent className="py-10 text-center text-sm text-destructive">{loadError}</CardContent></Card>
+      ) : visible.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
             <Icon name="SearchX" className="size-9 text-muted-foreground" />
-            <p className="font-medium">No PYQs match these filters</p>
+            <p className="font-medium">No practice questions match these filters</p>
             <p className="max-w-sm text-sm text-muted-foreground">
-              Try a broader section, year or difficulty to continue practice.
+              Try a broader section, content type or difficulty to continue practice.
             </p>
           </CardContent>
         </Card>
@@ -189,10 +192,10 @@ export default function PracticePage() {
             <Icon name="Lock" className="size-7 text-primary" />
             <p className="font-medium">Unlock the complete PYQ bank</p>
             <p className="text-sm text-muted-foreground">
-              Practise the full company-wise question bank with explanations.
+              Practise company-wise questions with clear explanations.
             </p>
             <Button asChild className="mt-1">
-              <Link href="/settings">Go Premium - {premiumPriceLabel()}</Link>
+              <Link href="/pricing">View Premium plans</Link>
             </Button>
           </CardContent>
         </Card>
@@ -254,12 +257,11 @@ function PyqItem({
             {q.difficulty}
           </span>
           <span className="text-muted-foreground">{q.topic}</span>
-          {q.frequentlyAsked ? (
-            <span className="flex items-center gap-1 rounded-full bg-warning/15 px-2 py-0.5 font-medium text-warning-foreground">
-              <Icon name="Star" className="size-3" /> Frequently asked
-            </span>
-          ) : null}
-          <span className="ml-auto text-muted-foreground">~{q.year} pattern</span>
+          <span className="rounded-full bg-primary/5 px-2 py-0.5 font-medium text-primary">
+            {q.contentKind === "verified_previous_year" ? `Verified ${q.year} PYQ` :
+              q.contentKind === "company_pattern_practice" ? "Practice question" :
+              q.contentKind === "mock_question" ? "Mock question" : "Topic revision"}
+          </span>
         </div>
         <p className="font-medium">{q.prompt}</p>
         <div className="grid gap-2 sm:grid-cols-2">

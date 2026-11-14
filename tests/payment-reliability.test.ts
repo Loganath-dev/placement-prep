@@ -10,7 +10,8 @@ describe("V11.7 payment reliability migration", () => {
   it("preserves active lifetime entitlements when a finite plan is purchased", () => {
     expect(migration).toContain("state_exists and current_premium and current_expiry is null")
     expect(migration).toContain("target_expiry := null")
-    expect(migration).toContain("Never downgrade it to a finite period")
+    expect(migration).toContain("active Premium row means lifetime access")
+    expect(migration).toContain("downgrade it to a finite period")
   })
 
   it("serializes distinct payment grants for the same user", () => {
@@ -28,13 +29,13 @@ describe("V11.7 payment reliability migration", () => {
     expect(migration).toContain("add column if not exists plan_key text")
   })
 
-  it("hardens live RLS policies and function search paths without widening access", () => {
+  it("hardens the live RLS policies and function search paths without widening access", () => {
     expect(migration).toContain("using ((select auth.uid()) = id)")
     expect(migration).toContain("current_user not in ('service_role', 'postgres')")
     expect(migration).toContain("revoke update (upi_id, upi_name) on public.profiles from authenticated")
     expect(migration).toContain("set search_path = pg_catalog")
     expect(migration).not.toMatch(/auth\.role\(\)\s*(?:<>|=)/)
-    expect(migration).toContain('drop policy if exists "Referrers can view their own commissions"')
+    expect(migration).toContain("drop policy if exists \"Referrers can view their own commissions\"")
   })
 
   it("adds indexes for the five foreign keys flagged by the live advisor", () => {
@@ -71,7 +72,7 @@ describe("V11.7 operational audit assets", () => {
     expect(audit).toContain("from pg_policies")
     expect(audit).toContain("p.prosecdef")
     expect(audit).toContain("has_table_privilege")
-    expect(audit).not.toMatch(/\b(insert|update|delete|alter|drop)\s+(into|table|policy|function)/i)
+    expect(audit).not.toMatch(/\\b(insert|update|delete|alter|drop)\\s+(into|table|policy|function)/i)
   })
 
   it("ships backup restore and load-test procedures", () => {

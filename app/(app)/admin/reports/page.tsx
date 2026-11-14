@@ -1,4 +1,4 @@
-import { requireAdmin } from "@/lib/admin"
+import { requireAdminMfa } from "@/lib/admin"
 import { createAdminClient } from "@/lib/supabase/admin"
 
 export const dynamic = "force-dynamic"
@@ -25,11 +25,12 @@ interface QuestionReportGroup {
  */
 async function getReports(): Promise<{ groups: QuestionReportGroup[]; total: number }> {
   const admin = createAdminClient()
-  const { data } = await admin
+  const { data, error } = await admin
     .from("question_reports")
     .select("question_id, prompt, reason, created_at")
     .order("created_at", { ascending: false })
     .limit(1000)
+  if (error) throw new Error(`Could not load student question reports: ${error.message}`)
 
   const rows = (data ?? []) as ReportRow[]
   const byQuestion = new Map<string, QuestionReportGroup>()
@@ -59,7 +60,7 @@ async function getReports(): Promise<{ groups: QuestionReportGroup[]; total: num
 }
 
 export default async function AdminReportsPage() {
-  await requireAdmin()
+  await requireAdminMfa()
   const { groups, total } = await getReports()
 
   return (

@@ -1,8 +1,8 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
-import { Icon } from "@/components/app/icon"
-import { JsonLd } from "@/components/app/json-ld"
+import { Icon } from "@/components/app-icon"
+import { JsonLd } from "@/app/json-ld"
 import { COMPANIES } from "@/lib/data/companies"
 import { SITE_NAME, SITE_URL } from "@/lib/content/blocks"
 
@@ -78,7 +78,7 @@ export default function PrepIndexPage() {
             Full prep tracks — free to start
           </p>
           <p className="max-w-md text-sm text-muted-foreground">
-            {SITE_NAME} builds you a personalised placement route with chapter lessons, practice questions, mock tests, and a Placement Readiness Index — all in one place.
+            {SITE_NAME} helps you follow structured company learning paths with chapter lessons, practice questions and mock tests.
           </p>
           <Link
             href="/auth/signup"

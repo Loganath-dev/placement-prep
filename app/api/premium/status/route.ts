@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { readEntitlement } from "@/lib/premium-guard"
+import { EntitlementUnavailableError, readEntitlement } from "@/lib/premium-guard"
 
 /**
  * Authoritative entitlement for the signed-in user. The client store reconciles
@@ -8,7 +8,18 @@ import { readEntitlement } from "@/lib/premium-guard"
  * client code that needs a fresh, trustworthy answer without a full state load.
  */
 export async function GET() {
-  const ent = await readEntitlement()
+  let ent: Awaited<ReturnType<typeof readEntitlement>>
+  try {
+    ent = await readEntitlement()
+  } catch (error) {
+    if (error instanceof EntitlementUnavailableError) {
+      return NextResponse.json(
+        { error: "Subscription status is temporarily unavailable. Your access has not been changed." },
+        { status: 503, headers: { "Cache-Control": "private, no-store", "Retry-After": "5" } },
+      )
+    }
+    throw error
+  }
   if (!ent) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 })
   }

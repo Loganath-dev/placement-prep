@@ -2,10 +2,11 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
-import { Icon } from "@/components/app/icon"
-import { JsonLd } from "@/components/app/json-ld"
+import { Icon } from "@/components/app-icon"
+import { JsonLd } from "@/app/json-ld"
 import { COMPANIES, COMPANY_BY_ID, getCompany } from "@/lib/data/companies"
 import { getSections } from "@/lib/data/content"
+import { FREE_CHAPTERS_PER_PATH } from "@/lib/access"
 import { SITE_NAME, SITE_URL } from "@/lib/content/blocks"
 import type { CompanyId } from "@/lib/types"
 
@@ -50,6 +51,9 @@ function qaPageJsonLd(companyId: CompanyId) {
   const sampleQuestions: { q: string; a: string }[] = []
   for (const section of sections) {
     for (const chapter of section.chapters) {
+      const pathId = chapter.pathId ?? section.id
+      const pathIndex = section.chapters.filter((item) => (item.pathId ?? section.id) === pathId).findIndex((item) => item.id === chapter.id)
+      if (pathIndex >= FREE_CHAPTERS_PER_PATH) continue
       const eq = chapter.quiz.find((qu) => qu.difficulty === "easy")
       if (eq) {
         sampleQuestions.push({
@@ -107,6 +111,9 @@ export default async function PrepCompanyPage({
   const sampleQs: { section: string; prompt: string; options: string[]; answer: number; explanation: string }[] = []
   for (const section of sections) {
     for (const chapter of section.chapters) {
+      const pathId = chapter.pathId ?? section.id
+      const pathIndex = section.chapters.filter((item) => (item.pathId ?? section.id) === pathId).findIndex((item) => item.id === chapter.id)
+      if (pathIndex >= FREE_CHAPTERS_PER_PATH) continue
       const eq = chapter.quiz.find((q) => q.difficulty === "easy")
       if (eq) {
         sampleQs.push({
@@ -286,7 +293,7 @@ export default async function PrepCompanyPage({
             Start your {company.short} prep today — free
           </p>
           <p className="max-w-md text-sm text-muted-foreground">
-            {SITE_NAME} gives you the full {company.name} track with lessons, practice questions, mock tests, and a Placement Readiness Index that shows exactly where you stand.
+            {SITE_NAME} gives you the {company.name} track with structured lessons, practice questions and mock tests.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3">
             <Link

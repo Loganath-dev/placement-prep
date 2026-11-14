@@ -58,7 +58,7 @@ begin
     target_expiry := null;
   elsif state_exists and current_premium and current_expiry is null then
     -- A null expiry on an active Premium row means lifetime access. Never
-    -- Never downgrade it to a finite period when the user buys another plan.
+    -- downgrade it to a finite period when the user buys another plan.
     target_expiry := null;
   else
     target_expiry := greatest(coalesce(current_expiry, now()), now())
@@ -305,8 +305,8 @@ create policy "creator access owner select" on public.creator_access
   using ((select auth.uid()) = user_id);
 
 drop policy if exists "Users can read own affiliate account" on public.affiliate_accounts;
-create policy "Users can read own affiliate account"
-  on public.affiliate_accounts for select to authenticated
+create policy "Users can read own affiliate account" on public.affiliate_accounts
+  for select to authenticated
   using ((select auth.uid()) = user_id);
 
 -- Direct commission SELECT was revoked in migration 0027. Remove the now

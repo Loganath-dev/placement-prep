@@ -1,3 +1,4 @@
+import "@/lib/server-only"
 import type { CompanyId, Difficulty, SectionId } from "@/lib/types"
 import seed from "@/lib/data/content-seed.json"
 
@@ -28,6 +29,8 @@ export interface SeedQuestion {
   /** Parallel to options: why each choice is right/wrong. */
   optionNotes: string[]
   tier: "free" | "premium"
+  /** Registered reference used to validate the concept; not an SME approval. */
+  sourceId: string
 }
 
 export const CONTENT_SEED = seed as SeedQuestion[]

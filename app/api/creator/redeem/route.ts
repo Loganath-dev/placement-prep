@@ -3,11 +3,16 @@ import { NextResponse } from "next/server"
 import { rateLimit } from "@/lib/rate-limit"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { createClient } from "@/lib/supabase/server"
+import { hasTrustedRequestOrigin } from "@/lib/security/request-origin"
 
 // New format from migration 0014: SB-XXXX-XXXX-XXXX (17 chars, e.g. SB-JVNQ-P9U4-KKWJ)
 const CODE_PATTERN = /^SB-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/
 
 export async function POST(request: Request) {
+  if (!hasTrustedRequestOrigin(request)) {
+    return NextResponse.json({ error: "Cross-origin request rejected." }, { status: 403 })
+  }
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: "Not authenticated." }, { status: 401 })

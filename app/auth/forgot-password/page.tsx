@@ -5,8 +5,8 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Icon } from "@/components/app/icon"
-import { AuthShell } from "@/components/app/auth-shared"
+import { Icon } from "@/components/app-icon"
+import { AuthShell } from "@/app/auth-shared"
 import { createClient } from "@/lib/supabase/client"
 
 export default function ForgotPasswordPage() {

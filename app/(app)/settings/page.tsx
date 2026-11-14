@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -25,44 +26,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Icon } from "@/components/app/icon"
-import { LaunchOffer } from "@/components/app/launch-offer"
-import { PageHeader } from "@/components/app/page-header"
-import { CompanyAvatar } from "@/components/app/ui-bits"
+import { Icon } from "@/components/app-icon"
+import { PageHeader } from "@/app/page-header"
+import { CompanyAvatar } from "@/app/ui-bits"
 import {
   PLAN_FEATURES,
-  PREMIUM_FOOD_COMPARISON_LABEL,
-  PREMIUM_MONTHLY_EQUIVALENT_INR,
-  premiumPriceLabel,
+  PREMIUM_ANNUAL_PRICE_INR,
+  PREMIUM_SIX_MONTH_PRICE_INR,
 } from "@/lib/access"
 import { SELECTABLE_COMPANIES, getCompany } from "@/lib/data/companies"
 import { useStore } from "@/lib/store"
-import type { CompanyId, Profile } from "@/lib/types"
-
-declare global {
-  interface Window {
-    Razorpay?: new (options: RazorpayOptions) => { open: () => void }
-  }
-}
-
-type RazorpayOptions = {
-  key: string
-  amount: number
-  currency: string
-  name: string
-  description: string
-  order_id: string
-  handler: (response: RazorpaySuccessResponse) => void
-  prefill?: { name?: string }
-  theme?: { color?: string }
-}
-
-type RazorpaySuccessResponse = {
-  razorpay_payment_id: string
-  razorpay_order_id: string
-  razorpay_signature: string
-}
-
+import type { CompanyId } from "@/lib/types"
+import { PROGRAMMING_PATHS } from "@/lib/data/programming-paths"
+import { isConfiguredAdminEmail } from "@/lib/admin-config"
+import { AdminMfaSettings } from "@/app/admin-mfa-settings"
+import { createClient as createSupabaseBrowserClient } from "@/lib/supabase/client"
 
 export default function SettingsPage() {
   const {
@@ -72,84 +50,61 @@ export default function SettingsPage() {
     setPrimary,
     addInterested,
     removeInterested,
-    updateProfile,
+    updateLearningPreferences,
     reset,
     deleteAccount,
   } = useStore()
 
-  const available = SELECTABLE_COMPANIES.filter((c) => !state.interested.includes(c.id))
-  const [checkingOut, setCheckingOut] = React.useState(false)
+  type SelectableCompanyId = Exclude<CompanyId, "general">
+  const visibleInterested = state.interested.filter(
+    (id): id is SelectableCompanyId => id !== "general",
+  )
+  const selectedLanguages = state.learningPreferences?.selectedLanguages?.length
+    ? state.learningPreferences.selectedLanguages
+    : ["lang-python"]
+  function toggleLanguage(languageId: string) {
+    const next = selectedLanguages.includes(languageId)
+      ? selectedLanguages.filter((id) => id !== languageId)
+      : [...selectedLanguages, languageId]
+    if (!next.length) {
+      toast.error("Choose at least one programming language.")
+      return
+    }
+    updateLearningPreferences({
+      focusArea: state.learningPreferences?.focusArea ?? "programming",
+      confidence: state.learningPreferences?.confidence ?? "starting",
+      dailyMinutes: state.learningPreferences?.dailyMinutes ?? 20,
+      selectedLanguages: next,
+    })
+    toast.success("Programming preferences updated")
+  }
+  const available = SELECTABLE_COMPANIES.filter(
+    (company): company is (typeof SELECTABLE_COMPANIES)[number] & { id: SelectableCompanyId } =>
+      company.id !== "general" && !visibleInterested.includes(company.id),
+  )
   const [creatorCode, setCreatorCode] = React.useState("")
   const [redeemingCode, setRedeemingCode] = React.useState(false)
   const [renderSecondarySections, setRenderSecondarySections] = React.useState(false)
+  const [isOwnerAdmin, setIsOwnerAdmin] = React.useState(false)
   const activeUntil = state.premiumUntil ?? null
-  const premiumTargetNames = (
-    state.interested.length ? state.interested : (["general"] as CompanyId[])
-  )
-    .slice(0, 3)
-    .map((id) => getCompany(id).short)
 
   React.useEffect(() => {
     const id = window.setTimeout(() => setRenderSecondarySections(true), 0)
     return () => window.clearTimeout(id)
   }, [])
 
+  React.useEffect(() => {
+    let active = true
+    void (async () => {
+      const { data } = await createSupabaseBrowserClient().auth.getUser()
+      if (active) setIsOwnerAdmin(isConfiguredAdminEmail(data.user?.email))
+    })()
+    return () => { active = false }
+  }, [])
+
   function tryAdd(id: CompanyId) {
     addInterested(id)
     toast.success(`Added ${getCompany(id).short}`)
-  }
-
-  async function startPremiumCheckout() {
-    if (checkingOut) return
-    setCheckingOut(true)
-    try {
-      await loadRazorpayCheckout()
-      const orderResponse = await fetch("/api/razorpay/order", { method: "POST" })
-      const order = await readApiJson<{ error?: string; keyId?: string; amount?: number; currency?: string; orderId?: string }>(
-        orderResponse,
-        "Could not start checkout.",
-      )
-      if (!orderResponse.ok) throw new Error(order.error ?? "Could not start checkout.")
-      if (!order.keyId || !order.amount || !order.currency || !order.orderId) {
-        throw new Error("Checkout configuration is incomplete. Please contact support.")
-      }
-      if (!window.Razorpay) throw new Error("Razorpay checkout did not load.")
-
-      const checkout = new window.Razorpay({
-        key: order.keyId,
-        amount: order.amount,
-        currency: order.currency,
-        name: "StudyBench",
-        description: "StudyBench Premium - 1 year",
-        order_id: order.orderId,
-        prefill: { name: state.profile.name },
-        theme: { color: "#2563eb" },
-        handler: async (response) => {
-          const verifyResponse = await fetch("/api/razorpay/verify", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(response),
-          })
-          const verified = await readApiJson<{ error?: string; premiumUntil?: string }>(
-            verifyResponse,
-            "Payment verification failed.",
-          )
-          if (!verifyResponse.ok) {
-            toast.error(verified.error ?? "Payment verification failed")
-            return
-          }
-          activatePremium(verified.premiumUntil)
-          toast.success("Premium activated", {
-            description: "Payment verified and your plan is active for one year.",
-          })
-        },
-      })
-      checkout.open()
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Could not start checkout")
-    } finally {
-      setCheckingOut(false)
-    }
   }
 
   async function redeemCreatorCode(event: React.FormEvent<HTMLFormElement>) {
@@ -183,8 +138,10 @@ export default function SettingsPage() {
       <PageHeader
         eyebrow="Account setup"
         title="Settings"
-        description="Subscription, target companies and your profile."
+        description="Subscription, target companies and account preferences."
       />
+
+      {isOwnerAdmin ? <AdminMfaSettings /> : null}
 
       {state.entitlementSource !== "creator" ? (
         <Card className="border-primary/20 bg-primary/5">
@@ -204,6 +161,30 @@ export default function SettingsPage() {
         </Card>
       ) : null}
 
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 font-heading text-base">
+            <Icon name="Code2" className="size-4 text-primary" /> Programming languages
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-sm text-muted-foreground">Choose the language roadmaps shown on your dashboard and learning page.</p>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {PROGRAMMING_PATHS.filter((path) => path.kind === "language").map((path) => {
+              const selected = selectedLanguages.includes(path.id)
+              return (
+                <label key={path.id} className="flex cursor-pointer items-center gap-3 rounded-xl border border-border p-3 transition-colors hover:bg-muted/40">
+                  <input type="checkbox" checked={selected} onChange={() => toggleLanguage(path.id)} className="size-4 accent-primary" />
+                  <span className="min-w-0 flex-1"><span className="block text-sm font-medium">{path.name}</span><span className="block text-xs text-muted-foreground">{path.short}</span></span>
+                  {selected ? <Icon name="CheckCircle2" className="size-4 text-primary" /> : null}
+                </label>
+              )
+            })}
+          </div>
+          <p className="text-xs text-muted-foreground">Changes are saved to your account automatically.</p>
+        </CardContent>
+      </Card>
+
       {/* Subscription */}
       <Card>
         <CardHeader>
@@ -219,7 +200,7 @@ export default function SettingsPage() {
                 {state.entitlementSource === "creator" ? "Creator access" : "Premium active"}
               </p>
               <p className="text-sm text-muted-foreground">
-                All chapters, all company depth, full PYQs, mocks and readiness unlocked.
+                All learning chapters, company tracks, full PYQs and mock assessments are unlocked.
                 {state.entitlementSource === "creator"
                   ? activeUntil
                     ? ` Creator access is valid until ${new Date(activeUntil).toLocaleDateString()}.`
@@ -230,56 +211,16 @@ export default function SettingsPage() {
               </p>
             </div>
           ) : (
-            <div className="space-y-5 rounded-2xl border border-primary/20 bg-[linear-gradient(135deg,var(--card),var(--accent))] p-5 shadow-[0_28px_70px_-52px_oklch(0.25_0.08_260_/_35%)]">
-              <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-                <div className="space-y-2">
-                  <p className="font-heading text-lg font-semibold">StudyBench Premium</p>
-                  <LaunchOffer />
-                  <p className="max-w-2xl text-sm text-muted-foreground">
-                    Pay {premiumPriceLabel()} through Razorpay to unlock deeper company
-                    preparation, more mocks and better feedback for {premiumTargetNames.join(", ")}.
-                    That is about Rs {PREMIUM_MONTHLY_EQUIVALENT_INR}/month - {PREMIUM_FOOD_COMPARISON_LABEL.toLowerCase()}.
-                  </p>
-                </div>
-                <Button
-                  size="lg"
-                  onClick={startPremiumCheckout}
-                  disabled={checkingOut}
-                  className="shrink-0"
-                >
-                  {checkingOut ? "Opening checkout..." : `Pay ${premiumPriceLabel()}`}
-                  {!checkingOut ? <Icon name="ArrowRight" className="size-4" /> : null}
-                </Button>
+            <div className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-primary/20 bg-primary/[0.04] p-5 sm:flex-row sm:items-center">
+              <div>
+                <p className="font-heading text-lg font-semibold">Choose your Premium duration</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  6 months for ₹{PREMIUM_SIX_MONTH_PRICE_INR} or 1 year for ₹{PREMIUM_ANNUAL_PRICE_INR}. Both plans unlock full access.
+                </p>
               </div>
-
-              <div className="rounded-xl border border-border/80 bg-background/80 p-4">
-                <p className="text-sm font-semibold">Why people upgrade</p>
-                <div className="mt-3 grid gap-3 text-sm text-muted-foreground sm:grid-cols-3">
-                  <p className="rounded-xl bg-muted/45 px-3 py-2">
-                    Go past the starter section and keep moving through the full track.
-                  </p>
-                  <p className="rounded-xl bg-muted/45 px-3 py-2">
-                    Practice with the full mock series instead of a single sample.
-                  </p>
-                  <p className="rounded-xl bg-muted/45 px-3 py-2">
-                    Use coding, PYQs and analytics together instead of in separate places.
-                  </p>
-                </div>
-              </div>
-
-              <div className="rounded-xl border border-border/80 bg-background/80 p-4">
-                <p className="text-sm font-semibold">What changes after you upgrade</p>
-                <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                  {PLAN_FEATURES.slice(0, 6).map((row) => (
-                    <div key={row.feature} className="rounded-xl bg-muted/45 px-3 py-2">
-                      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                        {row.feature}
-                      </p>
-                      <p className="mt-1 text-sm">{row.premium}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <Button asChild className="shrink-0">
+                <Link href="/pricing">Compare plans <Icon name="ArrowRight" className="ml-2 size-4" /></Link>
+              </Button>
             </div>
           )}
           {renderSecondarySections ? (
@@ -340,12 +281,12 @@ export default function SettingsPage() {
         <CardContent className="space-y-4">
           <div className="space-y-1.5">
             <Label className="text-sm">Primary (your dashboard focus)</Label>
-            <Select value={state.primary} onValueChange={(v) => setPrimary(v as CompanyId)}>
+            <Select value={state.primary !== "general" && visibleInterested.includes(state.primary) ? state.primary : visibleInterested[0] ?? "tcs"} onValueChange={(v) => setPrimary(v as CompanyId)}>
               <SelectTrigger className="w-full sm:w-72">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {(state.interested.length ? state.interested : (["general"] as CompanyId[])).map(
+                {(visibleInterested.length ? visibleInterested : (["tcs"] as CompanyId[])).map(
                   (id) => (
                     <SelectItem key={id} value={id}>
                       {getCompany(id).name}
@@ -359,10 +300,10 @@ export default function SettingsPage() {
           <div>
             <Label className="text-sm">Interested companies</Label>
             <div className="mt-2 space-y-2">
-              {state.interested.length === 0 ? (
+              {visibleInterested.length === 0 ? (
                 <p className="text-sm text-muted-foreground">None yet - add some below.</p>
               ) : (
-                state.interested.map((id) => (
+                visibleInterested.map((id) => (
                   <div
                     key={id}
                     className="flex items-center gap-3 rounded-xl border border-border p-2.5"
@@ -417,9 +358,6 @@ export default function SettingsPage() {
           ) : null}
         </CardContent>
       </Card>
-
-      {/* Profile */}
-      <ProfileEditor profile={state.profile} onSave={updateProfile} />
 
       {/* Notifications */}
       {renderSecondarySections ? <NotificationSettings /> : null}
@@ -482,43 +420,12 @@ async function readApiJson<T extends { error?: string }>(
     throw new Error(
       response.status === 401
         ? "Please sign in again before upgrading."
-        : "The payment endpoint returned a web page instead of JSON. Check deployment environment variables and API routing.",
+        : "The payment service is temporarily unavailable. Please try again later.",
     )
   }
 
   throw new Error(body.trim() || fallbackMessage)
 }
-
-function loadRazorpayCheckout() {
-  return new Promise<void>((resolve, reject) => {
-    if (typeof window === "undefined") {
-      reject(new Error("Checkout is available only in the browser."))
-      return
-    }
-    if (window.Razorpay) {
-      resolve()
-      return
-    }
-    const existing = document.querySelector<HTMLScriptElement>(
-      'script[src="https://checkout.razorpay.com/v1/checkout.js"]',
-    )
-    if (existing) {
-      existing.addEventListener("load", () => resolve(), { once: true })
-      existing.addEventListener("error", () => reject(new Error("Razorpay checkout failed to load.")), {
-        once: true,
-      })
-      return
-    }
-    const script = document.createElement("script")
-    script.src = "https://checkout.razorpay.com/v1/checkout.js"
-    script.async = true
-    script.onload = () => resolve()
-    script.onerror = () => reject(new Error("Razorpay checkout failed to load."))
-    document.body.appendChild(script)
-  })
-}
-
-
 
 function DeleteAccountDialog({ onConfirm }: { onConfirm: () => Promise<void> }) {
   const router = useRouter()
@@ -557,7 +464,7 @@ function DeleteAccountDialog({ onConfirm }: { onConfirm: () => Promise<void> }) 
         <DialogHeader>
           <DialogTitle>Delete your account?</DialogTitle>
           <DialogDescription>
-            This permanently erases your profile, progress, XP, streaks and subscription
+            This permanently erases your account data, progress, XP, streaks and subscription
             status. It cannot be undone. Type <strong>DELETE</strong> to confirm.
           </DialogDescription>
         </DialogHeader>
@@ -587,54 +494,6 @@ function DeleteAccountDialog({ onConfirm }: { onConfirm: () => Promise<void> }) 
   )
 }
 
-function ProfileEditor({
-  profile,
-  onSave,
-}: {
-  profile: Profile
-  onSave: (p: Partial<Profile>) => void
-}) {
-  const [draft, setDraft] = React.useState(profile)
-  const fields: { key: keyof Profile; label: string }[] = [
-    { key: "name", label: "Full name" },
-    { key: "college", label: "College" },
-    { key: "branch", label: "Branch" },
-    { key: "gradYear", label: "Graduation year" },
-    { key: "cgpa", label: "CGPA" },
-  ]
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 font-heading text-base">
-          <Icon name="User" className="size-4 text-primary" /> Profile
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid gap-4 sm:grid-cols-2">
-          {fields.map((f) => (
-            <div key={f.key} className="space-y-1.5">
-              <Label className="text-sm">{f.label}</Label>
-              <Input
-                value={draft[f.key]}
-                onChange={(e) => setDraft((d) => ({ ...d, [f.key]: e.target.value }))}
-              />
-            </div>
-          ))}
-        </div>
-        <div className="flex justify-end">
-          <Button
-            onClick={() => {
-              onSave(draft)
-              toast.success("Profile saved")
-            }}
-          >
-            Save changes
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
 
 const NOTIF_PREFS_KEY = "studybench.notifs.v1"
 const LEGACY_NOTIF_PREFS_KEY = "placeready.notifs.v1"

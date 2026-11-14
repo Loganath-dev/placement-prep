@@ -1,50 +1,69 @@
-﻿"use client"
+"use client"
 
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 import * as React from "react"
 import { toast } from "sonner"
-import { Icon } from "@/components/app/icon"
-import { PageHeader } from "@/components/app/page-header"
-import { QuizRunner } from "@/components/app/quiz-runner"
+import { Icon } from "@/components/app-icon"
+import { PageHeader } from "@/app/page-header"
+import { QuizRunner } from "@/app/quiz-runner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   canAccessChapterPractice,
   FREE_CHAPTER_PRACTICE_LIMIT,
-  FREE_SECTION_INDEX,
   lockedCount,
-  premiumPriceLabel,
   visibleForPlan,
 } from "@/lib/access"
-import {
-  chapterPracticeQuestions,
-  getSections,
-} from "@/lib/data/content"
+import { getSections } from "@/lib/data/content-catalog"
 import { useStore } from "@/lib/store"
 import type { SectionId } from "@/lib/types"
 
 export default function ChapterPracticePage() {
-  const { state, recordMistake } = useStore()
+  const { state, recordMistake, submitQuiz } = useStore()
+  const searchParams = useSearchParams()
   const sections = React.useMemo(() => getSections("general"), [])
-  const [sectionId, setSectionId] = React.useState<SectionId>(sections[0]?.id ?? "quant")
+  const requestedSection = sections.find((item) => item.id === searchParams.get("section"))
+  const [sectionId, setSectionId] = React.useState<SectionId>(requestedSection?.id ?? sections[0]?.id ?? "quant")
   const section = sections.find((s) => s.id === sectionId) ?? sections[0]
-  const [chapterId, setChapterId] = React.useState(section?.chapters[0]?.id ?? "")
+  const requestedChapter = section?.chapters.find((item) => item.id === searchParams.get("chapter"))
+  const [chapterId, setChapterId] = React.useState(requestedChapter?.id ?? section?.chapters[0]?.id ?? "")
   const chapter = section?.chapters.find((c) => c.id === chapterId) ?? section?.chapters[0]
   const [playing, setPlaying] = React.useState(false)
+  const [questions, setQuestions] = React.useState<import("@/lib/types").Question[]>([])
+  const [questionsLoading, setQuestionsLoading] = React.useState(false)
+  const [questionError, setQuestionError] = React.useState<string | null>(null)
+  const [learningRequired, setLearningRequired] = React.useState(false)
   const sectionIndex = sections.findIndex((s) => s.id === sectionId)
   const chapterIndex = section?.chapters.findIndex((c) => c.id === chapterId) ?? -1
-  const canStartPractice = canAccessChapterPractice(sectionIndex, chapterIndex, state.premium)
-  const freeSection = sections[FREE_SECTION_INDEX]
-  const freeChapter = freeSection?.chapters[0]
+  const selectedPathId = chapter?.pathId ?? section?.id
+  const selectedPathIndex = section?.chapters
+    .filter((item) => (item.pathId ?? section?.id) === selectedPathId)
+    .findIndex((item) => item.id === chapter?.id) ?? -1
+  const canStartPractice = canAccessChapterPractice(sectionIndex, chapterIndex, state.premium, selectedPathIndex)
 
-  const allQuestions = React.useMemo(
-    () => chapterPracticeQuestions("general", sectionId, chapterId),
-    [chapterId, sectionId],
-  )
-  const questions = canStartPractice
-    ? visibleForPlan(allQuestions, state.premium, FREE_CHAPTER_PRACTICE_LIMIT)
-    : []
-  const hiddenCount = lockedCount(allQuestions.length, questions.length)
+  async function startPractice() {
+    if (!canStartPractice || questionsLoading) return
+    setQuestionsLoading(true)
+    setQuestionError(null)
+    try {
+      const response = await fetch(`/api/content/chapter-practice?company=general&section=${encodeURIComponent(sectionId)}&chapter=${encodeURIComponent(chapterId)}`, { cache: "no-store" })
+      const result = await response.json()
+      if (!response.ok) {
+        setLearningRequired(Boolean(result.learningRequired))
+        throw new Error(result.error ?? "Could not load chapter practice.")
+      }
+      setQuestions(result.questions ?? [])
+      setLearningRequired(false)
+      setPlaying(true)
+    } catch (error) {
+      setQuestionError(error instanceof Error ? error.message : "Could not load chapter practice.")
+      toast.error(error instanceof Error ? error.message : "Could not load chapter practice.")
+    } finally {
+      setQuestionsLoading(false)
+    }
+  }
+
 
   if (playing) {
     return (
@@ -54,9 +73,10 @@ export default function ChapterPracticePage() {
         onReturn={() => setPlaying(false)}
         returnLabel="Practice setup"
         onMistake={recordMistake}
-        onFinish={(_results, scorePct) => {
+        onFinish={(results, scorePct) => {
+          submitQuiz({ companyId: "general", sectionId, chapterId, results: results.map((result) => ({ topic: result.topic, correct: result.correct })) })
           toast.success(`Chapter practice complete - ${scorePct}%`, {
-            description: "Wrong answers were saved to your Mistake Notebook.",
+            description: "Your score and wrong answers were saved to your progress.",
           })
         }}
         doneActions={() => (
@@ -84,8 +104,7 @@ export default function ChapterPracticePage() {
         </CardHeader>
         <CardContent className="space-y-5">
           <p className="rounded-xl bg-muted/50 p-3 text-sm text-muted-foreground">
-            Choose a section and chapter, then practise from a deep set of questions across
-            easy, medium and advanced levels.
+            Choose a learning path and chapter to practise the concepts you have studied.
           </p>
 
           <div className="grid gap-3 md:grid-cols-2">
@@ -102,16 +121,7 @@ export default function ChapterPracticePage() {
                 className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/30"
               >
                 {sections.map((s) => (
-                  <option
-                    key={s.id}
-                    value={s.id}
-                    disabled={!canAccessChapterPractice(sections.findIndex((item) => item.id === s.id), 0, state.premium)}
-                  >
-                    {s.name}
-                    {!canAccessChapterPractice(sections.findIndex((item) => item.id === s.id), 0, state.premium)
-                      ? " - Premium"
-                      : ""}
-                  </option>
+                  <option key={s.id} value={s.id}>{s.name}</option>
                 ))}
               </select>
             </label>
@@ -122,18 +132,18 @@ export default function ChapterPracticePage() {
                 onChange={(event) => setChapterId(event.target.value)}
                 className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/30"
               >
-                {(section?.chapters ?? []).map((chapterOption, optionIndex) => (
-                  <option
-                    key={chapterOption.id}
-                    value={chapterOption.id}
-                    disabled={!canAccessChapterPractice(sectionIndex, optionIndex, state.premium)}
-                  >
-                    {chapterOption.title}
-                    {!canAccessChapterPractice(sectionIndex, optionIndex, state.premium)
-                      ? " - Premium"
-                      : ""}
-                  </option>
-                ))}
+                {(section?.chapters ?? []).map((chapterOption, optionIndex) => {
+                  const optionPathId = chapterOption.pathId ?? section?.id
+                  const optionPathIndex = section?.chapters
+                    .filter((item) => (item.pathId ?? section?.id) === optionPathId)
+                    .findIndex((item) => item.id === chapterOption.id) ?? optionIndex
+                  const accessible = canAccessChapterPractice(sectionIndex, optionIndex, state.premium, optionPathIndex)
+                  return (
+                    <option key={chapterOption.id} value={chapterOption.id} disabled={!accessible}>
+                      {chapterOption.title}{!accessible ? " - Premium" : ""}
+                    </option>
+                  )
+                })}
               </select>
             </label>
           </div>
@@ -143,19 +153,26 @@ export default function ChapterPracticePage() {
               <Icon name="BookOpenCheck" className="size-7" />
             </span>
             <p className="font-medium">
-              {questions.length} practice questions for {chapter?.title ?? "selected chapter"}
+              {chapter?.title ?? "Selected chapter"} practice set
             </p>
             <p className="max-w-sm text-sm text-muted-foreground">
               {state.premium
-                ? "Practise concepts, speed and accuracy with the complete chapter set."
-                : `Free practice opens ${freeSection?.name ?? "the first section"} - ${freeChapter?.title ?? "the first chapter"} only.`}
+                ? "Finish the chapter learning cards and recap first. Then practise with new assessment questions."
+                : "Finish the free starter chapter cards first. Premium unlocks the remaining chapters and full practice sets."}
             </p>
-            <Button className="mt-1" onClick={() => setPlaying(true)} disabled={!canStartPractice}>
-              Start chapter practice <Icon name="ArrowRight" className="size-4" />
+            <Button className="mt-1" onClick={startPractice} disabled={!canStartPractice || questionsLoading}>
+              {questionsLoading ? "Loading questions…" : "Start chapter practice"} <Icon name="ArrowRight" className="size-4" />
             </Button>
           </div>
 
-          {!state.premium && (hiddenCount > 0 || !canStartPractice) ? (
+          {questionError ? <p role="alert" className="text-sm text-destructive">{questionError}</p> : null}
+          {learningRequired ? (
+            <div className="flex flex-col items-center gap-3 rounded-xl border border-primary/20 bg-primary/5 p-4 text-center">
+              <p className="text-sm">Practice unlocks after you finish every learning card and the recap.</p>
+              <Button asChild variant="outline"><Link href={`/learn/general/${sectionId}/${chapterId}`}>Start learning cards <Icon name="ArrowRight" className="size-4" /></Link></Button>
+            </div>
+          ) : null}
+          {!state.premium && !canStartPractice ? (
             <div className="flex flex-col items-center gap-2 rounded-2xl border border-primary/20 bg-primary/5 py-6 text-center">
                 <Icon name="Lock" className="size-6 text-primary" />
                 <p className="font-medium">Unlock every chapter practice set</p>
@@ -163,7 +180,7 @@ export default function ChapterPracticePage() {
                   Free gives one focused starting set. Premium opens all sections, all chapters and complete question depth.
                 </p>
                 <Button asChild className="mt-1">
-                  <Link href="/settings">Go Premium - {premiumPriceLabel()}</Link>
+                  <Link href="/pricing">View Premium plans</Link>
                 </Button>
             </div>
           ) : null}

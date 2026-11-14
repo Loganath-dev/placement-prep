@@ -19,8 +19,8 @@ import { createClient } from "@supabase/supabase-js"
 // ─── Config ────────────────────────────────────────────────────────────────
 const SITE_NAME  = "StudyBench"
 const SITE_URL   = process.env.NEXT_PUBLIC_SITE_URL || "https://studybench.in"
-const PRICE      = "₹149/year"
-const PRICE_MONTHLY = "₹12/month"
+const PRICE      = "₹299/6 months or ₹499/year"
+const PRICE_MONTHLY = "₹49.83/month on the 6-month plan or ₹41.58/month on the annual plan"
 const BATCH_DELAY_MS = 800   // stay well under Resend's rate limit
 const SUBJECT    = "Your placement cutoff is closer than you think 🎯"
 
@@ -183,8 +183,7 @@ function buildHtmlEmail({ name }) {
         <!-- Callout box -->
         <div style="background:#eff6ff;border-left:4px solid #2563eb;border-radius:8px;padding:16px 20px;margin:0 0 24px">
           <p style="margin:0;font-size:15px;color:#1e40af;font-weight:600;line-height:1.6">
-            Most students who get placed practise at least 4 full mocks before their drive.<br>
-            StudyBench Premium gives you the full mock series, the PYQ bank and the mistake tracker — all in one place.
+            Follow structured preparation paths, practise company-focused questions and review mistakes in one place.
           </p>
         </div>
 
@@ -193,15 +192,15 @@ function buildHtmlEmail({ name }) {
           ${featureRow("🎯", "Full company tracks", "All sections unlocked for TCS, Infosys, Wipro, Accenture, Zoho &amp; Cognizant — not just Section 1.")}
           ${featureRow("📝", "Complete PYQ bank", "Every previous-year question with explanations. Filter by company, topic and difficulty.")}
           ${featureRow("🧪", "Full mock series", "Company-pattern full-length mocks. See your exact score breakdown — section by section.")}
-          ${featureRow("💻", "Coding practice", "Real placement problems with hidden edge cases. Write and run code right in your browser.")}
-          ${featureRow("🔁", "Mistake notebook", "Wrong answers auto-saved and scheduled for review using spaced repetition.")}
-          ${featureRow("📊", "Placement Readiness Index", "An honest 0–100 score that tells you where you actually stand — not just where you hope to be.")}
+          ${featureRow("💻", "Programming roadmaps", "Structured language lessons, topic practice and a separate DSA learning path.")}
+          ${featureRow("🔁", "Mistake notebook", "Review questions you got wrong and revisit them during your preparation.")}
+          ${featureRow("📈", "Progress tracking", "Track completed lessons, practice activity and your learning progress.")}
         </table>
 
         <!-- Price anchor -->
         <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px 20px;margin:0 0 28px;text-align:center">
           <p style="margin:0 0 4px;font-size:24px;font-weight:800;color:#0f172a">${PRICE}</p>
-          <p style="margin:0;font-size:13px;color:#64748b">That is just ${PRICE_MONTHLY} — less than a cup of coffee.</p>
+          <p style="margin:0;font-size:13px;color:#64748b">Effective monthly equivalent: ${PRICE_MONTHLY}.</p>
           <p style="margin:6px 0 0;font-size:13px;color:#64748b">One-time payment. No subscription. No renewal surprise.</p>
         </div>
 
@@ -249,14 +248,14 @@ function buildTextEmail({ name }) {
     "",
     "You signed up for StudyBench — which means you want to be ready. But the Free plan only shows you Section 1. The real cutoff questions are in the chapters beyond that.",
     "",
-    `StudyBench Premium unlocks everything for just ${PRICE} (${PRICE_MONTHLY}):`,
+    `StudyBench Premium includes the following for ${PRICE}:`,
     "",
     "✓ Full company tracks — all sections for TCS, Infosys, Wipro, Accenture, Zoho & Cognizant",
     "✓ Complete PYQ bank with explanations",
     "✓ Full mock series — company-pattern, with score breakdown",
-    "✓ Coding practice with real placement problems",
-    "✓ Mistake notebook — spaced repetition for wrong answers",
-    "✓ Placement Readiness Index — honest 0-100 score",
+    "✓ Programming language roadmaps, SQL/DBMS and DSA lessons",
+    "✓ Mistake notebook for reviewing incorrect answers",
+    "✓ Learning progress tracking",
     "",
     "One-time payment. No subscription. No renewal surprise.",
     "",

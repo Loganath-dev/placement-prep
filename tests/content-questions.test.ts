@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { tiersFor } from "@/app/api/questions/route"
+import { questionForDelivery, tiersFor, type StoredQuestionForDelivery } from "@/app/api/questions/route"
 import { CONTENT_SEED } from "@/lib/data/content-seed"
 
 describe("tiersFor (the content gate)", () => {
@@ -59,5 +59,21 @@ describe("CONTENT_SEED integrity", () => {
     const companies = new Set(tagged.map((q) => q.companyId))
     // Differentiation comes from covering several real tracks, not just one.
     expect(companies.size, "company-specific content should span several tracks").toBeGreaterThanOrEqual(4)
+  })
+})
+
+
+describe("question delivery contract", () => {
+  it("does not expose answer keys or teaching feedback before submission", () => {
+    const stored: StoredQuestionForDelivery = {
+      id: "q-1", section: "quant", company_id: null, topic: "Percentages", difficulty: "easy",
+      prompt: "What is 10% of 50?", options: ["5", "10"], answer: 0,
+      explanation: "10% means one tenth.", option_notes: ["Correct", "Incorrect"], curated: true, tier: "premium",
+    }
+    const delivered = questionForDelivery(stored)
+    expect(delivered).toMatchObject({ id: "q-1", prompt: stored.prompt, options: stored.options })
+    expect(delivered).not.toHaveProperty("answer")
+    expect(delivered).not.toHaveProperty("explanation")
+    expect(delivered).not.toHaveProperty("option_notes")
   })
 })

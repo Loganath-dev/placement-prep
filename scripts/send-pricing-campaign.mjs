@@ -5,7 +5,7 @@ import { createClient } from "@supabase/supabase-js"
 
 const SITE_NAME = "StudyBench"
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://studybench.in"
-const PRICE_LABEL = "₹149/year"
+const PRICE_LABEL = "₹299/6 months or ₹499/year"
 const SUBJECT = "Let's get you placed (honestly) 🚀"
 const BATCH_DELAY_MS = 700
 
@@ -125,13 +125,13 @@ function buildHtmlEmail({ name }) {
         
         <p style="margin:0 0 16px;font-size:15px;color:#334155">We built StudyBench to give you one focused plan. Right now, your account is on the Free plan. It's great to sample Section 1, but if you're serious about clearing the actual company cutoffs, you should unlock <strong>StudyBench Premium</strong>.</p>
         
-        <p style="margin:0 0 16px;font-size:15px;color:#334155">Here is what you unlock for <strong>${PRICE_LABEL}</strong> (which is less than ₹13 a month):</p>
+        <p style="margin:0 0 16px;font-size:15px;color:#334155">Here is what you unlock for <strong>${PRICE_LABEL}</strong> (₹49.83/month for 6 months or ₹41.58/month for 1 year):</p>
         
         <div style="margin:0 0 24px;padding:16px;background:#f1f5f9;border-radius:12px">
           <ul style="margin:0;padding-left:20px;font-size:14px;color:#334155;line-height:1.7">
-            <li style="margin-bottom:8px"><strong>All 7 Company Tracks Unlocked</strong>: Full depth for TCS, Infosys, Wipro, Accenture, Zoho, Cognizant and General Tracks.</li>
+            <li style="margin-bottom:8px"><strong>Company learning tracks</strong>: Structured preparation across the available company tracks.</li>
             <li style="margin-bottom:8px"><strong>Realistic Mock Tests</strong>: Full company-pattern mock series with detailed analysis so you know where you stand.</li>
-            <li style="margin-bottom:8px"><strong>The Coding Ladder</strong>: Practice real placement problems with hidden edge cases and detailed editorials.</li>
+            <li style="margin-bottom:8px"><strong>Programming roadmaps</strong>: Learn C, C++, Java, Python, JavaScript, C# and PHP through structured lessons and practice.</li>
             <li style="margin-bottom:0"><strong>Spaced-Repetition mistake notebook</strong>: Automatically saves your wrong answers and schedules them for review.</li>
           </ul>
         </div>
@@ -161,11 +161,11 @@ function buildTextEmail({ name }) {
     "",
     `We built StudyBench to give you one focused plan. Right now, your account is on the Free plan. It's great to sample Section 1, but if you're serious about clearing the actual company cutoffs, you should unlock StudyBench Premium.`,
     "",
-    `Here is what you unlock for ${PRICE_LABEL} (which is less than Rs 13 a month):`,
+    `Here is what you unlock for ${PRICE_LABEL} (₹49.83/month for 6 months or ₹41.58/month for 1 year):`,
     "",
-    `* All 7 Company Tracks Unlocked: Full depth for TCS, Infosys, Wipro, Accenture, Zoho, Cognizant and General Tracks.`,
+    `* Company learning tracks: Structured preparation across the available company tracks.`,
     `* Realistic Mock Tests: Full company-pattern mock series with detailed analysis so you know where you stand.`,
-    `* The Coding Ladder: Practice real placement problems with hidden edge cases and detailed editorials.`,
+    `* Programming roadmaps: Learn C, C++, Java, Python, JavaScript, C# and PHP through structured lessons and practice.`,
     `* Spaced-Repetition mistake notebook: Automatically saves your wrong answers and schedules them for review.`,
     "",
     "No fake guarantees. Just honest readiness scores to keep you prepared.",

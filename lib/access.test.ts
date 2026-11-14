@@ -3,7 +3,6 @@ import {
   canAccessChapterPractice,
   canAccessLearningChapter,
   canAccessLearningSection,
-  canAccessMockCompany,
   FREE_CHAPTER_PRACTICE_LIMIT,
   FREE_CODING_PROBLEM_LIMIT,
   FREE_INTERVIEW_LIMIT,
@@ -11,17 +10,20 @@ import {
   FREE_MOCK_LIMIT,
   FREE_PYQ_LIMIT,
   FREE_SECTION_INDEX,
+  FREE_LESSONS_PER_PATH,
+  FREE_CHAPTERS_PER_PATH,
   lockedCount,
   PLAN_FEATURES,
   premiumPriceLabel,
   visibleCodingTestsForPlan,
+  visibleDailyChallengeQuestions,
   visibleForPlan,
   visibleMocksForPlan,
 } from "@/lib/access"
 import { MOCKS_PER_COMPANY, mocksForCompany } from "@/lib/data/mocks"
 
 describe("plan access", () => {
-  it("states that free users can enter all tracks and all of section 1", () => {
+  it("states that free users can enter every learning path and start each one", () => {
     expect(PLAN_FEATURES).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -30,27 +32,43 @@ describe("plan access", () => {
         }),
         expect.objectContaining({
           feature: "Learning chapters",
-          free: "Full Section 1 (all chapters) in every track — no cap",
-          premium: "Every section and chapter including advanced placement-level content",
+          free: "First two starter lessons in every learning path, including each programming language, DSA and SQL/DBMS",
+          premium: "Every chapter, full chapter practice sets and advanced placement-level content",
         }),
       ]),
     )
   })
 
-  it("opens all of section 1 for free users and everything for premium users", () => {
+  it("opens the first chapter of every path for free users and every chapter for premium", () => {
     expect(canAccessLearningSection(0, false)).toBe(true)
-    expect(canAccessLearningSection(1, false)).toBe(false)
+    expect(canAccessLearningSection(1, false)).toBe(true)
     expect(canAccessLearningSection(4, true)).toBe(true)
 
-    expect(canAccessLearningChapter(0, 0, false)).toBe(true)
-    expect(canAccessLearningChapter(0, 1, false)).toBe(true)
-    expect(canAccessLearningChapter(1, 0, false)).toBe(false)
-    expect(canAccessLearningChapter(5, 3, true)).toBe(true)
+    expect(canAccessLearningChapter(0, 0, false, 0)).toBe(true)
+    expect(canAccessLearningChapter(0, 1, false, 1)).toBe(false)
+    expect(canAccessLearningChapter(3, 8, false, 0)).toBe(true)
+    expect(canAccessLearningChapter(3, 9, false, 1)).toBe(false)
+    expect(canAccessLearningChapter(5, 3, true, 9)).toBe(true)
 
-    expect(canAccessChapterPractice(0, 0, false)).toBe(true)
-    expect(canAccessChapterPractice(0, 1, false)).toBe(true)
-    expect(canAccessChapterPractice(2, 0, false)).toBe(false)
-    expect(canAccessChapterPractice(2, 4, true)).toBe(true)
+    expect(canAccessChapterPractice(0, 0, false, 0)).toBe(true)
+    expect(canAccessChapterPractice(0, 1, false, 1)).toBe(false)
+    expect(canAccessChapterPractice(2, 0, false, 0)).toBe(true)
+    expect(canAccessChapterPractice(2, 4, true, 4)).toBe(true)
+  })
+
+
+  it("never widens daily-challenge questions beyond the free chapter-practice policy", () => {
+    const questions = [
+      { id: "e1", difficulty: "easy" },
+      { id: "m1", difficulty: "medium" },
+      { id: "h1", difficulty: "hard" },
+    ]
+    expect(visibleDailyChallengeQuestions(questions, false, "language")).toEqual(questions.slice(0, 2))
+    expect(visibleDailyChallengeQuestions(questions, false, "sql-dbms")).toEqual(questions.slice(0, 2))
+    expect(visibleDailyChallengeQuestions(questions, false, "dsa")).toEqual(questions)
+    expect(visibleDailyChallengeQuestions(questions, true, "language")).toEqual(questions)
+    const largeBank = Array.from({ length: FREE_CHAPTER_PRACTICE_LIMIT + 10 }, (_, index) => ({ id: String(index), difficulty: "easy" }))
+    expect(visibleDailyChallengeQuestions(largeBank, false)).toHaveLength(FREE_CHAPTER_PRACTICE_LIMIT)
   })
 
   it("keeps item-level free limits while premium receives the full list", () => {
@@ -62,6 +80,8 @@ describe("plan access", () => {
 
   it("centralizes exact free-plan quotas for each limited surface", () => {
     expect(FREE_SECTION_INDEX).toBe(0)
+    expect(FREE_LESSONS_PER_PATH).toBe(2)
+    expect(FREE_CHAPTERS_PER_PATH).toBe(1)
     expect(FREE_PYQ_LIMIT).toBe(15)
     expect(FREE_INTERVIEW_LIMIT).toBe(12)
     expect(FREE_CODING_PROBLEM_LIMIT).toBe(0)
@@ -70,19 +90,16 @@ describe("plan access", () => {
     expect(FREE_MOCK_LIMIT).toBe(1)
   })
 
-  it("locks company mocks for free users and opens the full mock series for premium users", () => {
+  it("gives free users the first paper in each company series and premium users all papers", () => {
     const coreMocks = mocksForCompany(FREE_MOCK_COMPANY)
     const tcsMocks = mocksForCompany("tcs")
 
-    expect(coreMocks).toHaveLength(MOCKS_PER_COMPANY)
+    expect(coreMocks).toHaveLength(MOCKS_PER_COMPANY + 1)
     expect(tcsMocks).toHaveLength(MOCKS_PER_COMPANY)
-    expect(canAccessMockCompany(FREE_MOCK_COMPANY, false)).toBe(true)
-    expect(canAccessMockCompany("tcs", false)).toBe(false)
-    expect(canAccessMockCompany("tcs", true)).toBe(true)
     expect(visibleMocksForPlan(coreMocks, FREE_MOCK_COMPANY, false)).toHaveLength(FREE_MOCK_LIMIT)
-    expect(visibleMocksForPlan(tcsMocks, "tcs", false)).toEqual([])
+    expect(visibleMocksForPlan(tcsMocks, "tcs", false)).toHaveLength(FREE_MOCK_LIMIT)
     expect(visibleMocksForPlan(tcsMocks, "tcs", true)).toHaveLength(MOCKS_PER_COMPANY)
-    expect(lockedCount(coreMocks.length, FREE_MOCK_LIMIT)).toBe(MOCKS_PER_COMPANY - FREE_MOCK_LIMIT)
+    expect(lockedCount(coreMocks.length, FREE_MOCK_LIMIT)).toBe(coreMocks.length - FREE_MOCK_LIMIT)
   })
 
   it("keeps hidden coding edge cases premium-only", () => {
@@ -97,6 +114,6 @@ describe("plan access", () => {
   })
 
   it("keeps premium pricing centralized", () => {
-    expect(premiumPriceLabel()).toBe("₹249/lifetime")
+    expect(premiumPriceLabel()).toBe("₹299/6 months or ₹499/year")
   })
 })

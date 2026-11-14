@@ -1,21 +1,21 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
-import { Icon } from "@/components/app/icon"
-import { JsonLd } from "@/components/app/json-ld"
-import { withBold } from "@/components/app/rich-text"
+import { Icon } from "@/components/app-icon"
+import { JsonLd } from "@/app/json-ld"
+import { withBold } from "@/app/rich-text"
 import { FAQS, faqJsonLd, type FaqItem } from "@/lib/content/faq"
 import { SITE_URL } from "@/lib/content/blocks"
 
 export const metadata: Metadata = {
   title: "Campus Placement Preparation FAQs | StudyBench",
   description:
-    "Answers to the most-asked questions about campus placement preparation: how the Placement Readiness Index works, what's free vs Premium, company tracks, content sources and data privacy.",
+    "Answers to common questions about StudyBench learning paths, free and Premium access, content sources and data privacy.",
   alternates: { canonical: `${SITE_URL}/faq` },
   openGraph: {
     title: "Campus Placement Preparation FAQs | StudyBench",
     description:
-      "How the PRI score works, what's free vs Premium, company tracks, original content policy and data protection — answered plainly.",
+      "How StudyBench learning paths work, what's free vs Premium, original content policy and data protection — answered plainly.",
     type: "website",
     url: `${SITE_URL}/faq`,
     images: [
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Campus Placement Preparation FAQs | StudyBench",
     description:
-      "How the PRI score works, what's free vs Premium, company tracks, and data protection — answered plainly.",
+      "How StudyBench learning paths work, what's free vs Premium, and data protection — answered plainly.",
   },
 }
 
@@ -55,7 +55,7 @@ export default function FaqPage() {
           Frequently asked questions
         </h1>
         <p className="mx-auto mt-2 max-w-xl text-muted-foreground">
-          Everything about preparing for campus placements with StudyBench - readiness scoring,
+          Everything about learning with StudyBench - learning paths,
           pricing, content and privacy.
         </p>
       </div>

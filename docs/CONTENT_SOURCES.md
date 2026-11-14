@@ -13,7 +13,7 @@ We never paste verbatim from copyrighted books, third-party articles, private co
 - Each source is registered in [`lib/data/sources.ts`](../lib/data/sources.ts) with an `id`, publisher, kind, note and, for official sources, a citation URL.
 - Lessons carry `sourceIds`; questions, PYQs and interview questions carry `sourceId`.
 - Source records are kept internally for governance and legal review; the student UI does not show source lines.
-- PYQs (`lib/data/pyqs.ts`) are original reconstructions in each company's test pattern. The `year` marks the pattern era, not a real paper.
+- Company-pattern practice and topic revision are original StudyBench questions. They are not historical PYQs. A question may be labelled `verified_previous_year` only when the exact paper, year and source are independently checked and recorded. Never assign a year from a seed, array position or inferred pattern era.
 - `lib/content-governance.test.ts` fails if seeded lessons, questions, PYQs, interview questions, company eligibility cards or official sources lose their source record.
 
 ## Approved Source Kinds

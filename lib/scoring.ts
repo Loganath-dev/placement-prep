@@ -1,5 +1,4 @@
-import { getCompany } from "@/lib/data/companies"
-import { getSections } from "@/lib/data/content"
+import { getSections } from "@/lib/data/content-catalog"
 import type {
   AppState,
   CompanyId,
@@ -9,14 +8,15 @@ import type {
 } from "@/lib/types"
 
 /** PRI component weights. Must sum to 1. */
-export const PRI_WEIGHTS: Record<SectionId | "mock", number> = {
-  quant: 0.2,
-  reasoning: 0.13,
-  verbal: 0.1,
-  coding: 0.22,
-  "cs-core": 0.1,
-  "comm-interview": 0.1,
-  mock: 0.15,
+export type ReadinessSectionId = Exclude<SectionId, "comm-interview">
+
+export const PRI_WEIGHTS: Record<ReadinessSectionId | "mock", number> = {
+  quant: 0.22,
+  reasoning: 0.14,
+  verbal: 0.11,
+  coding: 0.24,
+  "cs-core": 0.11,
+  mock: 0.18,
 }
 
 export const EMPTY_PROGRESS: CompanyProgress = { chapters: {}, mockScores: [] }
@@ -47,18 +47,17 @@ export function mockMastery(progress: CompanyProgress): number {
   )
 }
 
-/** 0-100 Placement Readiness Index for one company. */
+/** 0-100 learning-progress index for one company, based on recorded results. */
 export function computePRI(
   companyId: CompanyId,
   progress: CompanyProgress = EMPTY_PROGRESS,
 ): number {
-  const sectionIds: SectionId[] = [
+  const sectionIds: ReadinessSectionId[] = [
     "quant",
     "reasoning",
     "verbal",
     "coding",
     "cs-core",
-    "comm-interview",
   ]
   let pri = 0
   for (const sid of sectionIds) {
@@ -95,21 +94,7 @@ export function expectedPriGain(
   return Math.max(0, computePRI(companyId, projected) - current)
 }
 
-/**
- * Estimated placement probability. It is bounded so it never reads as a
- * guaranteed rejection or a guaranteed selection.
- */
-export function placementProbability(companyId: CompanyId, pri: number): number {
-  const c = getCompany(companyId)
-  const gap = pri - c.cutoffPRI
-  const raw = 50 + gap * c.slope
-  return Math.round(Math.min(97, Math.max(2, raw)))
-}
-
-export const PROBABILITY_DISCLAIMER =
-  "Readiness estimate based on your in-app practice - not a guarantee of selection."
-
-/** Overall readiness across interested companies; primary target is weighted 2x. */
+/** Overall learning-progress index across selected tracks; primary track is weighted 2x. */
 export function overallReadiness(state: AppState): number {
   const list = state.interested
   if (list.length === 0) return 0
@@ -126,29 +111,15 @@ export function overallReadiness(state: AppState): number {
 export type Band = { label: string; tone: "danger" | "warning" | "info" | "success" }
 
 export function priBand(pri: number): Band {
-  if (pri >= 75) return { label: "Placement-ready", tone: "success" }
+  if (pri >= 75) return { label: "Strong progress", tone: "success" }
   if (pri >= 55) return { label: "On track", tone: "info" }
-  if (pri >= 30) return { label: "Needs work", tone: "warning" }
+  if (pri >= 30) return { label: "Developing", tone: "warning" }
   return { label: "Just getting started", tone: "danger" }
 }
 
-export function probabilityBand(p: number): Band {
-  if (p >= 70) return { label: "Strong", tone: "success" }
-  if (p >= 45) return { label: "Fair", tone: "info" }
-  if (p >= 25) return { label: "Low", tone: "warning" }
-  return { label: "Very low", tone: "danger" }
-}
-
-/**
- * Readiness band derived directly from the PRI (a study signal, not a hiring
- * prediction). Preferred over a numeric "chance of getting placed", which is a
- * legal risk. Bands map to the same thresholds as priBand.
- */
+/** Readiness labels describe recorded learning progress, not hiring outcomes. */
 export function readinessBand(pri: number): Band {
-  if (pri >= 75) return { label: "Highly Ready", tone: "success" }
-  if (pri >= 55) return { label: "Ready", tone: "info" }
-  if (pri >= 30) return { label: "Developing", tone: "warning" }
-  return { label: "Beginner", tone: "danger" }
+  return priBand(pri)
 }
 
 export const READINESS_DISCLAIMER =
@@ -160,11 +131,30 @@ export const XP = {
   lesson: 25,
   quizPass: 50,
   daily: 30,
+  weekly: 100,
   mock: 100,
   streak7: 50,
   streak30: 200,
   streak100: 500,
 } as const
+
+export function quizXp(correctCount: number, firstAttempt: boolean, newlyPassed: boolean): number {
+  return (firstAttempt ? correctCount * XP.correctFirst : 0) + (newlyPassed ? XP.quizPass : 0)
+}
+
+export function dailyChallengeXp(correctCount: number, firstCompletionToday: boolean): number {
+  if (!firstCompletionToday) return 0
+  return correctCount * XP.correctFirst + XP.daily
+}
+
+export function weeklyChallengeXp(correctCount: number, firstCompletionThisWeek: boolean): number {
+  if (!firstCompletionThisWeek) return 0
+  return correctCount * XP.correctFirst + XP.weekly
+}
+
+export function firstMockXp(firstMockOnTrack: boolean): number {
+  return firstMockOnTrack ? XP.mock : 0
+}
 
 /** Cumulative XP required to reach a level: 0, 250, 600, 1100, 1800, then +900. */
 export function levelThreshold(level: number): number {

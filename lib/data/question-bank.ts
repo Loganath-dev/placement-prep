@@ -78,8 +78,9 @@ function strChoices(r: R, correct: string, distractors: string[]): Choice {
     }
   }
   const all = [correct, ...ds.slice(0, 3)]
-  let n = 1
-  while (all.length < 4) all.push(`${correct} (${n++})`)
+  if (all.length !== 4) {
+    throw new Error(`Question generator supplied fewer than three distinct distractors for: ${correct}`)
+  }
   for (let i = all.length - 1; i > 0; i--) {
     const j = Math.floor(r() * (i + 1))
     ;[all[i], all[j]] = [all[j], all[i]]
@@ -234,7 +235,7 @@ const gUnitDigit: Gen = (r) => {
     "Number System",
     "medium",
     `The unit digit of ${base}^${exp} is:`,
-    `The unit digit of ${base} repeats every 4 powers as ${cycle.join(", ")}. ${exp} mod 4 selects ${correct}.`,
+    `The last digits of successive positive powers of ${base} repeat as ${cycle.join(", ")}. The position is ((${exp} - 1) mod 4) + 1 = ${((exp - 1) % 4) + 1}, so the last digit is ${correct}.`,
     numChoices(r, correct, distractors),
   )
 }
@@ -244,13 +245,14 @@ const gPercentChangeHard: Gen = (r) => {
   const change = pick(r, [24, 40, 48, 60, 75, 80, 100])
   const up = r() > 0.45
   const next = up ? oldValue + change : oldValue - change
-  const pct = Math.round((change / oldValue) * 100)
+  const exactPct = (change / oldValue) * 100
+  const pct = Math.round(exactPct * 100) / 100
   return make(
     "Data Interpretation",
     "hard",
-    `A chart value ${up ? "rises" : "falls"} from ${oldValue} to ${next}. What is the percentage ${up ? "increase" : "decrease"}?`,
-    `Change = ${change} on the original base ${oldValue}. Percentage = ${change}/${oldValue} x 100 = ${pct}%.`,
-    numChoices(r, pct, [Math.round((change / next) * 100), pct + 5, Math.max(1, pct - 5)], (n) => `${n}%`),
+    `A chart value ${up ? "rises" : "falls"} from ${oldValue} to ${next}. What is the percentage ${up ? "increase" : "decrease"} (rounded to two decimal places)?`,
+    `Percentage change uses the ORIGINAL value as denominator: (${change} / ${oldValue}) x 100 = ${exactPct.toFixed(2)}%. The new value ${next} is not the base.`,
+    numChoices(r, pct, [Math.round((change / next) * 10000) / 100, pct + 5, Math.max(0, pct - 5)], (n) => `${n.toFixed(2)}%`),
   )
 }
 
@@ -365,7 +367,7 @@ const gCodingShift: Gen = (r) => {
     "medium",
     `If each letter is shifted forward by ${k}, then '${word}' is coded as:`,
     `Shift every letter ${k} place(s) forward -> ${correct}.`,
-    strChoices(r, correct, [shiftWord(word, k + 1), shiftWord(word, k + 2), shiftWord(word, Math.max(1, k - 1))]),
+    strChoices(r, correct, [shiftWord(word, k + 1), shiftWord(word, k + 2), shiftWord(word, k + 3)]),
   )
 }
 

@@ -1,9 +1,9 @@
 /**
  * Shared sliding-window rate limiter.
  *
- * Production requires Upstash Redis. The Redis EVAL script is one atomic
- * operation, so concurrent instances cannot race between counting and adding.
- * The memory adapter is local-development-only; production failures fail closed.
+ * Production requires Upstash Redis. The Lua script runs atomically, so two
+ * server instances cannot both pass the limit between separate count/add calls.
+ * The in-memory adapter is local-development-only; production failures fail closed.
  */
 
 export interface RateLimitResult {
@@ -53,7 +53,8 @@ redis.call('PEXPIRE', key, windowMs)
 return {1, count + 1}
 `
 
-class UpstashRestAdapter implements RateLimitAdapter {
+/** Exported to support direct tests of the Redis adapter without live credentials. */
+export class UpstashRestAdapter implements RateLimitAdapter {
   constructor(
     private readonly url: string,
     private readonly token: string,
@@ -87,13 +88,16 @@ class UpstashRestAdapter implements RateLimitAdapter {
       if (!response.ok) throw new Error(`Upstash responded ${response.status}`)
 
       const payload = await response.json() as ({ result?: unknown; error?: string }[])
-      const result = payload[0]
-      if (!result || result.error != null || !Array.isArray(result.result)) {
-        throw new Error(result?.error ?? "Invalid Upstash rate-limit response")
+      const command = payload[0]
+      if (!command || command.error != null || !Array.isArray(command.result)) {
+        throw new Error(command?.error ?? "Invalid Upstash rate-limit response")
       }
-      const [allowedValue, countValue] = result.result
+
+      const [allowedValue, countValue] = command.result
       const count = Number(countValue)
-      if (!Number.isFinite(count)) throw new Error("Invalid Upstash rate-limit count")
+      if (!Number.isFinite(count) || (Number(allowedValue) !== 0 && Number(allowedValue) !== 1)) {
+        throw new Error("Invalid Upstash rate-limit result")
+      }
       return { allowed: Number(allowedValue) === 1, remaining: Math.max(0, limit - count) }
     } catch (error) {
       console.error("[rate-limit] Upstash check failed:", error)
@@ -119,10 +123,19 @@ function getAdapter(): RateLimitAdapter {
   return adapter
 }
 
+/** Override the adapter (tests, or a custom backend). */
 export function setRateLimitAdapter(value: RateLimitAdapter): void {
   adapter = value
 }
 
-export async function rateLimit(key: string, limit: number, windowMs: number): Promise<RateLimitResult> {
+/**
+ * Record a hit for `key` and report whether it is within `limit` per `windowMs`.
+ * Async because the production adapter performs a network round-trip.
+ */
+export async function rateLimit(
+  key: string,
+  limit: number,
+  windowMs: number,
+): Promise<RateLimitResult> {
   return getAdapter().check(key, limit, windowMs)
 }

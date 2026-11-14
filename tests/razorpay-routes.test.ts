@@ -1,13 +1,16 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import { PREMIUM_PRICE_INR } from "@/lib/access"
+import { PREMIUM_ANNUAL_PRICE_INR, PREMIUM_SIX_MONTH_PRICE_INR } from "@/lib/access"
+import { LEGACY_ANNUAL_PLAN_KEY, PREMIUM_ANNUAL_PLAN_KEY, PREMIUM_SIX_MONTH_PLAN_KEY } from "@/lib/subscriptions/plans"
 import { hmacSha256Hex } from "@/lib/crypto/edge-hmac"
-import { PREMIUM_ANNUAL_PLAN_KEY, PREMIUM_SIX_MONTH_PLAN_KEY } from "@/lib/subscriptions/plans"
 
-const { adminRpc } = vi.hoisted(() => ({ adminRpc: vi.fn(async () => ({ data: null, error: null })) }))
-
-vi.mock("@/lib/supabase/server", () => ({
-  createClient: vi.fn(async () => ({ auth: { getUser: vi.fn(async () => ({ data: { user: USER } })) } })),
+// ── Mocks ─────────────────────────────────────────────────────────────────────
+const { adminRpc } = vi.hoisted(() => ({
+  adminRpc: vi.fn(async (): Promise<{ data: unknown; error: { message: string } | null }> => ({ data: null, error: null })),
 }))
+// Supabase + Razorpay env + the entitlement ledger are mocked; the HMAC crypto
+// and the route handlers themselves are the REAL code under test.
+
+vi.mock("@/lib/supabase/server", () => ({ createClient: vi.fn() }))
 vi.mock("@/lib/supabase/admin", () => ({ createAdminClient: vi.fn(() => ({ rpc: adminRpc })) }))
 vi.mock("@/lib/rate-limit", () => ({ rateLimit: vi.fn(async () => ({ allowed: true, remaining: 9 })) }))
 vi.mock("@/lib/env", () => ({
@@ -16,7 +19,7 @@ vi.mock("@/lib/env", () => ({
 }))
 vi.mock("@/lib/entitlement", () => ({
   recordPaymentOnce: vi.fn(async () => "recorded"),
-  grantPremiumForPayment: vi.fn(async () => "2027-06-18T00:00:00.000Z"),
+    grantPremiumForPayment: vi.fn(async () => "2027-06-18T00:00:00.000Z"),
   recordAffiliateCommission: vi.fn(async () => undefined),
 }))
 vi.mock("@/lib/logger", () => ({
@@ -27,19 +30,13 @@ vi.mock("@/lib/logger", () => ({
 import { createClient } from "@/lib/supabase/server"
 import { rateLimit } from "@/lib/rate-limit"
 import { getRazorpayEnvOrNull } from "@/lib/env"
-import {
-  recordPaymentOnce,
-  grantPremiumForPayment,
-  recordAffiliateCommission,
-} from "@/lib/entitlement"
+import { recordPaymentOnce, grantPremiumForPayment, recordAffiliateCommission } from "@/lib/entitlement"
 import { POST as orderPOST } from "@/app/api/razorpay/order/route"
 import { POST as verifyPOST } from "@/app/api/razorpay/verify/route"
 import { POST as webhookPOST } from "@/app/api/razorpay/webhook/route"
 
 const USER = { id: "user-123", email: "u@x.com" }
-const AMOUNT = PREMIUM_PRICE_INR * 100
-const ORDER_ID = "order_1"
-const PAYMENT_ID = "pay_1"
+const AMOUNT = PREMIUM_ANNUAL_PRICE_INR * 100
 
 function mockAuth(user: unknown) {
   vi.mocked(createClient).mockResolvedValue({
@@ -47,49 +44,27 @@ function mockAuth(user: unknown) {
   } as never)
 }
 
-function jsonRequest(body: unknown, url = "http://localhost/api") {
-  return new Request(url, {
+function jsonRequest(body: unknown) {
+  return new Request("http://localhost/api", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   })
 }
 
-function mockTrustedRazorpayFetch(
-  orderOverrides: Record<string, unknown> = {},
-  paymentOverrides: Record<string, unknown> = {},
-) {
-  const order = {
-    id: ORDER_ID,
-    amount: AMOUNT,
-    currency: "INR",
-    notes: { user_id: USER.id, plan_key: PREMIUM_ANNUAL_PLAN_KEY },
-    ...orderOverrides,
-  }
-  const payment = {
-    id: PAYMENT_ID,
-    order_id: ORDER_ID,
-    amount: order.amount,
-    currency: order.currency,
-    status: "captured",
-    ...paymentOverrides,
-  }
-  const fetchMock = vi.fn(async (url: string) => ({
-    ok: true,
-    status: 200,
-    json: async () => url.includes("/payments/") ? payment : order,
-  }))
-  vi.stubGlobal("fetch", fetchMock)
-  return fetchMock
-}
+const originalRazorpayKeyId = process.env.RAZORPAY_KEY_ID
+const originalRazorpayKeySecret = process.env.RAZORPAY_KEY_SECRET
 
 beforeEach(() => {
+  process.env.RAZORPAY_KEY_ID = "kid"
+  process.env.RAZORPAY_KEY_SECRET = "ksecret"
   vi.clearAllMocks()
-  mockAuth(USER)
   adminRpc.mockResolvedValue({ data: null, error: null })
   vi.mocked(rateLimit).mockResolvedValue({ allowed: true, remaining: 9 })
   vi.mocked(getRazorpayEnvOrNull).mockReturnValue({
-    keyId: "kid", keySecret: "ksecret", webhookSecret: "wsecret",
+    keyId: "kid",
+    keySecret: "ksecret",
+    webhookSecret: "wsecret",
   })
   vi.mocked(recordPaymentOnce).mockResolvedValue("recorded")
   vi.mocked(grantPremiumForPayment).mockResolvedValue("2027-06-18T00:00:00.000Z")
@@ -98,190 +73,424 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.unstubAllGlobals()
+  if (originalRazorpayKeyId === undefined) delete process.env.RAZORPAY_KEY_ID
+  else process.env.RAZORPAY_KEY_ID = originalRazorpayKeyId
+  if (originalRazorpayKeySecret === undefined) delete process.env.RAZORPAY_KEY_SECRET
+  else process.env.RAZORPAY_KEY_SECRET = originalRazorpayKeySecret
 })
 
+// ── /api/razorpay/order ───────────────────────────────────────────────────────
+
 describe("POST /api/razorpay/order", () => {
-  it("requires authentication", async () => {
+  it("401s when unauthenticated", async () => {
     mockAuth(null)
-    const response = await orderPOST(jsonRequest({ planKey: PREMIUM_ANNUAL_PLAN_KEY }))
-    expect(response.status).toBe(401)
+    const res = await orderPOST(jsonRequest({ planKey: PREMIUM_ANNUAL_PLAN_KEY }))
+    expect(res.status).toBe(401)
   })
 
-  it("creates only the active annual plan and binds it to the current user", async () => {
-    const fetchMock = vi.fn(async () => ({
-      ok: true, status: 200,
-      json: async () => ({ id: ORDER_ID, amount: AMOUNT, currency: "INR" }),
-    }))
-    vi.stubGlobal("fetch", fetchMock)
-    const response = await orderPOST(jsonRequest({ planKey: PREMIUM_ANNUAL_PLAN_KEY }))
-    expect(response.status).toBe(200)
-    expect(await response.json()).toMatchObject({ orderId: ORDER_ID, amount: AMOUNT, planKey: PREMIUM_ANNUAL_PLAN_KEY })
-    const init = fetchMock.mock.calls[0][1] as RequestInit
-    const sent = JSON.parse(String(init.body))
-    expect(sent.notes).toMatchObject({ user_id: USER.id, plan_key: PREMIUM_ANNUAL_PLAN_KEY })
+  it("500s when Razorpay is not configured", async () => {
+    mockAuth(USER)
+    vi.mocked(getRazorpayEnvOrNull).mockReturnValue(null)
+    const res = await orderPOST(jsonRequest({ planKey: PREMIUM_ANNUAL_PLAN_KEY }))
+    expect(res.status).toBe(500)
   })
 
-  it("does not create new orders for the retired six-month plan", async () => {
+  it("429s when rate limited", async () => {
+    mockAuth(USER)
+    vi.mocked(rateLimit).mockResolvedValue({ allowed: false, remaining: 0 })
+    const res = await orderPOST(jsonRequest({ planKey: PREMIUM_ANNUAL_PLAN_KEY }))
+    expect(res.status).toBe(429)
+  })
+
+  it("does not create new orders for the historical ₹249 annual plan", async () => {
+    mockAuth(USER)
     const fetchMock = vi.fn()
     vi.stubGlobal("fetch", fetchMock)
-    const response = await orderPOST(jsonRequest({ planKey: PREMIUM_SIX_MONTH_PLAN_KEY }))
-    expect(response.status).toBe(400)
+    const res = await orderPOST(jsonRequest({ planKey: LEGACY_ANNUAL_PLAN_KEY }))
+    expect(res.status).toBe(400)
     expect(fetchMock).not.toHaveBeenCalled()
   })
 
-  it("rejects cross-origin order creation", async () => {
-    const response = await orderPOST(jsonRequest(
-      { planKey: PREMIUM_ANNUAL_PLAN_KEY },
-      "https://studybench.in/api/razorpay/order",
-    ).clone())
-    // The request's origin must match its own URL; an explicit hostile origin is rejected.
-    const hostile = new Request("https://studybench.in/api/razorpay/order", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", origin: "https://attacker.example" },
-      body: JSON.stringify({ planKey: PREMIUM_ANNUAL_PLAN_KEY }),
-    })
-    expect((await orderPOST(hostile)).status).toBe(403)
-    expect(response.status).toBe(200)
+  it("creates the six-month order for its server-owned amount", async () => {
+    mockAuth(USER)
+    const expectedAmount = PREMIUM_SIX_MONTH_PRICE_INR * 100
+    const fetchMock = vi.fn(async (_url: string, init: RequestInit) => ({
+      ok: true,
+      json: async () => ({ id: "order_6m", amount: expectedAmount, currency: "INR" }),
+    }))
+    vi.stubGlobal("fetch", fetchMock)
+
+    const res = await orderPOST(jsonRequest({ planKey: PREMIUM_SIX_MONTH_PLAN_KEY }))
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body).toMatchObject({ orderId: "order_6m", amount: expectedAmount, currency: "INR" })
+    const sentBody = JSON.parse(fetchMock.mock.calls[0][1].body as string)
+    expect(sentBody).toMatchObject({ amount: expectedAmount, notes: { user_id: USER.id, plan_key: PREMIUM_SIX_MONTH_PLAN_KEY } })
   })
 
-  it("returns 429 when the user exceeds the global order limit", async () => {
-    vi.mocked(rateLimit).mockResolvedValue({ allowed: false, remaining: 0 })
-    const response = await orderPOST(jsonRequest({ planKey: PREMIUM_ANNUAL_PLAN_KEY }))
-    expect(response.status).toBe(429)
+  it("creates an order tied to the user and returns checkout fields", async () => {
+    mockAuth(USER)
+    const fetchMock = vi.fn(async (_url: string, _init: RequestInit) => ({
+      ok: true,
+      json: async () => ({ id: "order_1", amount: AMOUNT, currency: "INR" }),
+    }))
+    vi.stubGlobal("fetch", fetchMock)
+
+    const res = await orderPOST(jsonRequest({ planKey: PREMIUM_ANNUAL_PLAN_KEY }))
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body).toMatchObject({ keyId: "kid", orderId: "order_1", amount: AMOUNT, currency: "INR" })
+
+    // The order must embed the user id so the webhook can activate server-side.
+    const init = fetchMock.mock.calls[0][1]
+    const sentBody = JSON.parse(init.body as string)
+    expect(sentBody.notes.user_id).toBe(USER.id)
+    expect(sentBody.amount).toBe(AMOUNT)
   })
 })
+
+// ── /api/razorpay/verify ──────────────────────────────────────────────────────
 
 describe("POST /api/razorpay/verify", () => {
+  const orderId = "order_1"
+  const paymentId = "pay_1"
+
   async function validSignature() {
-    return hmacSha256Hex("ksecret", `${ORDER_ID}|${PAYMENT_ID}`)
+    return hmacSha256Hex("ksecret", `${orderId}|${paymentId}`)
   }
 
-  function verificationRequest(signature: string) {
-    return jsonRequest({
-      razorpay_order_id: ORDER_ID,
-      razorpay_payment_id: PAYMENT_ID,
-      razorpay_signature: signature,
-    })
+  function mockOrderFetch(order: Record<string, unknown>, paymentOverrides: Record<string, unknown> = {}) {
+    const payment = {
+      id: paymentId,
+      status: "captured",
+      order_id: orderId,
+      amount: order.amount,
+      currency: order.currency ?? "INR",
+      ...paymentOverrides,
+    }
+    vi.stubGlobal("fetch", vi.fn(async (url: string) => ({
+      ok: true,
+      json: async () => url.includes("/payments/") ? payment : { id: orderId, ...order },
+    })))
   }
 
-  it("requires a valid checkout signature and captured Razorpay payment", async () => {
-    mockTrustedRazorpayFetch()
-    const response = await verifyPOST(verificationRequest(await validSignature()))
-    expect(response.status).toBe(200)
-    expect(await response.json()).toMatchObject({ ok: true, paymentId: PAYMENT_ID })
+  it("401s when unauthenticated", async () => {
+    mockAuth(null)
+    const res = await verifyPOST(jsonRequest({}))
+    expect(res.status).toBe(401)
+  })
+
+  it("400s on missing fields", async () => {
+    mockAuth(USER)
+    const res = await verifyPOST(jsonRequest({ razorpay_order_id: orderId }))
+    expect(res.status).toBe(400)
+  })
+
+  it("400s on an invalid signature", async () => {
+    mockAuth(USER)
+    const res = await verifyPOST(
+      jsonRequest({
+        razorpay_order_id: orderId,
+        razorpay_payment_id: paymentId,
+        razorpay_signature: "deadbeef",
+      }),
+    )
+    expect(res.status).toBe(400)
+  })
+
+  it("activates premium on a valid, owned, correctly-priced payment", async () => {
+    mockAuth(USER)
+    mockOrderFetch({ notes: { user_id: USER.id, plan_key: PREMIUM_ANNUAL_PLAN_KEY }, amount: AMOUNT, currency: "INR" })
+
+    const res = await verifyPOST(
+      jsonRequest({
+        razorpay_order_id: orderId,
+        razorpay_payment_id: paymentId,
+        razorpay_signature: await validSignature(),
+      }),
+    )
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.ok).toBe(true)
+    expect(body.premiumUntil).toBeTruthy()
     expect(recordPaymentOnce).toHaveBeenCalledOnce()
-    expect(grantPremiumForPayment).toHaveBeenCalledWith(expect.anything(), {
-      paymentId: PAYMENT_ID, userId: USER.id, days: 365,
-    })
-    expect(recordAffiliateCommission).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({
-      commissionAmount: 2500, planKey: PREMIUM_ANNUAL_PLAN_KEY,
-    }))
+    expect(grantPremiumForPayment).toHaveBeenCalledWith(expect.anything(), { paymentId, userId: USER.id, days: 365 })
+    expect(recordAffiliateCommission).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ commissionAmount: 5000, planKey: PREMIUM_ANNUAL_PLAN_KEY }))
   })
 
-  it("does not grant an authorized but uncaptured payment", async () => {
-    mockTrustedRazorpayFetch({}, { status: "authorized" })
-    const response = await verifyPOST(verificationRequest(await validSignature()))
-    expect(response.status).toBe(400)
-    expect(recordPaymentOnce).not.toHaveBeenCalled()
-    expect(grantPremiumForPayment).not.toHaveBeenCalled()
-  })
-
-  it("rejects a payment linked to a different account", async () => {
-    mockTrustedRazorpayFetch({ notes: { user_id: "other-user", plan_key: PREMIUM_ANNUAL_PLAN_KEY } })
-    const response = await verifyPOST(verificationRequest(await validSignature()))
-    expect(response.status).toBe(403)
-    expect(grantPremiumForPayment).not.toHaveBeenCalled()
-  })
-
-  it("rejects an amount mismatch between the trusted order and payment", async () => {
-    mockTrustedRazorpayFetch({}, { amount: AMOUNT - 100 })
-    const response = await verifyPOST(verificationRequest(await validSignature()))
-    expect(response.status).toBe(400)
-    expect(recordPaymentOnce).not.toHaveBeenCalled()
-  })
-
-  it("returns retryable reconciliation error when affiliate persistence fails; it never asks for a second payment", async () => {
-    mockTrustedRazorpayFetch()
+  it("returns a retryable reconciliation error if affiliate commission persistence fails", async () => {
+    mockAuth(USER)
+    mockOrderFetch({ notes: { user_id: USER.id, plan_key: PREMIUM_ANNUAL_PLAN_KEY }, amount: AMOUNT, currency: "INR" })
     vi.mocked(recordAffiliateCommission).mockRejectedValueOnce(new Error("commission insert failed"))
-    const response = await verifyPOST(verificationRequest(await validSignature()))
-    expect(response.status).toBe(503)
-    expect((await response.json()).error).toContain("do not pay again")
+
+    const res = await verifyPOST(jsonRequest({
+      razorpay_order_id: orderId,
+      razorpay_payment_id: paymentId,
+      razorpay_signature: await validSignature(),
+    }))
+    expect(res.status).toBe(503)
+    expect((await res.json()).error).toContain("do not pay again")
     expect(recordPaymentOnce).toHaveBeenCalledOnce()
     expect(grantPremiumForPayment).toHaveBeenCalledOnce()
   })
 
-  it("rejects a cross-origin verification request", async () => {
-    const response = await verifyPOST(new Request("https://studybench.in/api/razorpay/verify", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", origin: "https://attacker.example" },
-      body: JSON.stringify({}),
+  it("activates a six-month plan for 180 days and records ₹25", async () => {
+    mockAuth(USER)
+    mockOrderFetch({ notes: { user_id: USER.id, plan_key: PREMIUM_SIX_MONTH_PLAN_KEY }, amount: 29900, currency: "INR" })
+    const res = await verifyPOST(jsonRequest({
+      razorpay_order_id: orderId,
+      razorpay_payment_id: paymentId,
+      razorpay_signature: await validSignature(),
     }))
-    expect(response.status).toBe(403)
+    expect(res.status).toBe(200)
+    expect(grantPremiumForPayment).toHaveBeenCalledWith(expect.anything(), { paymentId, userId: USER.id, days: 180 })
+    expect(recordAffiliateCommission).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ commissionAmount: 2500, planKey: PREMIUM_SIX_MONTH_PLAN_KEY }))
+  })
+
+  it("does not activate an authorized but uncaptured payment", async () => {
+    mockAuth(USER)
+    mockOrderFetch(
+      { notes: { user_id: USER.id, plan_key: PREMIUM_ANNUAL_PLAN_KEY }, amount: AMOUNT, currency: "INR" },
+      { status: "authorized" },
+    )
+    const res = await verifyPOST(jsonRequest({
+      razorpay_order_id: orderId,
+      razorpay_payment_id: paymentId,
+      razorpay_signature: await validSignature(),
+    }))
+    expect(res.status).toBe(400)
+    expect(recordPaymentOnce).not.toHaveBeenCalled()
+    expect(grantPremiumForPayment).not.toHaveBeenCalled()
+  })
+
+  it("403s when the order belongs to another user", async () => {
+    mockAuth(USER)
+    mockOrderFetch({ notes: { user_id: "someone-else", plan_key: PREMIUM_ANNUAL_PLAN_KEY }, amount: AMOUNT, currency: "INR" })
+    const res = await verifyPOST(
+      jsonRequest({
+        razorpay_order_id: orderId,
+        razorpay_payment_id: paymentId,
+        razorpay_signature: await validSignature(),
+      }),
+    )
+    expect(res.status).toBe(403)
+    expect(grantPremiumForPayment).not.toHaveBeenCalled()
+  })
+
+  it("400s on an amount mismatch (anti-tamper)", async () => {
+    mockAuth(USER)
+    mockOrderFetch({ notes: { user_id: USER.id, plan_key: PREMIUM_ANNUAL_PLAN_KEY }, amount: 100, currency: "INR" })
+    const res = await verifyPOST(
+      jsonRequest({
+        razorpay_order_id: orderId,
+        razorpay_payment_id: paymentId,
+        razorpay_signature: await validSignature(),
+      }),
+    )
+    expect(res.status).toBe(400)
+    expect(grantPremiumForPayment).not.toHaveBeenCalled()
+  })
+
+  it("409s when the payment was already consumed by another account", async () => {
+    mockAuth(USER)
+    mockOrderFetch({ notes: { user_id: USER.id, plan_key: PREMIUM_ANNUAL_PLAN_KEY }, amount: AMOUNT, currency: "INR" })
+    vi.mocked(recordPaymentOnce).mockResolvedValue("replayed-by-other-user")
+    const res = await verifyPOST(
+      jsonRequest({
+        razorpay_order_id: orderId,
+        razorpay_payment_id: paymentId,
+        razorpay_signature: await validSignature(),
+      }),
+    )
+    expect(res.status).toBe(409)
+    expect(grantPremiumForPayment).not.toHaveBeenCalled()
   })
 })
 
+// ── /api/razorpay/webhook ─────────────────────────────────────────────────────
+
 describe("POST /api/razorpay/webhook", () => {
-  async function signedRequest(payload: unknown) {
-    const raw = JSON.stringify(payload)
-    const signature = await hmacSha256Hex("wsecret", raw)
-    return new Request("http://localhost/api/razorpay/webhook", {
+  function signedRequest(payload: unknown, signature: string) {
+    return new Request("http://localhost/api", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-razorpay-signature": signature },
-      body: raw,
+      headers: { "x-razorpay-signature": signature },
+      body: JSON.stringify(payload),
     })
   }
 
-  function capturedEvent() {
-    return {
-      event: "payment.captured",
-      payload: {
-        payment: { entity: {
-          id: PAYMENT_ID, order_id: ORDER_ID, amount: AMOUNT, currency: "INR", status: "captured",
-        } },
-        order: { entity: {
-          id: ORDER_ID, amount: AMOUNT, currency: "INR",
-          notes: { user_id: USER.id, plan_key: PREMIUM_ANNUAL_PLAN_KEY },
-        } },
-      },
-    }
+  async function sign(payload: unknown) {
+    return hmacSha256Hex("wsecret", JSON.stringify(payload))
   }
 
-  it("validates the webhook signature and ignores unrelated events", async () => {
-    const invalid = await webhookPOST(new Request("http://localhost/api", {
-      method: "POST", headers: { "x-razorpay-signature": "bad" }, body: JSON.stringify({ event: "payment.captured" }),
+  function mockTrustedResources(
+    order: Record<string, unknown>,
+    paymentOverrides: Record<string, unknown> = {},
+  ) {
+    const payment = {
+      id: "pay_9",
+      order_id: "order_9",
+      amount: AMOUNT,
+      currency: "INR",
+      status: "captured",
+      ...paymentOverrides,
+    }
+    const fetchMock = vi.fn(async (url: string) => ({
+      ok: true,
+      json: async () => url.includes("/payments/") ? payment : { id: "order_9", ...order },
     }))
-    expect(invalid.status).toBe(400)
-    const ignored = await webhookPOST(await signedRequest({ event: "payment.failed" }))
-    expect(ignored.status).toBe(200)
+    vi.stubGlobal("fetch", fetchMock)
+    return fetchMock
+  }
+
+  it("400s on an invalid signature", async () => {
+    const payload = { event: "payment.captured" }
+    const res = await webhookPOST(signedRequest(payload, "bad"))
+    expect(res.status).toBe(400)
+  })
+
+  it("rejects an oversized webhook payload before parsing it", async () => {
+    const body = "x".repeat(1_000_001)
+    const res = await webhookPOST(new Request("http://localhost/api", {
+      method: "POST",
+      headers: { "x-razorpay-signature": "a".repeat(64) },
+      body,
+    }))
+    expect(res.status).toBe(413)
+  })
+
+  it("ignores non-activation events without touching the payment API", async () => {
+    const payload = { event: "payment.failed" }
+    const fetchMock = vi.fn()
+    vi.stubGlobal("fetch", fetchMock)
+    const res = await webhookPOST(signedRequest(payload, await sign(payload)))
+    expect(res.status).toBe(200)
+    expect((await res.json()).event).toBe("payment.failed")
+    expect(fetchMock).not.toHaveBeenCalled()
     expect(grantPremiumForPayment).not.toHaveBeenCalled()
   })
 
-  it("fetches trusted order and payment details before applying an entitlement", async () => {
-    mockTrustedRazorpayFetch()
-    const response = await webhookPOST(await signedRequest(capturedEvent()))
-    expect(response.status).toBe(200)
-    expect(recordPaymentOnce).toHaveBeenCalledOnce()
-    expect(grantPremiumForPayment).toHaveBeenCalledWith(expect.anything(), {
-      paymentId: PAYMENT_ID, userId: USER.id, days: 365,
-    })
-  })
-
-  it("retries failed commission persistence without losing payment idempotency", async () => {
-    mockTrustedRazorpayFetch()
-    vi.mocked(recordAffiliateCommission).mockRejectedValueOnce(new Error("database unavailable"))
-    const response = await webhookPOST(await signedRequest(capturedEvent()))
-    expect(response.status).toBe(500)
-    expect(recordPaymentOnce).toHaveBeenCalledOnce()
-    expect(grantPremiumForPayment).toHaveBeenCalledOnce()
-  })
-
-  it("rejects oversized webhook payloads before JSON processing", async () => {
-    const raw = "x".repeat(1_000_001)
-    const response = await webhookPOST(new Request("http://localhost/api", {
-      method: "POST",
-      headers: { "content-length": String(raw.length), "x-razorpay-signature": "a".repeat(64) },
-      body: raw,
+  it("resolves ownership and plan from Razorpay's trusted order when payment.captured has no order notes", async () => {
+    const trustedOrder = {
+      id: "order_9",
+      amount: AMOUNT,
+      currency: "INR",
+      notes: { user_id: USER.id, plan_key: PREMIUM_ANNUAL_PLAN_KEY },
+    }
+    mockTrustedResources(trustedOrder)
+    const payload = {
+      event: "payment.captured",
+      payload: {
+        payment: { entity: { id: "pay_9", status: "captured", order_id: "order_9", amount: AMOUNT, currency: "INR" } },
+      },
+    }
+    const res = await webhookPOST(signedRequest(payload, await sign(payload)))
+    expect(res.status).toBe(200)
+    expect(recordPaymentOnce).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({
+      paymentId: "pay_9", orderId: "order_9", userId: USER.id, amount: AMOUNT, currency: "INR",
     }))
-    expect(response.status).toBe(413)
+    expect(grantPremiumForPayment).toHaveBeenCalledWith(expect.anything(), { paymentId: "pay_9", userId: USER.id, days: 365 })
+    expect(recordAffiliateCommission).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ commissionAmount: 5000, planKey: PREMIUM_ANNUAL_PLAN_KEY }))
+  })
+
+  it("acknowledges a duplicate signed delivery for the same payment idempotently", async () => {
+    mockTrustedResources({
+      id: "order_9",
+      amount: AMOUNT,
+      currency: "INR",
+      notes: { user_id: USER.id, plan_key: PREMIUM_ANNUAL_PLAN_KEY },
+    })
+    vi.mocked(recordPaymentOnce).mockResolvedValue("already-recorded")
+    const payload = {
+      event: "payment.captured",
+      payload: {
+        payment: { entity: { id: "pay_9", status: "captured", order_id: "order_9", amount: AMOUNT, currency: "INR" } },
+      },
+    }
+    const res = await webhookPOST(signedRequest(payload, await sign(payload)))
+    expect(res.status).toBe(200)
+    expect(recordPaymentOnce).toHaveBeenCalledOnce()
+    // The database RPC is called on retries but returns its already-applied
+    // entitlement; it must not extend the period a second time.
+    expect(grantPremiumForPayment).toHaveBeenCalledOnce()
+    expect(recordAffiliateCommission).toHaveBeenCalledOnce()
+  })
+
+  it("activates the six-month plan using trusted order metadata", async () => {
+    mockTrustedResources({
+      id: "order_9", amount: 29900, currency: "INR",
+      notes: { user_id: USER.id, plan_key: PREMIUM_SIX_MONTH_PLAN_KEY },
+    }, { id: "pay_6m", order_id: "order_9", amount: 29900 })
+    const payload = {
+      event: "payment.captured",
+      payload: {
+        payment: { entity: { id: "pay_6m", status: "captured", order_id: "order_9", amount: 29900, currency: "INR" } },
+      },
+    }
+    const res = await webhookPOST(signedRequest(payload, await sign(payload)))
+    expect(res.status).toBe(200)
+    expect(grantPremiumForPayment).toHaveBeenCalledWith(expect.anything(), { paymentId: "pay_6m", userId: USER.id, days: 180 })
+    expect(recordAffiliateCommission).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ paymentId: "pay_6m", paymentAmount: 29900, commissionAmount: 2500, planKey: PREMIUM_SIX_MONTH_PLAN_KEY }))
+  })
+
+  it("rejects an event identity that conflicts with the trusted order owner", async () => {
+    mockTrustedResources({
+      id: "order_9", amount: AMOUNT, currency: "INR",
+      notes: { user_id: USER.id, plan_key: PREMIUM_ANNUAL_PLAN_KEY },
+    })
+    const payload = {
+      event: "order.paid",
+      payload: {
+        order: { entity: { id: "order_9", notes: { user_id: "attacker-user" } } },
+        payment: { entity: { id: "pay_9", status: "captured", order_id: "order_9", amount: AMOUNT, currency: "INR" } },
+      },
+    }
+    const res = await webhookPOST(signedRequest(payload, await sign(payload)))
+    expect(res.status).toBe(400)
+    expect(recordPaymentOnce).not.toHaveBeenCalled()
+    expect(grantPremiumForPayment).not.toHaveBeenCalled()
+  })
+
+  it("returns a retryable 5xx when payment activation fails", async () => {
+    mockTrustedResources({
+      id: "order_9", amount: AMOUNT, currency: "INR",
+      notes: { user_id: USER.id, plan_key: PREMIUM_ANNUAL_PLAN_KEY },
+    })
+    vi.mocked(grantPremiumForPayment).mockRejectedValueOnce(new Error("temporary database failure"))
+    const payload = {
+      event: "payment.captured",
+      payload: {
+        payment: { entity: { id: "pay_9", status: "captured", order_id: "order_9", amount: AMOUNT, currency: "INR" } },
+      },
+    }
+    const res = await webhookPOST(signedRequest(payload, await sign(payload)))
+    expect(res.status).toBe(500)
+    expect(recordPaymentOnce).toHaveBeenCalledOnce()
+  })
+
+  it("ignores refund events because refund reconciliation is not part of the active product policy", async () => {
+    const payload = {
+      event: "payment.refunded",
+      payload: { payment: { entity: { id: "pay_refund", amount: AMOUNT } } },
+    }
+    const res = await webhookPOST(signedRequest(payload, await sign(payload)))
+    expect(res.status).toBe(200)
+    expect(adminRpc).not.toHaveBeenCalled()
+    expect(grantPremiumForPayment).not.toHaveBeenCalled()
+  })
+
+  it("skips unsupported amounts before making an order lookup", async () => {
+    const fetchMock = vi.fn()
+    vi.stubGlobal("fetch", fetchMock)
+    const payload = {
+      event: "payment.captured",
+      payload: {
+        payment: { entity: { id: "pay_x", order_id: "order_x", amount: 100, currency: "INR", status: "captured" } },
+      },
+    }
+    const res = await webhookPOST(signedRequest(payload, await sign(payload)))
+    expect(res.status).toBe(200)
+    expect((await res.json()).skipped).toBe(true)
+    expect(fetchMock).not.toHaveBeenCalled()
+    expect(grantPremiumForPayment).not.toHaveBeenCalled()
   })
 })

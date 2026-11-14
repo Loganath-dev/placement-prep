@@ -653,7 +653,7 @@ export const BLOG_POSTS: BlogPost[] = [
         blocks: [
           {
             k: "p",
-            text: "A readiness index - and any placement-probability estimate built on it - is a study aid, not a promise. It reflects your in-app performance to help you prioritise; it does not guarantee an interview call or an offer, because final hiring decisions rest with employers. Used honestly, though, it's the best early-warning system you have.",
+            text: "A readiness index - and any hiring prediction built on it - is a study aid, not a promise. It reflects your in-app performance to help you prioritise; it does not guarantee an interview call or an offer, because final hiring decisions rest with employers. Used honestly, though, it's the best early-warning system you have.",
           },
         ],
       },
@@ -677,7 +677,7 @@ export const BLOG_POSTS: BlogPost[] = [
       "Guessing your readiness makes preparation drift toward what's comfortable.",
       "A PRI is a 0-100 per-company score across aptitude, coding, CS core, communication and mocks.",
       "An honest score counts only what you genuinely pass, so it can't be gamed.",
-      "Readiness and placement probability are estimates, not guarantees.",
+      "The index is a study-progress signal, not a prediction of hiring outcomes.",
       "Use the score to attack your weakest area first and track weekly progress.",
     ],
     faq: [
@@ -687,7 +687,7 @@ export const BLOG_POSTS: BlogPost[] = [
       },
       {
         q: "Does a high readiness score guarantee a job?",
-        a: "No. A readiness score and any placement-probability estimate are study aids that reflect your in-app performance. They help you prioritise but do not guarantee an interview or offer - hiring decisions rest with employers.",
+        a: "No. A readiness score and any hiring prediction are study aids that reflect your in-app performance. They help you prioritise but do not guarantee an interview or offer - hiring decisions rest with employers.",
       },
       {
         q: "How can I improve my placement readiness score?",

@@ -1,3 +1,5 @@
+> **Current product note (10 November 2026):** StudyBench does not publish placement-probability estimates or candidate percentiles. The readiness index is a learning-progress measure only; do not write content that implies a probability of hiring or selection.
+
 # Placement Content Playbook
 
 This document explains where StudyBench should source learning material and questions from, how to convert those resources into original app content, and what quality bar the content must pass before we claim that it helps a student get placed in a target company.

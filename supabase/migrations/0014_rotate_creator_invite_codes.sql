@@ -13,28 +13,8 @@ delete from public.creator_invite_codes
 where redeemed_by is null;
 
 -- Step 2: Insert 20 fresh creator invite codes.
--- Plaintext codes (distribute securely, NOT via public channels):
---
---   01: SB-JVNQ-P9U4-KKWJ
---   02: SB-4WQP-ATWZ-9H63
---   03: SB-3DLD-8WAR-LL2L
---   04: SB-2YAG-NQ2D-ZC2T
---   05: SB-REMC-GWJ6-KBF6
---   06: SB-J3E9-M9SG-USQ3
---   07: SB-FFSY-EXX4-KXZF
---   08: SB-XPBB-7XAS-CU5H
---   09: SB-CL5S-V3XY-BLH2
---   10: SB-GZBZ-BZY2-GY29
---   11: SB-K3G9-YB82-SPYU
---   12: SB-JB37-PN33-7ECG
---   13: SB-YF8V-MWM9-3LEG
---   14: SB-YZVB-GURZ-68E4
---   15: SB-2GRR-7GGT-SHUT
---   16: SB-TPRD-QP2H-5GKV
---   17: SB-KGYR-A2GQ-JN98
---   18: SB-LXBS-2A2V-BWKX
---   19: SB-SJRX-NUAL-ZXK7
---   20: SB-9GUC-Q5DJ-A3WZ
+-- Historical hashes only. Plaintext invite values have been removed from this source.
+-- All unredeemed invites are revoked in migration 0032.
 
 insert into public.creator_invite_codes(code_hash, label) values
   ('c63ecec508baadb81442a5df3124819bfbc3f87cd930392fb3671eff452b90c5', 'Creator 2026-01'),

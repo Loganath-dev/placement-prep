@@ -1,18 +1,21 @@
+import "@/lib/server-only"
 import type { Chapter, CompanyId, Lesson, Question, Section, SectionId } from "@/lib/types"
-import { getCompany } from "@/lib/data/companies"
-import { generateDrills } from "@/lib/data/question-bank"
+import { PROGRAMMING_CHAPTERS } from "@/lib/data/programming-curriculum"
+import { COMPANY_BY_ID, getCompany } from "@/lib/data/companies"
 import { createStableIdFactory, idKey } from "@/lib/data/stable-id"
 
 /**
- * Seeded curriculum. Content is ORIGINAL, authored in our own words by the
- * StudyBench trainer team; each lesson/question cites a sourceId for internal
- * provenance only. We never reproduce copyrighted text or proprietary
- * papers, and we do not display third-party book or author names.
+ * Seeded curriculum. Lessons and questions are written or reconstructed by
+ * the StudyBench team using the registered sources in lib/data/sources.ts.
+ * sourceId records provenance and topic references; it is not an SME-review
+ * certificate. No verbatim copyrighted passages or proprietary papers belong
+ * in this curriculum. Items must pass the content-governance review before
+ * being described publicly as independently SME-reviewed.
  *
- * Lessons are written to teach FAST: intuition first, then the method, a worked
- * example, the common mistake, and a quick exam tip. Progress is namespaced per
- * company in the store, so the same chapter ids are reused across tracks while
- * each company's progress stays independent.
+ * Lessons are designed for understanding and transfer: intuition, a worked
+ * example, independent practice, misconception feedback and a retrieval check.
+ * Progress is namespaced per company in the store, so the same chapter ids are
+ * reused across tracks while each company's progress stays independent.
  */
 
 export const SECTION_META: {
@@ -64,7 +67,7 @@ const quant: Section = {
           title: "Think in percentages",
           minutes: 6,
           body:
-            "**Why recruiters test this:** Percentages quietly power 8-10 of the ~25 quant questions in TCS NQT, Infosys and Cognizant papers — profit-loss, interest, mixtures and data interpretation are all percentage arithmetic in disguise. Master this one chapter and a third of the quant section opens up.\n\nA percentage is just a fraction with denominator 100. So **30% = 30/100 = 0.30**. When a question says \"x% of N\", the word **of means multiply**: x% of N = (x/100) x N.\n\nThe three-step method — use it every time:\n1. Convert the percentage to a fraction or decimal.\n2. Replace the word \"of\" with multiplication.\n3. Look for a fraction shortcut BEFORE multiplying.\n\nMemorise these pairs until they are instant:\n- 1/2 = 50%, 1/4 = 25%, 3/4 = 75%\n- 1/5 = 20%, 2/5 = 40%, 3/5 = 60%\n- 1/8 = 12.5%, 1/3 = 33.33%, 1/6 = 16.67%, 1/10 = 10%\n\n**Worked example:** Find 12.5% of 800. Recognise 12.5% = 1/8, so the answer is 800 / 8 = **100**. Three seconds, no long multiplication.\n\n**Worked example:** 18 is what percent of 72? Use A/B x 100 = 18/72 x 100 = **25%**. The number after the word \"of\" (here 72) ALWAYS goes in the denominator.\n\n**Common mistake:** Taking the wrong base. \"A is what % of B\" divides by B, but \"B is what % of A\" divides by A. Underline the number that follows \"of\" — that is your denominator, every single time.\n\n**Exam tip:** Toppers finish percentage questions in under 30 seconds because they translate 12.5% -> 1/8 and 16.67% -> 1/6 on sight. Drill the table above until conversion is automatic — speed here buys you time for the hard questions later in the paper.",
+            "**Why this matters:** Percentages are used throughout aptitude problems involving profit and loss, interest, mixtures, ratios and data interpretation. Understanding the base value is more important than memorising shortcuts.\n\nA percentage is just a fraction with denominator 100. So **30% = 30/100 = 0.30**. When a question says \"x% of N\", the word **of means multiply**: x% of N = (x/100) x N.\n\nThe three-step method — use it every time:\n1. Convert the percentage to a fraction or decimal.\n2. Replace the word \"of\" with multiplication.\n3. Look for a fraction shortcut BEFORE multiplying.\n\nMemorise these pairs until they are instant:\n- 1/2 = 50%, 1/4 = 25%, 3/4 = 75%\n- 1/5 = 20%, 2/5 = 40%, 3/5 = 60%\n- 1/8 = 12.5%, 1/3 = 33.33%, 1/6 = 16.67%, 1/10 = 10%\n\n**Worked example:** Find 12.5% of 800. Recognise 12.5% = 1/8, so the answer is 800 / 8 = **100**. Three seconds, no long multiplication.\n\n**Worked example:** 18 is what percent of 72? Use A/B x 100 = 18/72 x 100 = **25%**. The number after the word \"of\" (here 72) ALWAYS goes in the denominator.\n\n**Common mistake:** Taking the wrong base. \"A is what % of B\" divides by B, but \"B is what % of A\" divides by A. Underline the number that follows \"of\" — that is your denominator, every single time.\n\n**Practice tip:** Build fluency with common fraction-percentage pairs, but prioritise a correct setup and a clear explanation before trying to improve speed.",
           sourceIds: ["rs-aggarwal-quant"],
         },
         {
@@ -72,7 +75,7 @@ const quant: Section = {
           title: "Percentage change, successive change & ratios",
           minutes: 6,
           body:
-            "Percentage change has exactly one formula: **change% = (new - old) / old x 100**. The base is ALWAYS the old value. This is why a 20% rise followed by a 20% fall does NOT return to the start — the fall acts on a bigger base.\n\nFor two successive changes of a% then b%, use the one-line shortcut:\n1. Write both changes with their signs (increase +, decrease -).\n2. Apply **net = a + b + (a x b)/100**.\n3. The sign of the result tells you net increase or decrease.\n\n**Worked example:** A price rises 20% then falls 20%. Net = 20 - 20 + (20 x -20)/100 = **-4%**. In rupees: Rs 100 -> Rs 120 -> Rs 96. The money does NOT come back to 100 — this exact trap appears in nearly every TCS and Cognizant paper.\n\n**Worked example:** A value rises 10% then rises another 20%. Net = 10 + 20 + (10 x 20)/100 = **+32%**, not 30%. Successive increases compound.\n\nRatios are just fractions: a : b means a/b. To chain a : b and b : c into a : c:\n1. Scale both ratios so the shared term b becomes the same number (use the LCM).\n2. Read a : c directly from the scaled ratios.\n\n**Worked example:** a : b = 2 : 3 and b : c = 4 : 5. Make b = 12 in both: a : b = 8 : 12 and b : c = 12 : 15. So a : c = **8 : 15**.\n\n**Common mistake:** Averaging two percentages that sit on different bases — you cannot. 10% of the class and 20% of the school do not average to 15% of anything. Recover the actual counts first, then compute.\n\n**Exam tip:** Whenever you see \"successive\", reach for a + b + ab/100 instantly. It works for any two changes — two increases, two decreases, or one of each. For three changes, apply it twice.",
+            "Percentage change has exactly one formula: **change% = (new - old) / old x 100**. The base is ALWAYS the old value. This is why a 20% rise followed by a 20% fall does NOT return to the start — the fall acts on a bigger base.\n\nFor two successive changes of a% then b%, use the one-line shortcut:\n1. Write both changes with their signs (increase +, decrease -).\n2. Apply **net = a + b + (a x b)/100**.\n3. The sign of the result tells you net increase or decrease.\n\n**Worked example:** A price rises 20% then falls 20%. Net = 20 - 20 + (20 x -20)/100 = **-4%**. In rupees: Rs 100 -> Rs 120 -> Rs 96. The money does NOT come back to 100 — this is a common assessment-style trap because the percentage is applied to a changed base.\n\n**Worked example:** A value rises 10% then rises another 20%. Net = 10 + 20 + (10 x 20)/100 = **+32%**, not 30%. Successive increases compound.\n\nRatios are just fractions: a : b means a/b. To chain a : b and b : c into a : c:\n1. Scale both ratios so the shared term b becomes the same number (use the LCM).\n2. Read a : c directly from the scaled ratios.\n\n**Worked example:** a : b = 2 : 3 and b : c = 4 : 5. Make b = 12 in both: a : b = 8 : 12 and b : c = 12 : 15. So a : c = **8 : 15**.\n\n**Common mistake:** Averaging two percentages that sit on different bases — you cannot. 10% of the class and 20% of the school do not average to 15% of anything. Recover the actual counts first, then compute.\n\n**Exam tip:** Whenever you see \"successive\", reach for a + b + ab/100 instantly. It works for any two changes — two increases, two decreases, or one of each. For three changes, apply it twice.",
           sourceIds: ["rs-aggarwal-quant"],
         },
       ],
@@ -86,7 +89,7 @@ const quant: Section = {
         q("Percentages", "easy", "What percent of 400 is 100?", ["20%", "25%", "30%", "40%"], 1, "100/400 × 100 = 25%.", "indiabix-aptitude"),
         q("Percentages", "easy", "A person scored 36 out of 60. What is the percentage score?", ["55%", "60%", "65%", "70%"], 1, "36/60 × 100 = 60%.", "rs-aggarwal-quant"),
         q("Percentages", "medium", "A number is increased by 10% and then decreased by 10%. Net change:", ["+1%", "0%", "-1%", "-2%"], 2, "Net = 10 − 10 + (10 × −10)/100 = −1%. Successive changes compound, so you lose 1%.", "rs-aggarwal-quant"),
-        q("Percentages", "medium", "A price increased by 20%, then decreased by 20%. Net change:", ["0%", "+4%", "-4%", "-2%"], 2, "Net = 20 − 20 + (20 × −20)/100 = −4%. This classic trap appears in every TCS and Cognizant paper.", "rs-aggarwal-quant"),
+        q("Percentages", "medium", "A price increased by 20%, then decreased by 20%. Net change:", ["0%", "+4%", "-4%", "-2%"], 2, "Net = 20 − 20 + (20 × −20)/100 = −4%. This is a common percentage trap: the second percentage is applied to the changed value, not the original base.", "rs-aggarwal-quant"),
         q("Percentages", "medium", "If 60% of a class are boys and there are 18 girls, how many students are there?", ["30", "45", "36", "40"], 1, "Girls are 40% of class = 18, so total = 18/0.40 = 45.", "rs-aggarwal-quant"),
         q("Percentages", "medium", "x is 25% more than y. Then y is what percent less than x?", ["20%", "25%", "33.3%", "16.67%"], 0, "x = 1.25y, so y = x/1.25 = 0.8x. y is 20% less than x. The base is now x (bigger), so the percent is smaller.", "rs-aggarwal-quant"),
         q("Percentages", "medium", "A person spends 80% of their income. If savings are Rs 1,200, what is the income?", ["Rs 5,000", "Rs 6,000", "Rs 7,000", "Rs 8,000"], 1, "Savings = 20% of income = 1200, so income = 1200/0.20 = Rs 6,000.", "indiabix-aptitude"),
@@ -129,7 +132,7 @@ const quant: Section = {
           title: "The core relation and units",
           minutes: 6,
           body:
-            "**Why recruiters test this:** Every company's aptitude paper has 2-4 speed questions — plain journeys, trains, or boats. They all come from ONE relation, so this is the best effort-to-marks ratio in quant.\n\nThe single formula: **Distance = Speed x Time**. Rearrange as needed: Speed = D/T, Time = D/S. Nothing else exists in this topic — every \"hard\" question is this formula plus a units trick or a relative-speed twist.\n\nSolve any question in this order:\n1. Write down what you know: D, S or T (two of the three).\n2. Fix the units FIRST — never mix km/h with metres and seconds.\n3. Apply the formula and sanity-check the size of the answer.\n\nUnit conversion you must know cold:\n- km/h -> m/s: multiply by **5/18**\n- m/s -> km/h: multiply by **18/5**\n\n**Worked example:** Convert 72 km/h to m/s: 72 x 5/18 = **20 m/s**. (Check: 72 km in 3600 s = 72000/3600 = 20. The shortcut is just this division pre-done.)\n\nAverage speed over EQUAL DISTANCES at speeds u and v is the **harmonic mean 2uv/(u + v)** — never the simple average. Why: the slower half takes longer, so it drags the average below the midpoint.\n\n**Worked example:** Half a trip at 40 km/h, half at 60 km/h. Average = 2 x 40 x 60 / (40 + 60) = 4800/100 = **48 km/h**, not 50. The exam will offer 50 as a trap option — recognise it and smile.\n\n**Common mistake:** Averaging speeds directly. (u + v)/2 only works when the TIMES are equal, not the distances. Read which one the question fixes.\n\n**Exam tip:** The moment a question mentions metres or seconds alongside km/h, convert before doing anything else. Most wrong answers in this topic are unit errors, not logic errors.",
+            "**Why this matters:** Distance, speed and time problems test unit conversion, proportional reasoning and the ability to model a journey. The same reasoning is useful in many quantitative assessments.\n\nThe single formula: **Distance = Speed x Time**. Rearrange as needed: Speed = D/T, Time = D/S. Nothing else exists in this topic — every \"hard\" question is this formula plus a units trick or a relative-speed twist.\n\nSolve any question in this order:\n1. Write down what you know: D, S or T (two of the three).\n2. Fix the units FIRST — never mix km/h with metres and seconds.\n3. Apply the formula and sanity-check the size of the answer.\n\nUnit conversion you must know cold:\n- km/h -> m/s: multiply by **5/18**\n- m/s -> km/h: multiply by **18/5**\n\n**Worked example:** Convert 72 km/h to m/s: 72 x 5/18 = **20 m/s**. (Check: 72 km in 3600 s = 72000/3600 = 20. The shortcut is just this division pre-done.)\n\nAverage speed over EQUAL DISTANCES at speeds u and v is the **harmonic mean 2uv/(u + v)** — never the simple average. Why: the slower half takes longer, so it drags the average below the midpoint.\n\n**Worked example:** Half a trip at 40 km/h, half at 60 km/h. Average = 2 x 40 x 60 / (40 + 60) = 4800/100 = **48 km/h**, not 50. The exam will offer 50 as a trap option — recognise it and smile.\n\n**Common mistake:** Averaging speeds directly. (u + v)/2 only works when the TIMES are equal, not the distances. Read which one the question fixes.\n\n**Exam tip:** The moment a question mentions metres or seconds alongside km/h, convert before doing anything else. Most wrong answers in this topic are unit errors, not logic errors.",
           sourceIds: ["rs-aggarwal-quant", "careerride-yt"],
         },
         {
@@ -137,7 +140,7 @@ const quant: Section = {
           title: "Relative speed: trains and boats",
           minutes: 6,
           body:
-            "Two moving bodies have a **relative speed** — the speed at which the gap between them changes:\n- **Same direction:** relative speed = DIFFERENCE of speeds (the faster one slowly gains).\n- **Opposite directions:** relative speed = SUM of speeds (they close the gap from both sides).\n\nTrain questions are about WHAT LENGTH gets covered:\n1. Crossing a pole, a person, or a tree -> the train covers its **own length** only.\n2. Crossing a platform or bridge -> the train covers **its length + the platform length**.\n3. Crossing another train -> **sum of both lengths**, at their relative speed.\n4. Then: time = total length / speed (in m/s!).\n\n**Worked example:** A 120 m train at 36 km/h crosses a pole. Convert: 36 km/h = 10 m/s. Time = 120/10 = **12 s**. The platform version: same train crosses a 80 m platform -> (120 + 80)/10 = **20 s**.\n\nBoats and streams — two lines to memorise:\n- **Downstream** (with the current): speed = boat + stream\n- **Upstream** (against the current): speed = boat - stream\n\nGiven downstream speed d and upstream speed u, recover the parts: **boat = (d + u)/2** and **stream = (d - u)/2**.\n\n**Worked example:** A man rows 20 km downstream in 2 h (so 10 km/h) and 12 km upstream in 3 h (so 4 km/h). Boat speed = (10 + 4)/2 = **7 km/h**; stream = (10 - 4)/2 = **3 km/h**.\n\n**Common mistake:** Forgetting the train's own length when it crosses a platform. \"Crosses the platform\" means the LAST coach clears the FAR end — the engine travels platform + train length.\n\n**Exam tip:** TCS and Wipro love the train-crosses-man-then-platform combo: two equations, two unknowns (length and speed). Set L = (time1) x v and L + platform = (time2) x v, subtract, and v falls out instantly.",
+            "Two moving bodies have a **relative speed** — the speed at which the gap between them changes:\n- **Same direction:** relative speed = DIFFERENCE of speeds (the faster one slowly gains).\n- **Opposite directions:** relative speed = SUM of speeds (they close the gap from both sides).\n\nTrain questions are about WHAT LENGTH gets covered:\n1. Crossing a pole, a person, or a tree -> the train covers its **own length** only.\n2. Crossing a platform or bridge -> the train covers **its length + the platform length**.\n3. Crossing another train -> **sum of both lengths**, at their relative speed.\n4. Then: time = total length / speed (in m/s!).\n\n**Worked example:** A 120 m train at 36 km/h crosses a pole. Convert: 36 km/h = 10 m/s. Time = 120/10 = **12 s**. The platform version: same train crosses a 80 m platform -> (120 + 80)/10 = **20 s**.\n\nBoats and streams — two lines to memorise:\n- **Downstream** (with the current): speed = boat + stream\n- **Upstream** (against the current): speed = boat - stream\n\nGiven downstream speed d and upstream speed u, recover the parts: **boat = (d + u)/2** and **stream = (d - u)/2**.\n\n**Worked example:** A man rows 20 km downstream in 2 h (so 10 km/h) and 12 km upstream in 3 h (so 4 km/h). Boat speed = (10 + 4)/2 = **7 km/h**; stream = (10 - 4)/2 = **3 km/h**.\n\n**Common mistake:** Forgetting the train's own length when it crosses a platform. \"Crosses the platform\" means the LAST coach clears the FAR end — the engine travels platform + train length.\n\n**Problem-solving tip:** For a train crossing a platform, use total distance = train length + platform length. Write one equation for each crossing condition, keep units consistent and solve the simultaneous equations.",
           sourceIds: ["rs-aggarwal-quant"],
         },
       ],
@@ -154,7 +157,7 @@ const quant: Section = {
         q("Time-Speed-Distance", "medium", "A travels from A to B at 30 km/h and returns at 20 km/h. Average speed for the trip:", ["24 km/h", "25 km/h", "26 km/h", "22 km/h"], 0, "Harmonic mean: 2 × 30 × 20 / (30 + 20) = 1200/50 = 24 km/h.", "rs-aggarwal-quant"),
         q("Trains", "easy", "A 120 m train at 36 km/h crosses a pole in:", ["10 s", "12 s", "15 s", "20 s"], 1, "36 km/h = 10 m/s; time = 120/10 = 12 s. Crossing a pole: only the train's own length matters.", "indiabix-aptitude"),
         q("Trains", "medium", "A 150 m train at 54 km/h crosses a 225 m platform in:", ["25 s", "30 s", "35 s", "40 s"], 0, "54 km/h = 15 m/s; total distance = 150 + 225 = 375 m; time = 375/15 = 25 s.", "rs-aggarwal-quant"),
-        q("Trains", "medium", "Two trains of 100 m and 80 m move in opposite directions at 40 km/h and 50 km/h. Time to cross each other:", ["8 s", "10 s", "12 s", "14 s"], 0, "Relative speed = 90 km/h = 25 m/s; total length = 180 m; time = 180/25 = 7.2 s ≈ 8 s.", "rs-aggarwal-quant"),
+        q("Trains", "medium", "Two trains of 100 m and 80 m move in opposite directions at 40 km/h and 50 km/h. Time to cross each other:", ["7.2 s", "10 s", "12 s", "14 s"], 0, "Relative speed = 90 km/h = 25 m/s; total length = 180 m; time = 180/25 = 7.2 s.", "rs-aggarwal-quant"),
         q("Trains", "medium", "A train crosses a 500 m bridge in 50 s at 72 km/h. Length of train:", ["400 m", "450 m", "500 m", "550 m"], 2, "72 km/h = 20 m/s; total distance = 20 × 50 = 1000 m; train length = 1000 − 500 = 500 m.", "indiabix-aptitude"),
         q("Trains", "hard", "A 200 m train passes a man running at 6 km/h in the same direction in 20 s. Train's speed:", ["36 km/h", "40 km/h", "42 km/h", "48 km/h"], 2, "Relative speed = 200/20 = 10 m/s = 36 km/h. Train speed = 36 + 6 = 42 km/h.", "rs-aggarwal-quant"),
         q("Trains", "hard", "Two trains start from opposite ends of a 1000 km route at the same time. They meet after 4 hours. If one is 50 km/h faster, their speeds are:", ["100 and 150 km/h", "110 and 140 km/h", "112.5 and 137.5 km/h", "125 and 175 km/h"], 0, "Sum of speeds = 1000/4 = 250 km/h. With a 50 km/h gap: slower = (250 - 50)/2 = 100, faster = 150 km/h.", "rs-aggarwal-quant"),
@@ -189,7 +192,7 @@ const quant: Section = {
           title: "Profit, loss and discount",
           minutes: 6,
           body:
-            "**Why recruiters test this:** Profit-loss is the most reliably present topic in service-company papers — TCS, Wipro and Cognizant each carry 2-3 of these. Every single question reduces to one skill: knowing **which base the percentage sits on**.\n\nThe two base rules — tattoo these on your memory:\n1. **Profit% and Loss% always sit on the COST PRICE (CP).** Profit% = (SP - CP)/CP x 100, so SP = CP x (1 + profit%/100).\n2. **Discount always sits on the MARKED PRICE (MP).** SP = MP x (1 - discount%/100).\n\nWhy shops survive \"sales\": they mark UP from cost first, then discount from the marked price. A 40% markup followed by a 15% discount still leaves 1.40 x 0.85 = 1.19 -> **19% profit**.\n\n**Worked example:** CP = Rs 400, sold at 25% profit. SP = 400 x 1.25 = **Rs 500**.\n\n**Worked example:** A shirt marked Rs 1200 with a 10% discount sells at 1200 x 0.90 = **Rs 1080**. The discount acted on 1200 (marked price) — the shopkeeper's cost never entered the calculation.\n\n**Worked example (reverse direction):** Sold at Rs 575 with 15% profit — what was the cost? CP = 575 / 1.15 = **Rs 500**. To go backwards, DIVIDE by the multiplier; never subtract 15% of 575.\n\n**Common mistake:** Computing profit% on the selling price. If CP = 80 and SP = 100, profit% = 20/80 = 25%, NOT 20/100 = 20%. The exam always offers both numbers as options.\n\n**Exam tip:** Convert every percentage into a multiplier the moment you read it: 25% profit -> x1.25, 10% discount -> x0.90, 15% loss -> x0.85. Chain multipliers for multi-step problems and you will never lose track of the base.",
+            "**Why this matters:** Profit, loss and discount problems test percentage reasoning, cost-price/selling-price relationships and the choice of a correct reference base.\n\nThe two base rules — tattoo these on your memory:\n1. **Profit% and Loss% always sit on the COST PRICE (CP).** Profit% = (SP - CP)/CP x 100, so SP = CP x (1 + profit%/100).\n2. **Discount always sits on the MARKED PRICE (MP).** SP = MP x (1 - discount%/100).\n\nWhy shops survive \"sales\": they mark UP from cost first, then discount from the marked price. A 40% markup followed by a 15% discount still leaves 1.40 x 0.85 = 1.19 -> **19% profit**.\n\n**Worked example:** CP = Rs 400, sold at 25% profit. SP = 400 x 1.25 = **Rs 500**.\n\n**Worked example:** A shirt marked Rs 1200 with a 10% discount sells at 1200 x 0.90 = **Rs 1080**. The discount acted on 1200 (marked price) — the shopkeeper's cost never entered the calculation.\n\n**Worked example (reverse direction):** Sold at Rs 575 with 15% profit — what was the cost? CP = 575 / 1.15 = **Rs 500**. To go backwards, DIVIDE by the multiplier; never subtract 15% of 575.\n\n**Common mistake:** Computing profit% on the selling price. If CP = 80 and SP = 100, profit% = 20/80 = 25%, NOT 20/100 = 20%. The exam always offers both numbers as options.\n\n**Exam tip:** Convert every percentage into a multiplier the moment you read it: 25% profit -> x1.25, 10% discount -> x0.90, 15% loss -> x0.85. Chain multipliers for multi-step problems and you will never lose track of the base.",
           sourceIds: ["rs-aggarwal-quant"],
         },
         {
@@ -254,7 +257,7 @@ const quant: Section = {
           title: "Divisibility and unit digits",
           minutes: 6,
           body:
-            "**Why recruiters test this:** Divisibility and unit-digit questions look scary (7^35!) but take under 20 seconds with the right rule — which is exactly why companies use them: they separate students who know the patterns from those who try to brute-force.\n\nDivisibility rules — check without dividing:\n- **By 2:** last digit is even.\n- **By 3:** digit sum is divisible by 3.\n- **By 4:** the last TWO digits form a number divisible by 4.\n- **By 5:** last digit is 0 or 5.\n- **By 8:** the last THREE digits form a number divisible by 8.\n- **By 9:** digit sum is divisible by 9.\n- **By 11:** the alternating sum of digits (units - tens + hundreds - ...) is 0 or divisible by 11.\n\n**Worked example:** Is 729 divisible by 9? Digit sum = 7 + 2 + 9 = 18, and 18 is divisible by 9 -> **yes**.\n\n**Worked example:** Is 1936 divisible by 4? Look at the last two digits only: 36 / 4 = 9 -> **yes**. The 19 in front is irrelevant.\n\nUnit digits of powers repeat in cycles of length at most 4:\n1. Write the cycle for the base's last digit (for 7: **7, 9, 3, 1**; for 3: 3, 9, 7, 1; for 2: 2, 4, 8, 6).\n2. Take the exponent mod 4.\n3. Pick that position in the cycle (a remainder of 0 means the 4th term).\n\n**Worked example:** Unit digit of 7^35. Cycle of 7 is 7, 9, 3, 1. Now 35 mod 4 = 3, so take the 3rd term -> **3**.\n\n**Common mistake:** Treating remainder 0 as the 1st term of the cycle. Exponent mod 4 = 0 means the FOURTH term. Unit digit of 7^36 is 1, not 7.\n\n**Exam tip:** Use the unit digit to eliminate options before any heavy work. If the answer must end in 3, kill every option that does not — often only one survives and you never multiply at all.",
+            "**Why this matters:** Divisibility and unit-digit problems develop number sense, modular reasoning and efficient calculation without unnecessary brute force.\n\nDivisibility rules — check without dividing:\n- **By 2:** last digit is even.\n- **By 3:** digit sum is divisible by 3.\n- **By 4:** the last TWO digits form a number divisible by 4.\n- **By 5:** last digit is 0 or 5.\n- **By 8:** the last THREE digits form a number divisible by 8.\n- **By 9:** digit sum is divisible by 9.\n- **By 11:** the alternating sum of digits (units - tens + hundreds - ...) is 0 or divisible by 11.\n\n**Worked example:** Is 729 divisible by 9? Digit sum = 7 + 2 + 9 = 18, and 18 is divisible by 9 -> **yes**.\n\n**Worked example:** Is 1936 divisible by 4? Look at the last two digits only: 36 / 4 = 9 -> **yes**. The 19 in front is irrelevant.\n\nUnit digits of powers repeat in cycles of length at most 4:\n1. Write the cycle for the base's last digit (for 7: **7, 9, 3, 1**; for 3: 3, 9, 7, 1; for 2: 2, 4, 8, 6).\n2. Take the exponent mod 4.\n3. Pick that position in the cycle (a remainder of 0 means the 4th term).\n\n**Worked example:** Unit digit of 7^35. Cycle of 7 is 7, 9, 3, 1. Now 35 mod 4 = 3, so take the 3rd term -> **3**.\n\n**Common mistake:** Treating remainder 0 as the 1st term of the cycle. Exponent mod 4 = 0 means the FOURTH term. Unit digit of 7^36 is 1, not 7.\n\n**Exam tip:** Use the unit digit to eliminate options before any heavy work. If the answer must end in 3, kill every option that does not — often only one survives and you never multiply at all.",
           sourceIds: ["rs-aggarwal-quant"],
         },
         {
@@ -326,7 +329,7 @@ const reasoning: Section = {
           title: "A checklist for any series",
           minutes: 6,
           body:
-            "**Why recruiters test this:** Series questions open nearly every reasoning section — TCS, Infosys and Cognizant each carry 3-5. They are pure pattern recognition under time pressure, and a fixed checklist beats raw cleverness every time.\n\nRun this checklist IN ORDER and the rule reveals itself within seconds:\n1. **Constant difference?** Same number added each time (5, 8, 11, 14 -> +3).\n2. **Constant ratio?** Same number multiplied (4, 12, 36 -> x3).\n3. **Differences of differences?** The gaps themselves form a pattern.\n4. **Alternating?** Two separate series interleaved — check the odd terms and even terms separately.\n5. **Famous families?** Squares, cubes, primes, Fibonacci, factorials.\n\n**Worked example:** 2, 6, 12, 20, 30, ? Write the gaps underneath: 4, 6, 8, 10. The gaps grow by 2, so the next gap is 12 -> 30 + 12 = **42**. (Bonus: these are n^2 + n — both views give the same answer.)\n\n**Worked example (alternating):** 1, 10, 3, 20, 5, 30, ? The odd positions are 1, 3, 5 and the even positions are 10, 20, 30. The next term sits in the odd-position series: **7**.\n\n**For letter series:** convert letters to positions (A=1 ... Z=26) and run the same checklist on the numbers. AZ, BY, CX is just (1,26), (2,25), (3,24) — first letter +1, second letter -1.\n\n**Common mistake:** Forcing a single rule onto an interleaved series. If the gaps look chaotic but every SECOND gap looks clean, split the series into two and test each half.\n\n**Exam tip:** Physically write the gaps under the numbers — do not do it in your head. The pattern usually jumps out from the second row, and for hard series, from the third row (gaps of gaps).",
+            "**Why this matters:** Series questions assess pattern recognition and disciplined hypothesis testing. A checklist helps you test plausible rules instead of guessing from the first two terms.\n\nRun this checklist IN ORDER and the rule reveals itself within seconds:\n1. **Constant difference?** Same number added each time (5, 8, 11, 14 -> +3).\n2. **Constant ratio?** Same number multiplied (4, 12, 36 -> x3).\n3. **Differences of differences?** The gaps themselves form a pattern.\n4. **Alternating?** Two separate series interleaved — check the odd terms and even terms separately.\n5. **Famous families?** Squares, cubes, primes, Fibonacci, factorials.\n\n**Worked example:** 2, 6, 12, 20, 30, ? Write the gaps underneath: 4, 6, 8, 10. The gaps grow by 2, so the next gap is 12 -> 30 + 12 = **42**. (Bonus: these are n^2 + n — both views give the same answer.)\n\n**Worked example (alternating):** 1, 10, 3, 20, 5, 30, ? The odd positions are 1, 3, 5 and the even positions are 10, 20, 30. The next term sits in the odd-position series: **7**.\n\n**For letter series:** convert letters to positions (A=1 ... Z=26) and run the same checklist on the numbers. AZ, BY, CX is just (1,26), (2,25), (3,24) — first letter +1, second letter -1.\n\n**Common mistake:** Forcing a single rule onto an interleaved series. If the gaps look chaotic but every SECOND gap looks clean, split the series into two and test each half.\n\n**Exam tip:** Physically write the gaps under the numbers — do not do it in your head. The pattern usually jumps out from the second row, and for hard series, from the third row (gaps of gaps).",
           sourceIds: ["rs-aggarwal-reasoning"],
         },
         {
@@ -381,7 +384,7 @@ const reasoning: Section = {
           title: "Solve relations by drawing",
           minutes: 6,
           body:
-            "**Why recruiters test this:** Blood relations measure whether you can hold a chain of facts steady under pressure — the same skill as tracing code or requirements. Students who solve these in their head get them wrong; students who draw get them right. It is that simple.\n\nThe drawing system — 20 seconds to set up, saves minutes:\n1. **+ for male, - for female** next to each name.\n2. **Horizontal double line** for spouses, **single horizontal line** for siblings.\n3. **Vertical line downward** for parent -> child.\n4. Decode the statement from the speaker OUTWARD, one phrase at a time.\n\nSimplify each phrase before drawing:\n- \"father's father\" = grandfather\n- \"mother's brother\" = maternal uncle\n- \"the only daughter of my mother\" = the speaker herself (if the speaker is female)\n- \"my father's only son\" = the speaker himself (if the speaker is male)\n\n**Worked example:** A woman points to a man and says, \"His mother is the only daughter of my mother.\" Decode the inner phrase first: the only daughter of her mother is the woman herself. Substitute: \"his mother is ME.\" So she is **his mother**. Most students answer \"sister\" because they never substituted — the substitution IS the method.\n\n**Worked example:** A is B's father; B is C's sister. A is the parent of both B and C, so A is **C's father**. (Note: C's gender is unknown, but A's relation to C does not depend on it.)\n\n**Common mistake:** Assuming gender. \"B is C's sister\" tells you B is female — it tells you NOTHING about C. Exams hang wrong options on exactly this.\n\n**Exam tip:** For \"pointing to a photograph\" questions, write the speaker at the bottom of your diagram and build upward. The phrase between \"pointing to\" and the verb is always the person you must identify.",
+            "**Why this matters:** Blood-relation problems test the ability to represent constraints consistently. A small family tree or relationship table reduces working-memory errors. It is that simple.\n\nThe drawing system — 20 seconds to set up, saves minutes:\n1. **+ for male, - for female** next to each name.\n2. **Horizontal double line** for spouses, **single horizontal line** for siblings.\n3. **Vertical line downward** for parent -> child.\n4. Decode the statement from the speaker OUTWARD, one phrase at a time.\n\nSimplify each phrase before drawing:\n- \"father's father\" = grandfather\n- \"mother's brother\" = maternal uncle\n- \"the only daughter of my mother\" = the speaker herself (if the speaker is female)\n- \"my father's only son\" = the speaker himself (if the speaker is male)\n\n**Worked example:** A woman points to a man and says, \"His mother is the only daughter of my mother.\" Decode the inner phrase first: the only daughter of her mother is the woman herself. Substitute: \"his mother is ME.\" So she is **his mother**. Most students answer \"sister\" because they never substituted — the substitution IS the method.\n\n**Worked example:** A is B's father; B is C's sister. A is the parent of both B and C, so A is **C's father**. (Note: C's gender is unknown, but A's relation to C does not depend on it.)\n\n**Common mistake:** Assuming gender. \"B is C's sister\" tells you B is female — it tells you NOTHING about C. Exams hang wrong options on exactly this.\n\n**Exam tip:** For \"pointing to a photograph\" questions, write the speaker at the bottom of your diagram and build upward. The phrase between \"pointing to\" and the verb is always the person you must identify.",
           sourceIds: ["rs-aggarwal-reasoning"],
         },
         {
@@ -437,7 +440,7 @@ const reasoning: Section = {
           title: "The three code types",
           minutes: 6,
           body:
-            "**Why recruiters test this:** Coding-decoding is pattern-matching at speed — Wipro, Accenture and Cognizant use 2-4 of these per paper. Almost every question is one of just three machine types, so identification is 90% of the work.\n\nThe three code types:\n1. **Letter-shift:** every letter moves a fixed amount along the alphabet. CAT -> DBU is +1 (C->D, A->B, T->U). Find the shift from ONE letter pair, verify on the rest, then apply.\n2. **Number coding:** letters map to positions A=1 ... Z=26. The code may be the positions themselves, their sum, or their product.\n3. **Reversal / substitution:** the word is written backwards (WORD -> DROW), or whole words swap meanings (\"sky is blue\" puzzles — track the mapping word by word).\n\n**Worked example:** If CAT -> DBU (+1 shift), then DOG -> D+1, O+1, G+1 = **EPH**.\n\n**Worked example (number code):** If CAT = 24, test the sum: C=3, A=1, T=20 -> 3+1+20 = 24 ✓. Then DOG = 4+15+7 = **26**.\n\n**Worked example (wrap-around):** With a +2 shift, Y -> A and Z -> B. The alphabet is a circle — count past Z back to A. Exams love putting Y or Z in the word precisely to catch students who forget this.\n\n**Common mistake:** Finding the shift from the first letter only and applying it blindly. If C->D is +1 but A->C is +2, the shift is positional (1st letter +1, 2nd letter +2 ...) — a different machine entirely. Verify EVERY letter before answering.\n\n**Exam tip:** Write the alphabet with positions at the top of your rough sheet the moment the section starts: A1 B2 C3 ... Z26. Every coding question for the next 20 minutes becomes simple arithmetic against that one line.",
+            "**Why this matters:** Coding-decoding exercises test transformations, sequence reasoning and careful comparison. Identify the rule from enough examples before applying it.\n\nThe three code types:\n1. **Letter-shift:** every letter moves a fixed amount along the alphabet. CAT -> DBU is +1 (C->D, A->B, T->U). Find the shift from ONE letter pair, verify on the rest, then apply.\n2. **Number coding:** letters map to positions A=1 ... Z=26. The code may be the positions themselves, their sum, or their product.\n3. **Reversal / substitution:** the word is written backwards (WORD -> DROW), or whole words swap meanings (\"sky is blue\" puzzles — track the mapping word by word).\n\n**Worked example:** If CAT -> DBU (+1 shift), then DOG -> D+1, O+1, G+1 = **EPH**.\n\n**Worked example (number code):** If CAT = 24, test the sum: C=3, A=1, T=20 -> 3+1+20 = 24 ✓. Then DOG = 4+15+7 = **26**.\n\n**Worked example (wrap-around):** With a +2 shift, Y -> A and Z -> B. The alphabet is a circle — count past Z back to A. Exams love putting Y or Z in the word precisely to catch students who forget this.\n\n**Common mistake:** Finding the shift from the first letter only and applying it blindly. If C->D is +1 but A->C is +2, the shift is positional (1st letter +1, 2nd letter +2 ...) — a different machine entirely. Verify EVERY letter before answering.\n\n**Exam tip:** Write the alphabet with positions at the top of your rough sheet the moment the section starts: A1 B2 C3 ... Z26. Every coding question for the next 20 minutes becomes simple arithmetic against that one line.",
           sourceIds: ["rs-aggarwal-reasoning", "indiabix-aptitude"],
         },
         {
@@ -492,7 +495,7 @@ const reasoning: Section = {
           title: "Seating arrangements",
           minutes: 6,
           body:
-            "**Why recruiters test this:** Seating puzzles simulate requirement-juggling — holding 5-6 constraints simultaneously and finding the arrangement that satisfies all of them. Infosys and Accenture place these as their medium-hard reasoning anchors.\n\nThe order of operations:\n1. **Draw the seats first** — boxes for a row, a circle with positions for a round table.\n2. **Place absolute clues first:** \"A sits at the extreme left\", \"B is third from the right\" — these are fixed pins.\n3. **Then relative clues:** \"X is immediately left of Y\" — these attach to the pins.\n4. **Use negative clues last** (\"C is not adjacent to D\") to eliminate among remaining cases.\n\nLinear vs circular — the key differences:\n- In a circle, check whether people face the **centre** or **outward** — facing outward FLIPS everyone's left and right.\n- In a circle of n people, the seat directly opposite seat k is seat **k + n/2** (wrapping around).\n\n**Worked example:** 6 people around a circular table facing the centre. Opposite seat 2 = 2 + 3 = seat **5**. Facing the centre, seat 2's LEFT neighbour is seat 3 (clockwise) — left for the sitter is clockwise when facing inward.\n\n**Worked example (linear):** Five seats, A at the extreme left, C immediately right of A, B at the extreme right. Layout: A C _ _ B — the two flexible people fill seats 3 and 4 according to any remaining clue.\n\n**Common mistake:** Treating \"immediately right\" and \"somewhere to the right\" as the same clue. Immediately right = the very next seat. To the right = any later seat. Mixing these collapses valid cases or creates false contradictions.\n\n**Exam tip:** When a clue allows two placements, draw BOTH diagrams side by side and keep applying clues to both. The wrong one will contradict a later clue and die on its own — this is faster and safer than agonising over which branch is right.",
+            "**Why this matters:** Seating and arrangement puzzles assess how well you organise multiple constraints, eliminate contradictions and justify a final arrangement.\n\nThe order of operations:\n1. **Draw the seats first** — boxes for a row, a circle with positions for a round table.\n2. **Place absolute clues first:** \"A sits at the extreme left\", \"B is third from the right\" — these are fixed pins.\n3. **Then relative clues:** \"X is immediately left of Y\" — these attach to the pins.\n4. **Use negative clues last** (\"C is not adjacent to D\") to eliminate among remaining cases.\n\nLinear vs circular — the key differences:\n- In a circle, check whether people face the **centre** or **outward** — facing outward FLIPS everyone's left and right.\n- In a circle of n people, the seat directly opposite seat k is seat **k + n/2** (wrapping around).\n\n**Worked example:** 6 people around a circular table facing the centre. Opposite seat 2 = 2 + 3 = seat **5**. Facing the centre, seat 2's LEFT neighbour is seat 3 (clockwise) — left for the sitter is clockwise when facing inward.\n\n**Worked example (linear):** Five seats, A at the extreme left, C immediately right of A, B at the extreme right. Layout: A C _ _ B — the two flexible people fill seats 3 and 4 according to any remaining clue.\n\n**Common mistake:** Treating \"immediately right\" and \"somewhere to the right\" as the same clue. Immediately right = the very next seat. To the right = any later seat. Mixing these collapses valid cases or creates false contradictions.\n\n**Exam tip:** When a clue allows two placements, draw BOTH diagrams side by side and keep applying clues to both. The wrong one will contradict a later clue and die on its own — this is faster and safer than agonising over which branch is right.",
           sourceIds: ["rs-aggarwal-reasoning"],
         },
         {
@@ -556,7 +559,7 @@ const verbal: Section = {
           title: "Subject-verb agreement",
           minutes: 6,
           body:
-            "**Why recruiters test this:** Error-spotting is the highest-frequency verbal question in Wipro, Cognizant and Accenture papers, and 60-70% of all planted errors are subject-verb agreement. One rule family, huge mark share.\n\nThe master rule: **the verb agrees with the SUBJECT, not the nearest noun.** Exams deliberately park a plural noun right before the verb to mislead your ear.\n\nThe checking method:\n1. Find the verb.\n2. Ask \"who or what is doing this?\" — that is the subject.\n3. Mentally DELETE everything between subject and verb (usually an \"of the ...\" phrase).\n4. Match: singular subject -> singular verb.\n\n**Worked example:** \"The list of items IS on the desk.\" Delete \"of items\": the LIST is on the desk. 'Items' was bait — the subject is 'list', singular.\n\nSingular by rule — these ALWAYS take a singular verb:\n- each, every, either, neither, anyone, everyone, nobody\n- \"Each of the boys HAS a book\" — 'each' rules, not 'boys'.\n- 'The number of' is singular (\"The number of students IS rising\") but 'A number of' is plural (\"A number of students ARE absent\").\n\n**Worked example:** \"Neither the manager nor the employees WERE present.\" With neither...nor / either...or, the verb agrees with the NEARER subject — here 'employees' (plural) sits next to the verb, so 'were'.\n\n**Common mistake:** Trusting your ear instead of the rule. \"The quality of these products are good\" SOUNDS fine because 'products are' is a natural pair — but the subject is 'quality', so it must be 'IS good'. When ear and rule disagree, the rule wins.\n\n**Exam tip:** In error-spotting questions, jump straight to the verb and run the 4-step check before reading anything else. If agreement is clean, then look at tense and prepositions — in that order of likelihood.",
+            "**Why this matters:** Subject-verb agreement is a core grammar skill. It helps students detect sentence errors and write clear professional English. Assessment formats vary by employer and role.\n\nThe master rule: **the verb agrees with the SUBJECT, not the nearest noun.** Exams deliberately park a plural noun right before the verb to mislead your ear.\n\nThe checking method:\n1. Find the verb.\n2. Ask \"who or what is doing this?\" — that is the subject.\n3. Mentally DELETE everything between subject and verb (usually an \"of the ...\" phrase).\n4. Match: singular subject -> singular verb.\n\n**Worked example:** \"The list of items IS on the desk.\" Delete \"of items\": the LIST is on the desk. 'Items' was bait — the subject is 'list', singular.\n\nSingular by rule — these ALWAYS take a singular verb:\n- each, every, either, neither, anyone, everyone, nobody\n- \"Each of the boys HAS a book\" — 'each' rules, not 'boys'.\n- 'The number of' is singular (\"The number of students IS rising\") but 'A number of' is plural (\"A number of students ARE absent\").\n\n**Worked example:** \"Neither the manager nor the employees WERE present.\" With neither...nor / either...or, the verb agrees with the NEARER subject — here 'employees' (plural) sits next to the verb, so 'were'.\n\n**Common mistake:** Trusting your ear instead of the rule. \"The quality of these products are good\" SOUNDS fine because 'products are' is a natural pair — but the subject is 'quality', so it must be 'IS good'. When ear and rule disagree, the rule wins.\n\n**Exam tip:** In error-spotting questions, jump straight to the verb and run the 4-step check before reading anything else. If agreement is clean, then look at tense and prepositions — in that order of likelihood.",
           sourceIds: ["high-agg-verbal"],
         },
         {
@@ -623,6 +626,10 @@ const verbal: Section = {
         q("Para jumble", "medium", "Best opening sentence of a paragraph about photosynthesis:", ["As a result, oxygen is released.", "Plants make food using sunlight.", "This sugar is then stored.", "Therefore animals benefit."], 1, "The general topic sentence introduces the subject; the others are continuations (As a result / This / Therefore).", "high-agg-verbal"),
         q("Vocabulary", "medium", "Antonym of 'Scarce':", ["Rare", "Abundant", "Limited", "Few"], 1, "'Scarce' means in short supply; its opposite is 'abundant'.", "high-agg-verbal"),
         q("Tone", "medium", "'Sadly, the ancient forest was cleared for a car park.' The author's tone is:", ["Joyful", "Regretful", "Neutral", "Excited"], 1, "The word 'sadly' signals a regretful tone.", "high-agg-verbal"),
+        q("Reading Comprehension", "easy", "A passage says: “The library extended its hours after students requested more evening access.” Which statement is directly supported?", ["Students requested evening access","The library reduced weekend hours","All students prefer evenings","The library opened a new branch"], 0, "The passage explicitly states that students requested more evening access. It does not claim that all students prefer evenings or mention a new branch.", "studybench-original-2026"),
+        q("Reading Comprehension", "medium", "A passage states that a city planted trees along busy roads to reduce heat. Which inference is best supported?", ["Trees can help moderate roadside temperatures","Trees eliminate all traffic pollution","Roads no longer need maintenance","Every resident supports the project"], 0, "The stated purpose supports the inference that trees can help moderate heat. The other claims go beyond the passage.", "studybench-original-2026"),
+        q("Reading Comprehension", "medium", "An author writes, “The pilot programme is promising, although its long-term impact remains uncertain.” What is the tone?", ["Cautiously optimistic","Angry","Dismissive","Certain and celebratory"], 0, "“Promising” is positive, while the uncertainty qualification is cautious. Together they indicate cautious optimism.", "studybench-original-2026"),
+        q("Reading Comprehension", "medium", "A passage says, “Although the new bus route is longer, it has reduced delays by avoiding the congested market road.” Which statement best captures the main point?", ["The longer route has improved punctuality","The bus route was cancelled","The market road has no traffic","Passengers requested fewer buses"], 0, "The central claim is that the longer route reduces delays by avoiding congestion.", "studybench-original-2026")
       ],
     },
     {
@@ -733,262 +740,12 @@ const verbal: Section = {
 // ============================================================================
 const coding: Section = {
   ...SECTION_META[3],
-  chapters: [
-    {
-      id: "coding-arrays",
-      title: "Arrays & Complexity (Big-O)",
-      summary: "Reason about speed first, then turn brute force into linear time.",
-      lessons: [
-        {
-          id: "l-arr-1",
-          title: "Big-O in plain English",
-          minutes: 6,
-          body:
-            "**Why recruiters test this:** Every technical interviewer — Zoho, TCS Digital, Infosys — asks \"what is the complexity of your solution?\" within the first five minutes. Stating Big-O confidently, unprompted, is the cheapest way to sound like an engineer instead of a student.\n\nBig-O describes **how running time GROWS as the input n grows**. It ignores constants and machine speed — it captures the SHAPE of the growth.\n\nThe ladder, fastest to slowest:\n- **O(1)** — constant: same work regardless of n (array access by index, hash lookup).\n- **O(log n)** — halving: each step cuts the problem in half (binary search). For n = 1,000,000 that is only ~20 steps.\n- **O(n)** — linear: one pass over the data (a single loop, finding a max).\n- **O(n log n)** — the sorting tier (merge sort, quicksort average, built-in sorts).\n- **O(n^2)** — quadratic: a loop inside a loop (comparing every pair). Fine for n = 1,000; fatal for n = 1,000,000.\n\nHow to read complexity off code:\n1. A loop over n -> O(n).\n2. A loop INSIDE a loop, both over n -> O(n^2).\n3. Two loops one AFTER the other -> n + n = still O(n). Sequence adds; nesting multiplies.\n4. A loop that halves the range each step -> O(log n).\n\n**Worked example:** Two nested loops each running n times do n x n = **O(n^2)** work. But a loop over n containing a CONSTANT inner loop of 10 does 10n work = **O(n)** — the constant disappears.\n\n**Worked intuition:** Constraints tell you the required complexity. If n can be 10^5, an O(n^2) solution does 10^10 operations — far too slow (~1 second buys you about 10^8). You NEED O(n log n) or better. Read the constraints before choosing your approach.\n\n**Common mistake:** Calling two sequential loops O(n^2). Only nesting multiplies. Trace whether the second loop runs INSIDE each iteration of the first, or after it finishes.\n\n**Exam tip:** State complexity as part of your answer before being asked: \"This is O(n) time and O(1) space.\" Then offer the trade-off: \"I could trade memory for speed with a hash map.\" That one habit upgrades the whole interview.",
-          sourceIds: ["gfg-dsa"],
-        },
-        {
-          id: "l-arr-2",
-          title: "Hashing: trade memory for speed",
-          minutes: 6,
-          body:
-            "One idea upgrades more brute-force solutions than any other: a **hash set / hash map answers \"have I seen this value?\" in O(1) average time**. Nested loops that exist only to SEARCH can almost always be replaced by one pass plus a hash structure.\n\nThe recognition pattern — reach for hashing when the problem says:\n1. \"Find duplicates / find the first repeated element\"\n2. \"Count the frequency of each ...\"\n3. \"Do two numbers sum to a target?\"\n4. \"Has this element appeared before?\"\n\n**Worked example (Two-Sum):** Find two numbers adding to target 10 in [3, 8, 5, 2, 7].\n- Brute force: check every pair — O(n^2).\n- Hash way: walk once, storing seen values in a set. At each x, ask \"is (10 - x) already in the set?\" At 3: need 7, not seen. At 8: need 2, not seen. At 5: need 5, not seen. At 2: need 8 — SEEN ✓. Answer: (8, 2) in **O(n)** time, O(n) space.\n\n**Worked example (first repeated character):** For \"placement\": build counts in one pass {p:1, l:1, a:2, c:1, e:2, m:1, n:1, t:1}, then a second pass finds the first char with count > 1 -> **a**. Two linear passes = O(n), versus O(n^2) comparing every pair of positions.\n\nThe trade-off stated plainly: **you spend O(n) extra memory to delete a factor of n from the time.** For n = 100,000 that turns 10 billion operations into 200,000 — the interview answer is almost always \"worth it\", but SAY the trade-off aloud to show you see it.\n\n**Common mistake:** Writing a nested loop whose inner loop only checks \"does this value exist elsewhere?\" That inner loop IS a search — replace it with a set lookup and the solution drops a complexity tier.\n\n**Exam tip:** In Zoho and Infosys coding rounds, the brute-force version usually passes the visible test cases but times out on hidden large inputs. If your solution has nested loops over n, assume there is a hash (or sorting or two-pointer) version they expect — find it before submitting.",
-          sourceIds: ["gfg-dsa"],
-        },
-      ],
-      quiz: [
-        q("Arrays", "easy", "Worst-case time to access an element by index in an array:", ["O(n)", "O(1)", "O(log n)", "O(n log n)"], 1, "Arrays store elements contiguously, giving O(1) random access by index.", "gfg-dsa"),
-        q("Arrays", "easy", "Which operation on an array is O(n) in the worst case?", ["Access by index", "Search for a value", "Read first element", "Read last element"], 1, "Searching without sorting requires checking every element → O(n) worst case.", "gfg-dsa"),
-        q("Arrays", "easy", "Array size is 5. Valid indices are:", ["0 to 5", "0 to 4", "1 to 5", "1 to 4"], 1, "Arrays are 0-indexed. Indices 0,1,2,3,4 for a 5-element array.", "gfg-dsa"),
-        q("Complexity", "easy", "Which of these grows fastest as n increases?", ["O(log n)", "O(n)", "O(n log n)", "O(n^2)"], 3, "O(n²) dominates all others for large n.", "gfg-dsa"),
-        q("Complexity", "easy", "Time complexity of a single loop over n elements:", ["O(1)", "O(log n)", "O(n)", "O(n^2)"], 2, "One loop, n iterations → O(n) linear time.", "gfg-dsa"),
-        q("Complexity", "easy", "O(1) means:", ["Linear time", "Logarithmic time", "Constant time", "Quadratic time"], 2, "O(1) — constant time — means the operation takes the same time regardless of input size.", "gfg-dsa"),
-        q("Complexity", "medium", "Two nested loops each running n times:", ["O(n)", "O(n log n)", "O(n^2)", "O(2n)"], 2, "Nesting multiplies: n × n = O(n²). Two sequential loops would add: O(n) + O(n) = O(n).", "gfg-dsa"),
-        q("Complexity", "medium", "Two sequential (not nested) loops, each O(n):", ["O(n^2)", "O(2n) = O(n)", "O(n log n)", "O(log n)"], 1, "Sequential loops add: O(n) + O(n) = O(2n) = O(n). Constants are dropped in Big-O.", "gfg-dsa"),
-        q("Hashing", "easy", "Average time to check if a value exists in a hash set:", ["O(n)", "O(log n)", "O(1)", "O(n^2)"], 2, "Hash sets use direct key lookup → O(1) average (assuming uniform hash distribution).", "gfg-dsa"),
-        q("Hashing", "medium", "Best approach to find the first duplicate in an array:", ["Sort and compare adjacent", "Nested loops", "Hash set — one pass", "Count sort"], 2, "Hash set: for each element, check if seen; if yes → duplicate. O(n) time, O(n) space.", "gfg-dsa"),
-        q("Hashing", "medium", "Two-Sum: find two numbers in an array summing to target. Optimal time:", ["O(n^2)", "O(n log n)", "O(n)", "O(log n)"], 2, "One pass with a hash map: store complement (target − x) and look it up. O(n) time, O(n) space.", "gfg-dsa"),
-        q("Arrays", "medium", "Maximum subarray sum algorithm (Kadane's) runs in:", ["O(n^2)", "O(n log n)", "O(n)", "O(1)"], 2, "Kadane's algorithm is a single pass → O(n) time, O(1) space.", "gfg-dsa"),
-        q("Arrays", "medium", "Rotate an array of n elements to the right by k positions. Optimal approach:", ["Copy to new array", "Reverse sub-arrays", "Bubble k times", "Merge sort"], 1, "Reverse the whole array, then reverse [0..k-1] and [k..n-1] → O(n) time, O(1) space.", "gfg-dsa"),
-        q("Complexity", "medium", "Space complexity of an O(n) extra-space algorithm on input of size n:", ["O(1)", "O(n)", "O(n^2)", "O(log n)"], 1, "Extra space proportional to input size → O(n) space complexity.", "gfg-dsa"),
-        q("Arrays", "medium", "Find if array contains duplicates (brute force) time complexity:", ["O(n)", "O(n log n)", "O(n^2)", "O(1)"], 2, "Brute force: check every pair → O(n²). Hashing reduces this to O(n).", "gfg-dsa"),
-        q("Arrays", "medium", "Which technique finds the minimum and maximum in one array pass?", ["Binary search", "Two-pointer", "Simultaneous comparison", "Sorting"], 2, "Compare elements in pairs: 3 comparisons per 2 elements → 1.5n comparisons total. O(n) but faster than two separate passes.", "gfg-dsa"),
-        q("Complexity", "medium", "Binary search on a sorted array of 1,024 elements needs at most:", ["10", "20", "1024", "100"], 0, "log₂(1024) = 10 comparisons.", "gfg-dsa"),
-        q("Hashing", "medium", "Count frequency of each character in a string of length n:", ["O(n^2)", "O(n log n)", "O(n)", "O(1)"], 2, "One pass with a hash map: update count for each character → O(n).", "gfg-dsa"),
-        q("Arrays", "hard", "Given a sorted array with one missing number from 1..n, find it in O(log n):", ["Linear scan", "Binary search on index vs value", "Hash set", "Two pointers"], 1, "Binary search: if arr[mid] == mid+1, missing is in right half; else in left half. O(log n).", "gfg-dsa"),
-        q("Arrays", "hard", "Find all triplets summing to zero in an array. Optimal time:", ["O(n^3)", "O(n^2)", "O(n log n)", "O(n)"], 1, "Sort first O(n log n), then two-pointer for each fixed element O(n) → total O(n²).", "gfg-dsa"),
-        q("Complexity", "hard", "What is the time complexity of building a hash map of n elements?", ["O(1)", "O(n)", "O(n log n)", "O(n^2)"], 1, "Each insertion is O(1) average; n insertions → O(n) total.", "gfg-dsa"),
-        q("Arrays", "hard", "Merge two sorted arrays of sizes m and n into a sorted array:", ["O(m + n)", "O(m × n)", "O((m+n)^2)", "O(log(m+n))"], 0, "One pointer in each array, merge by comparing → O(m + n) time.", "gfg-dsa"),
-        q("Hashing", "hard", "Group anagrams together from a list of strings. Time complexity:", ["O(n)", "O(n × L log L)", "O(n²)", "O(n²L)"], 1, "Sort each string (O(L log L)) as key; n strings → O(n × L log L). L = average string length.", "gfg-dsa"),
-        q("Arrays", "hard", "Dutch National Flag problem (sort 0s, 1s, 2s in one pass) uses:", ["Quick sort", "Three-pointer approach", "Counting sort (2 passes)", "Merge sort"], 1, "Three pointers (low, mid, high) in one pass → O(n) time, O(1) space.", "gfg-dsa"),
-        q("Complexity", "hard", "Recursive Fibonacci (naive) has time complexity:", ["O(n)", "O(n log n)", "O(2^n)", "O(n^2)"], 2, "Each call branches into 2 calls; depth n → about 2^n calls total.", "gfg-dsa"),
-        q("Arrays", "hard", "Find the median of two sorted arrays of sizes m and n:", ["O(m + n)", "O(log(m + n))", "O(m × n)", "O((m + n)^2)"], 1, "Binary search on the smaller array → O(log(min(m,n))) ⊆ O(log(m+n)).", "gfg-dsa"),
-        q("Hashing", "medium", "Detect if a string has all unique characters (O(1) space, ASCII):", ["Sort and check", "Hash set", "Boolean array of size 128", "Two pointers"], 2, "Fixed-size boolean array of 128 (ASCII) acts as an O(1) space hash → O(n) time.", "gfg-dsa"),
-        q("Arrays", "medium", "Prefix sum array helps solve range-sum queries in:", ["O(n) per query", "O(1) per query after O(n) preprocessing", "O(log n) per query", "O(n^2) preprocessing"], 1, "Build prefix sum in O(n); each range sum = prefix[r] − prefix[l−1] = O(1).", "gfg-dsa"),
-        q("Complexity", "easy", "log₂(8) =", ["2", "3", "4", "8"], 1, "2³ = 8, so log₂(8) = 3. Binary search on 8 elements takes at most 3 steps.", "gfg-dsa"),
-        q("Arrays", "easy", "Which data structure is best for O(1) access by position?", ["Linked list", "Stack", "Array", "Queue"], 2, "Arrays provide O(1) random access by index; linked lists need O(n) traversal.", "gfg-dsa"),
-      ],
-    },
-    {
-      id: "coding-strings",
-      title: "Strings & Recursion",
-      summary: "Recursion as base-case-plus-smaller-problem, and core string moves.",
-      lessons: [
-        {
-          id: "l-str-1",
-          title: "Recursion = base case + smaller problem",
-          minutes: 6,
-          body:
-            "Every recursion needs two things: a **base case** (when to stop) and a **recursive step** that moves toward it.\n\n**Factorial:** fact(0) = 1 (base); fact(n) = n x fact(n - 1) (step). So fact(4) = 4 x 3 x 2 x 1 = **24**.\n\n**Sum to n:** f(0) = 0; f(n) = n + f(n - 1). So f(3) = 3 + 2 + 1 + 0 = **6**.\n\n**Trace recursion** by writing the calls top-down, then resolving bottom-up.\n\n**Common mistake:** forgetting the base case (causes infinite recursion / stack overflow) or not reducing the problem toward it.",
-          sourceIds: ["gfg-dsa"],
-        },
-        {
-          id: "l-str-2",
-          title: "String fundamentals",
-          minutes: 5,
-          body:
-            "**A palindrome** reads the same forwards and backwards (level, madam). Check it with two pointers moving inward from both ends.\n\n**Reversing a string** also uses two pointers (swap ends, move inward) or simply read it backwards: reverse of \"abc\" is \"cba\".\n\n**Counting characters** (vowels, frequencies) is a single pass with a counter or a map. Vowels in \"PLACEMENT\" are A, E, E -> **3**.\n\n**Exam tip:** \"same forwards and backwards\", \"first non-repeating character\", and \"anagram\" are classic string warm-ups. Know them cold.",
-          sourceIds: ["gfg-dsa"],
-        },
-      ],
-      quiz: [
-        q("Strings", "easy", "Which string is a palindrome?", ["level", "world", "code", "apple"], 0, "'level' reads the same forwards and backwards. Check with two pointers from both ends.", "gfg-dsa"),
-        q("Strings", "easy", "Reverse of the string 'abc':", ["abc", "cba", "bca", "acb"], 1, "Read backwards: c, b, a → 'cba'.", "gfg-dsa"),
-        q("Strings", "easy", "Number of vowels in 'PLACEMENT':", ["2", "3", "4", "5"], 1, "P-L-A-C-E-M-E-N-T: A, E, E → 3 vowels.", "gfg-dsa"),
-        q("Strings", "easy", "Are 'listen' and 'silent' anagrams?", ["Yes", "No", "Cannot determine", "Only sometimes"], 0, "Anagram: same letters in different order. Both have l,i,s,t,e,n → Yes.", "gfg-dsa"),
-        q("Strings", "easy", "Length of string 'Hello' (0-indexed last index):", ["4", "5", "6", "3"], 0, "Length = 5 characters, but last index = 4 (0-indexed).", "gfg-dsa"),
-        q("Recursion", "easy", "Base case of factorial recursion:", ["fact(1) = 1", "fact(0) = 1", "fact(n) = n * fact(n-1)", "fact(2) = 2"], 1, "fact(0) = 1 is the base case. Without it, recursion never stops.", "gfg-dsa"),
-        q("Recursion", "easy", "fact(4) where fact(0)=1 and fact(n)=n×fact(n-1):", ["12", "24", "16", "20"], 1, "4 × 3 × 2 × 1 × fact(0) = 4 × 3 × 2 × 1 = 24.", "gfg-dsa"),
-        q("Recursion", "easy", "f(0)=0, f(n)=n+f(n-1). f(3) =", ["3", "6", "9", "0"], 1, "f(3) = 3 + f(2) = 3 + 2 + f(1) = 3 + 2 + 1 + 0 = 6.", "gfg-dsa"),
-        q("Strings", "medium", "Check if two strings are anagrams — optimal approach:", ["Nested loops", "Sort both and compare", "Brute force compare", "Hash map of char frequencies"], 3, "Count character frequencies in a hash map for both strings; compare maps → O(n), O(1) extra space for fixed alphabet.", "gfg-dsa"),
-        q("Strings", "medium", "First non-repeating character in 'aabcb':", ["a", "b", "c", "None"], 2, "Frequency: a=2, b=2, c=1. First character with frequency 1 = 'c'.", "gfg-dsa"),
-        q("Recursion", "medium", "Fibonacci: fib(n) = fib(n-1) + fib(n-2), fib(0)=0, fib(1)=1. fib(6):", ["6", "8", "13", "21"], 1, "fib: 0,1,1,2,3,5,8. fib(6) = 8.", "gfg-dsa"),
-        q("Strings", "medium", "Longest common prefix of ['flower','flow','flight']:", ["fl", "flo", "f", "flow"], 0, "Compare character by character: 'f','l' match in all three; 'o' fails for 'flight' → 'fl'.", "gfg-dsa"),
-        q("Strings", "medium", "Count occurrences of 'the' in 'the cat sat on the mat the'. Count:", ["2", "3", "4", "1"], 1, "Occurrences: 'the cat', 'on the', 'mat the' → 3 times.", "gfg-dsa"),
-        q("Recursion", "medium", "What is the time complexity of naive recursive Fibonacci?", ["O(n)", "O(n^2)", "O(2^n)", "O(log n)"], 2, "Each call spawns two more; exponential growth → O(2^n).", "gfg-dsa"),
-        q("Strings", "medium", "Reverse words in 'hello world foo' → correct output:", ["foo world hello", "world hello foo", "olleh dlrow oof", "foo hello world"], 0, "Reverse the word order: 'foo world hello'.", "gfg-dsa"),
-        q("Strings", "medium", "Which algorithm checks if a string is a rotation of another?", ["Sort both", "Concatenate s1+s1 and search for s2", "Reverse both", "Compare character by character"], 1, "If s2 is a rotation of s1, then s2 appears in s1+s1. O(n) using KMP or built-in contains.", "gfg-dsa"),
-        q("Recursion", "medium", "Tower of Hanoi with n disks needs how many moves?", ["n^2", "2n", "2^n − 1", "n!"], 2, "T(n) = 2T(n-1) + 1 → T(n) = 2^n − 1.", "gfg-dsa"),
-        q("Strings", "medium", "Time to reverse a string of length n:", ["O(1)", "O(log n)", "O(n)", "O(n^2)"], 2, "Must touch each character once → O(n).", "gfg-dsa"),
-        q("Recursion", "hard", "Memoized Fibonacci time complexity:", ["O(2^n)", "O(n)", "O(n log n)", "O(n^2)"], 1, "With memoisation, each sub-problem solved once → O(n) time, O(n) space.", "gfg-dsa"),
-        q("Strings", "hard", "Longest palindromic substring — brute force time:", ["O(n)", "O(n^2)", "O(n^3)", "O(n log n)"], 2, "Check all O(n²) substrings; each check is O(n) → O(n³) brute force. Manacher's is O(n).", "gfg-dsa"),
-        q("Strings", "hard", "Edit distance between 'kitten' and 'sitting' — which technique?", ["Greedy", "Dynamic programming", "Divide and conquer", "Backtracking"], 1, "Edit distance (Levenshtein) is solved by DP in O(m×n) time and space.", "gfg-dsa"),
-        q("Recursion", "hard", "Generate all subsets of a set of n elements — time and space:", ["O(n) time, O(1) space", "O(2^n) time, O(n) space", "O(n^2) time, O(n) space", "O(n log n) time, O(n) space"], 1, "2^n subsets exist; generating each takes O(n) → O(n × 2^n) time. Recursion depth O(n) space.", "gfg-dsa"),
-        q("Strings", "hard", "KMP algorithm for pattern matching runs in:", ["O(n × m)", "O(n + m)", "O(n log n)", "O(m^2)"], 1, "KMP preprocesses the pattern in O(m), then scans the text in O(n) → total O(n + m).", "gfg-dsa"),
-        q("Recursion", "hard", "Quicksort worst case occurs when:", ["Array is random", "Array is sorted and pivot is first/last", "All elements are equal", "Array is nearly sorted"], 1, "Sorted array with always-first-element pivot gives O(n²) — maximally unbalanced partitions.", "gfg-dsa"),
-        q("Strings", "easy", "Which of these is NOT a string operation?", ["Concatenation", "Indexing", "Push to stack", "Substring"], 2, "'Push to stack' is a stack operation, not a string operation.", "gfg-dsa"),
-        q("Recursion", "medium", "Binary search using recursion on n elements — recursive calls:", ["O(1)", "O(log n)", "O(n)", "O(n^2)"], 1, "Each recursive call halves the problem → O(log n) recursive calls total.", "gfg-dsa"),
-        q("Strings", "medium", "Compress 'aaabbc' using run-length encoding:", ["a3b2c1", "3a2b1c", "aaa bb c", "3a2bc"], 0, "a×3, b×2, c×1 → 'a3b2c1'.", "gfg-dsa"),
-        q("Strings", "hard", "Find all permutations of string 'abc'. How many?", ["3", "6", "9", "12"], 1, "n! permutations where n = 3 → 3! = 6.", "gfg-dsa"),
-        q("Recursion", "easy", "What happens if a recursive function has no base case?", ["Returns 0", "Runs once", "Stack overflow", "Returns null"], 2, "Without a base case, the function keeps calling itself until the call stack is exhausted → stack overflow.", "gfg-dsa"),
-        q("Strings", "medium", "Check balanced parentheses in '({[]})' — result:", ["Balanced", "Not balanced", "Partially balanced", "Cannot determine"], 0, "Use a stack: each opening bracket is pushed; closing bracket must match top of stack. All match → Balanced.", "gfg-dsa"),
-      ],
-    },
-    {
-      id: "coding-sorting-searching",
-      title: "Sorting & Searching",
-      summary: "Binary search, sort complexities, and when each one applies.",
-      lessons: [
-        {
-          id: "l-sort-1",
-          title: "Searching: linear vs binary",
-          minutes: 6,
-          body:
-            "**Linear search** checks every element -> O(n), works on any order.\n\n**Binary search** repeatedly halves the search space -> **O(log n)**, but it requires a **sorted** array. Compare the target with the middle: if smaller, search the left half; if larger, the right half.\n\n**Worked intuition:** searching 1,000,000 sorted items takes about 20 comparisons (log₂ of a million), versus up to a million for linear search.\n\n**Common mistake:** using binary search on an unsorted array. Sort first (or it gives wrong answers).",
-          sourceIds: ["gfg-dsa"],
-        },
-        {
-          id: "l-sort-2",
-          title: "Sorting complexities",
-          minutes: 5,
-          body:
-            "Know these by heart:\n- **Bubble, Insertion, Selection:** O(n^2) - simple but slow.\n- **Merge Sort:** O(n log n) always, and stable (keeps equal items in order).\n- **Quick Sort:** O(n log n) on average, but O(n^2) worst case (bad pivots); fastest in practice.\n\n**When to use what:** Merge Sort when you need guaranteed O(n log n) or stability; Quick Sort for typical fast in-memory sorting.\n\n**Exam tip:** if asked the worst case, remember Quick Sort can degrade to O(n^2), while Merge Sort stays O(n log n).",
-          sourceIds: ["gfg-dsa"],
-        },
-      ],
-      quiz: [
-        q("Searching", "easy", "Linear search on unsorted array of n elements — worst case:", ["O(1)", "O(log n)", "O(n)", "O(n^2)"], 2, "Linear search checks every element in worst case → O(n).", "gfg-dsa"),
-        q("Searching", "easy", "Binary search on sorted array of n elements — worst case:", ["O(n)", "O(log n)", "O(n log n)", "O(1)"], 1, "Each step halves the search space → O(log n).", "gfg-dsa"),
-        q("Searching", "easy", "Binary search requires the array to be:", ["Reversed", "Sorted", "Of even length", "Unique elements"], 1, "Binary search only works correctly on a sorted array.", "gfg-dsa"),
-        q("Searching", "easy", "Binary search on 16 elements — max comparisons:", ["4", "8", "16", "2"], 0, "log₂(16) = 4. Binary search halves the space each step.", "gfg-dsa"),
-        q("Sorting", "easy", "Which sorting algorithm has worst-case O(n²)?", ["Merge sort", "Bubble sort", "Heap sort", "Counting sort"], 1, "Bubble sort in the worst case compares every pair → O(n²).", "gfg-dsa"),
-        q("Sorting", "easy", "Merge sort time complexity in all cases:", ["O(n)", "O(n log n)", "O(n^2)", "O(log n)"], 1, "Merge sort always divides and merges in O(n log n), regardless of input.", "gfg-dsa"),
-        q("Sorting", "easy", "Which sort is stable (preserves equal elements' original order)?", ["Quick sort", "Heap sort", "Merge sort", "Selection sort"], 2, "Merge sort is stable. Quick and heap sorts are generally not stable.", "gfg-dsa"),
-        q("Sorting", "easy", "Space complexity of merge sort:", ["O(1)", "O(log n)", "O(n)", "O(n^2)"], 2, "Merge sort requires O(n) auxiliary space for merging.", "gfg-dsa"),
-        q("Sorting", "medium", "Average time complexity of Quick Sort:", ["O(n^2)", "O(n log n)", "O(n)", "O(log n)"], 1, "Quick sort averages O(n log n) with random pivots; worst case is O(n²).", "gfg-dsa"),
-        q("Sorting", "medium", "Quick Sort worst case occurs when:", ["Array is random", "Pivot is always median", "Pivot is always min or max element", "Array has equal elements"], 2, "Always choosing the min or max as pivot creates maximally unbalanced partitions → O(n²).", "gfg-dsa"),
-        q("Sorting", "medium", "Which algorithm is preferred for sorting a linked list?", ["Quick sort", "Merge sort", "Insertion sort", "Heap sort"], 1, "Merge sort needs no random access — works well with linked lists. Quick sort relies on O(1) random access.", "gfg-dsa"),
-        q("Sorting", "medium", "Insertion sort is most efficient when:", ["Array is random", "Array is nearly sorted", "Array is reversed", "Array is very large"], 1, "Nearly sorted input gives insertion sort near O(n) performance — few swaps needed.", "gfg-dsa"),
-        q("Searching", "medium", "Find element in a rotated sorted array in O(log n):", ["Linear search", "Two binary searches", "Modified binary search", "Sorting first"], 2, "Modified binary search: at each step, determine which half is sorted and whether the target lies there.", "gfg-dsa"),
-        q("Sorting", "medium", "Counting sort time complexity (k = range of values):", ["O(n log n)", "O(n + k)", "O(k log k)", "O(nk)"], 1, "Counting sort is O(n + k). It is not comparison-based and beats O(n log n) when k is small.", "gfg-dsa"),
-        q("Sorting", "medium", "Which sort algorithm is NOT comparison-based?", ["Merge sort", "Heap sort", "Counting sort", "Quick sort"], 2, "Counting sort uses direct indexing instead of comparisons → can break the O(n log n) lower bound.", "gfg-dsa"),
-        q("Searching", "medium", "Binary search on a 2D sorted matrix (n×n) in O(log(n²)):", ["Row-by-row linear", "Binary search on flattened index", "Staircase search", "Hash lookup"], 1, "Treat the n×n matrix as a 1D sorted array of n² elements; binary search on flat index.", "gfg-dsa"),
-        q("Sorting", "medium", "Which sort is in-place (uses O(1) extra space)?", ["Merge sort", "Quick sort", "Counting sort", "Radix sort"], 1, "Quick sort sorts in place (ignoring recursion stack); merge sort needs O(n) extra space.", "gfg-dsa"),
-        q("Sorting", "medium", "Heap sort time and space:", ["O(n log n) time, O(n) space", "O(n log n) time, O(1) space", "O(n^2) time, O(1) space", "O(n) time, O(n) space"], 1, "Heap sort: O(n log n) always, O(1) extra space (builds heap in-place).", "gfg-dsa"),
-        q("Searching", "medium", "Ternary search vs binary search:", ["Ternary is faster", "Binary is fewer comparisons overall", "Same performance", "Ternary is O(n)"], 1, "Ternary search divides into 3 parts but uses more comparisons per step; binary search is typically better in practice.", "gfg-dsa"),
-        q("Sorting", "medium", "Lower bound for comparison-based sorting:", ["O(n)", "O(n log n)", "O(n^2)", "O(log n)"], 1, "Comparison-based sorts cannot beat O(n log n) — proven via decision tree argument.", "gfg-dsa"),
-        q("Searching", "hard", "Find the peak element in an unsorted array in O(log n):", ["Linear scan", "Binary search on slope", "Sorting first", "Hash map"], 1, "Binary search: if mid > mid+1 and mid > mid-1, it's a peak. Else move toward the larger neighbor.", "gfg-dsa"),
-        q("Sorting", "hard", "Find the kth largest element in an unsorted array. Optimal approach:", ["Sort fully", "Heap of size k", "Quick Select", "Counting sort"], 2, "Quick Select (partition-based) finds kth element in O(n) average time without full sorting.", "gfg-dsa"),
-        q("Sorting", "hard", "Sort an array with exactly 3 distinct values (0, 1, 2) in O(n):", ["Merge sort", "Quick sort", "Dutch National Flag (three pointers)", "Counting sort"], 2, "Dutch National Flag uses three pointers in a single pass → O(n) time, O(1) space.", "gfg-dsa"),
-        q("Searching", "hard", "Search in a nearly sorted array where each element may be off by ±1:", ["Linear search", "Binary search (modified)", "Ternary search", "Hash lookup"], 1, "Modified binary search: check mid-1, mid, mid+1 at each step → still O(log n).", "gfg-dsa"),
-        q("Sorting", "hard", "Which sort performs best on small arrays (n < 10) in practice?", ["Merge sort", "Heap sort", "Insertion sort", "Quick sort"], 2, "Insertion sort has low overhead and good cache performance for tiny arrays — most library sorts use it below a threshold.", "gfg-dsa"),
-        q("Searching", "easy", "Linear search time on an array where the target is first:", ["O(n)", "O(1)", "O(log n)", "O(n^2)"], 1, "If the target is the first element, linear search finds it in 1 comparison → O(1) best case.", "gfg-dsa"),
-        q("Sorting", "medium", "Selection sort makes how many swaps on an n-element array?", ["O(n)", "O(n^2)", "O(n log n)", "O(1)"], 0, "Selection sort makes exactly n-1 swaps (one per pass) → O(n) swaps.", "gfg-dsa"),
-        q("Sorting", "easy", "Which algorithm divides array into halves, sorts each, then merges?", ["Quick sort", "Merge sort", "Bubble sort", "Heap sort"], 1, "Merge sort: divide in half recursively, then merge sorted halves.", "gfg-dsa"),
-        q("Searching", "medium", "Jump search time complexity on sorted array:", ["O(n)", "O(√n)", "O(log n)", "O(n^2)"], 1, "Jump search checks elements at intervals of √n → O(√n) time.", "gfg-dsa"),
-        q("Sorting", "hard", "External sort (sorting data too large for RAM) typically uses:", ["Heap sort", "Merge sort", "Quick sort", "Counting sort"], 1, "External merge sort splits data into memory-sized chunks, sorts each, then merges from disk.", "gfg-dsa"),
-      ],
-    },
-    {
-      id: "coding-linear-ds",
-      title: "Linked Lists, Stacks & Queues",
-      summary: "Linear structures and the O(1) operations interviewers expect you to know.",
-      lessons: [
-        {
-          id: "l-lds-1",
-          title: "Linked lists and pointers",
-          minutes: 6,
-          body:
-            "A **linked list** stores nodes, each holding a value and a pointer to the next node.\n\n**Costs:** inserting or deleting at the **head is O(1)** (just rewire a couple of pointers), but **random access is O(n)** (you must walk from the start). This is the opposite trade-off to arrays, which give O(1) access but O(n) insert in the middle.\n\n**Worked intuition:** to add to the front, point the new node at the old head, then move head to the new node - two steps, no shifting.\n\n**Common mistake:** assuming linked lists allow fast index access. They do not.",
-          sourceIds: ["gfg-dsa"],
-        },
-        {
-          id: "l-lds-2",
-          title: "Stacks (LIFO) and queues (FIFO)",
-          minutes: 5,
-          body:
-            "A **stack** is **LIFO** - Last In, First Out. You push and pop at one end. Stacks model the function-call/recursion stack, undo history, and balanced-parentheses checks.\n\nA **queue** is **FIFO** - First In, First Out. You enqueue at the rear and dequeue at the **front**. Queues model scheduling and breadth-first search (BFS).\n\n**Worked intuition:** to check if brackets like ()[]{} are balanced, push every opening bracket and pop on each closing bracket; if it ever mismatches or the stack is non-empty at the end, it is unbalanced.\n\n**Exam tip:** \"undo\", \"recursion\", \"matching brackets\" -> stack. \"scheduling\", \"BFS\", \"print queue\" -> queue.",
-          sourceIds: ["gfg-dsa"],
-        },
-      ],
-      quiz: [
-        q("Stacks", "easy", "A stack follows which order?", ["FIFO", "LIFO", "Random", "Sorted"], 1, "Stack = Last In, First Out. The last element pushed is the first popped.", "gfg-dsa"),
-        q("Queues", "easy", "A queue removes elements from the:", ["Rear", "Front", "Middle", "Top"], 1, "FIFO — elements are dequeued from the front.", "gfg-dsa"),
-        q("Stacks", "easy", "Which data structure models undo operations in a text editor?", ["Queue", "Stack", "Heap", "Graph"], 1, "Undo works LIFO — last action undone first → stack.", "gfg-dsa"),
-        q("Stacks", "easy", "Which data structure is best for balanced parentheses check?", ["Queue", "Stack", "Heap", "Array"], 1, "Push opening brackets; pop on closing. Stack naturally handles LIFO matching.", "gfg-dsa"),
-        q("Linked List", "easy", "Inserting a node at the head of a singly linked list:", ["O(n)", "O(log n)", "O(1)", "O(n^2)"], 2, "Rewire two pointers → O(1). No shifting needed unlike arrays.", "gfg-dsa"),
-        q("Linked List", "easy", "Random access by index in a linked list:", ["O(1)", "O(log n)", "O(n)", "O(n^2)"], 2, "No random access — must traverse from head → O(n).", "gfg-dsa"),
-        q("Queues", "easy", "Which data structure is used for BFS (Breadth-First Search)?", ["Stack", "Queue", "Heap", "Array"], 1, "BFS explores level-by-level; nodes are processed in the order they were discovered → queue.", "gfg-dsa"),
-        q("Stacks", "easy", "Which structure models the function call stack in recursion?", ["Queue", "Stack", "Heap", "Graph"], 1, "The call stack is a stack: the last function called is the first to return → LIFO.", "gfg-dsa"),
-        q("Linked List", "medium", "Delete a node from a doubly linked list (node pointer given) — time:", ["O(n)", "O(log n)", "O(1)", "O(n^2)"], 2, "With a doubly linked list, adjust prev and next pointers → O(1).", "gfg-dsa"),
-        q("Stacks", "medium", "Evaluate postfix expression '5 3 2 * +' using a stack:", ["11", "13", "25", "10"], 0, "3*2=6; 5+6=11. Postfix: push operands, pop two on operator.", "gfg-dsa"),
-        q("Queues", "medium", "Circular queue vs regular queue benefit:", ["Less code", "Reuse freed space at front", "Faster search", "Less memory"], 1, "In a circular queue, the rear wraps around to reuse empty slots at the front.", "gfg-dsa"),
-        q("Stacks", "medium", "Next Greater Element for each array element — efficient approach:", ["Nested loops", "Sort and scan", "Stack", "Binary search"], 2, "Traverse right-to-left with a stack of 'candidates'; pop when current is greater → O(n).", "gfg-dsa"),
-        q("Linked List", "medium", "Detect a cycle in a linked list — Floyd's algorithm uses:", ["Hash set", "Two pointers (slow + fast)", "Sorting", "Stack"], 1, "Floyd's: slow moves +1, fast moves +2. If they meet, a cycle exists → O(n), O(1) space.", "gfg-dsa"),
-        q("Linked List", "medium", "Reverse a singly linked list iteratively — time and space:", ["O(n), O(n)", "O(n), O(1)", "O(n^2), O(1)", "O(log n), O(1)"], 1, "One pass, three pointer swap (prev, curr, next) → O(n) time, O(1) space.", "gfg-dsa"),
-        q("Queues", "medium", "Implement a stack using two queues. Push is:", ["O(1) with O(n) pop", "O(n) with O(1) pop", "O(1) both ways", "O(n) both ways"], 0, "Rotate elements to simulate LIFO: push in O(1) by enqueueing; pop in O(n) by rotating.", "gfg-dsa"),
-        q("Linked List", "medium", "Merge two sorted linked lists — time:", ["O(n+m)", "O(n log n)", "O(n*m)", "O(n^2)"], 0, "One pointer in each list, pick smaller head → O(n+m).", "gfg-dsa"),
-        q("Stacks", "medium", "Largest rectangle in histogram — monotonic stack approach:", ["O(n^2)", "O(n log n)", "O(n)", "O(1)"], 2, "Monotonic stack tracks bars in increasing order; pop and compute on decrease → O(n).", "gfg-dsa"),
-        q("Linked List", "medium", "Find the middle of a linked list in one pass:", ["Store length, then traverse", "Slow + fast pointer", "Count nodes then traverse", "Hash map"], 1, "Slow pointer moves +1, fast moves +2. When fast reaches end, slow is at middle → O(n), O(1) space.", "gfg-dsa"),
-        q("Queues", "medium", "Priority queue (min-heap) insertion time:", ["O(1)", "O(log n)", "O(n)", "O(n log n)"], 1, "Heap insertion: place at end, bubble up → O(log n).", "gfg-dsa"),
-        q("Stacks", "hard", "Implement getMin() in O(1) for a stack:", ["Store min in separate variable", "Sort the stack", "Use auxiliary stack", "Use hash map"], 2, "Maintain a parallel min-stack that tracks the current minimum at each push. O(1) getMin, O(n) space.", "gfg-dsa"),
-        q("Linked List", "hard", "Find the kth node from the end in one pass:", ["Stack all, pop k times", "Length then traverse", "Two pointers k apart", "Hash map"], 2, "Advance first pointer k steps, then move both until first reaches end — second is at kth from end → O(n), O(1).", "gfg-dsa"),
-        q("Queues", "hard", "Sliding window maximum (window size k) — efficient approach:", ["O(nk) nested loops", "O(n log k) using heap", "O(n) using deque", "O(n^2) sorting"], 2, "Monotonic deque: maintain indices of max candidates. Each element enters/leaves once → O(n).", "gfg-dsa"),
-        q("Linked List", "hard", "Flatten a multilevel linked list (nodes have 'child' pointers):", ["BFS", "DFS using stack", "Recursive merge", "Sort all values"], 1, "Use a stack: when a child exists, push next to stack, extend child downward → O(n).", "gfg-dsa"),
-        q("Stacks", "hard", "Stock span problem (find how many consecutive days ≤ today's price) — optimal:", ["O(n^2) brute force", "O(n) with stack", "O(n log n) with BST", "O(n) with prefix sum"], 1, "Maintain a stack of indices; pop while stack top's price ≤ current → O(n) total.", "gfg-dsa"),
-        q("Linked List", "hard", "Clone a linked list with random pointers in O(n) time O(1) space:", ["Hash map all nodes", "Interleave clones then separate", "Two-pass hash map", "Recursive copy"], 1, "Interleave: clone each node right after original, set random pointers, then de-interleave → O(n), O(1).", "gfg-dsa"),
-        q("Queues", "easy", "Which is the correct order of operations: enqueue 1,2,3 then dequeue twice?", ["3 remains", "1 remains", "2 remains", "2 and 3 remain"], 0, "FIFO: enqueue 1,2,3 → dequeue 1 and 2 → only 3 remains.", "gfg-dsa"),
-        q("Stacks", "easy", "Push 1,2,3,4 onto a stack. Pop once. Top of stack is:", ["1", "2", "3", "4"], 2, "LIFO: push order 1,2,3,4 → top is 4. Pop removes 4 → top is now 3.", "gfg-dsa"),
-        q("Linked List", "medium", "Add two numbers represented as linked lists (digits in order):", ["Convert to int, add, convert back", "Reverse both, add with carry, reverse result", "Use arrays", "Sort digits"], 1, "Reverse both lists to get LSD first, add with carry, reverse result → O(max(m,n)).", "gfg-dsa"),
-        q("Queues", "medium", "Which problem is best solved with a deque (double-ended queue)?", ["Finding max in sliding window", "BFS traversal", "DFS traversal", "Sorting"], 0, "Sliding window maximum: deque allows O(1) peek/remove from both ends → O(n) solution.", "gfg-dsa"),
-        q("Stacks", "medium", "Convert infix '(A+B)*C' to postfix:", ["AB+C*", "ABC+*", "A+B*C", "AB*C+"], 0, "(A+B)*C → postfix: A, B, + (when ')'), then C, * → 'AB+C*'.", "gfg-dsa"),
-      ],
-    },
-    {
-      id: "coding-patterns",
-      title: "Patterns: Two-Pointer & Sliding Window",
-      summary: "High-yield techniques that turn O(n^2) into O(n).",
-      lessons: [
-        {
-          id: "l-pat-1",
-          title: "Two-pointer and sliding window",
-          minutes: 7,
-          body:
-            "**Two-pointer:** on a **sorted** array, place one pointer at each end and move them inward. If the pair sum is too big, move the right pointer left; too small, move the left pointer right. This finds a target pair in **O(n)** instead of O(n^2).\n\n**Sliding window:** keep a moving window over the array to answer \"best subarray/substring of size k\" or \"longest substring with a property\". Expand the window, and shrink from the left when a rule breaks. Also **O(n)**.\n\n**Worked example:** maximum sum of a contiguous subarray of size k - slide a size-k window, add the new element and subtract the one leaving, updating the sum in O(1) per step.",
-          sourceIds: ["gfg-dsa", "careerride-yt"],
-        },
-        {
-          id: "l-pat-2",
-          title: "Prefix sums",
-          minutes: 5,
-          body:
-            "A **prefix-sum array** stores the running total: prefix[i] = sum of the first i elements. Build it once in O(n).\n\nAfter that, the sum of any range l...r is **prefix[r] - prefix[l - 1]**, answered in **O(1)** per query. This beats re-adding the range every time.\n\n**Worked intuition:** for array [2, 4, 1, 3], prefix = [2, 6, 7, 10]. Sum of indices 2...4 (the last three) = 10 - 2 = 8.\n\n**Exam tip:** any problem with many \"sum between two indices\" queries is a prefix-sum problem.",
-          sourceIds: ["gfg-dsa"],
-        },
-      ],
-      quiz: [
-        q("Sliding Window", "medium", "Best technique for the maximum sum of a contiguous subarray of fixed size k:", ["Two nested loops", "Sliding window", "Sorting first", "Recursion"], 1, "Slide a size-k window, updating the sum in O(1) per step -> O(n) overall.", "gfg-dsa"),
-        q("Two Pointer", "medium", "The classic two-pointer pair-sum technique assumes the array is:", ["Empty", "Sorted", "All negative", "A linked list"], 1, "Sorted order lets you move pointers based on whether the sum is too high or low.", "gfg-dsa"),
-        q("Prefix Sum", "medium", "After building a prefix-sum array, a range-sum query takes:", ["O(n)", "O(log n)", "O(1)", "O(n^2)"], 2, "sum(l..r) = prefix[r] - prefix[l-1] -> O(1).", "gfg-dsa"),
-        q("Sliding Window", "medium", "Best technique for the longest substring without repeating characters:", ["Sorting", "Sliding window", "Recursion", "Binary search"], 1, "Grow a window and shrink from the left when a repeat appears - sliding window.", "gfg-dsa"),
-      ],
-    },
-  ],
+  name: "Technical Learning",
+  short: "Technical",
+  blurb: "Independent programming language roadmaps, DSA and SQL/DBMS learning paths.",
+  chapters: PROGRAMMING_CHAPTERS,
 }
 
-// ============================================================================
-// CS CORE
-// ============================================================================
 const csCore: Section = {
   ...SECTION_META[4],
   chapters: [
@@ -1185,6 +942,9 @@ const csCore: Section = {
         q("SQL", "easy", "Which aggregate function counts rows?", ["SUM()", "COUNT()", "AVG()", "TOTAL()"], 1, "COUNT() returns the number of rows.", "gfg-cs-core"),
         q("SQL", "medium", "Between WHERE and HAVING, which is applied first?", ["HAVING", "WHERE", "They are equal", "Neither"], 1, "WHERE filters rows before grouping; HAVING runs after aggregation.", "gfg-cs-core"),
         q("SQL", "easy", "Which aggregate function returns the average of a column?", ["SUM()", "AVG()", "COUNT()", "MAX()"], 1, "AVG() computes the mean of the column's values.", "gfg-cs-core"),
+        q("SQL", "easy", "Which clause filters individual rows before GROUP BY is applied?", ["WHERE","HAVING","ORDER BY","DISTINCT"], 0, "WHERE filters rows before grouping. HAVING filters groups after aggregation.", "studybench-original-2026"),
+        q("SQL", "medium", "Table Orders has columns customer_id and amount. Which query returns customers whose total order amount exceeds 1000?", ["SELECT customer_id, SUM(amount) FROM Orders GROUP BY customer_id HAVING SUM(amount) > 1000;","SELECT customer_id, SUM(amount) FROM Orders WHERE SUM(amount) > 1000 GROUP BY customer_id;","SELECT customer_id FROM Orders ORDER BY SUM(amount) > 1000;","SELECT SUM(amount) FROM Orders WHERE customer_id > 1000;"], 0, "Aggregate conditions belong in HAVING after GROUP BY. WHERE cannot filter on the grouped SUM result.", "studybench-original-2026"),
+        q("SQL", "medium", "What does SELECT DISTINCT city FROM Customers return?", ["Each distinct city value once","Only cities with more than one customer","Cities sorted alphabetically","The number of customers per city"], 0, "DISTINCT removes duplicate result rows; it does not count, group or sort them.", "studybench-original-2026")
       ],
     },
   ],
@@ -1525,28 +1285,6 @@ const commInterview: Section = {
 }
 
 const BASE_SECTIONS: Section[] = [quant, reasoning, verbal, coding, csCore, commInterview]
-
-// Company-specific extra chapter: Zoho is coding-heavy.
-const ZOHO_EXTRA = {
-  id: "coding-zoho-design",
-  title: "Program Design (Machine Round)",
-  summary: "Machine-round style: design and debug a small program end to end.",
-  lessons: [
-    {
-      id: "l-zoho-1",
-      title: "Designing under pressure",
-      minutes: 7,
-      body:
-        "Programming-heavy recruiters give a real problem to build on a machine. Work in this order:\n1. **Clarify the input and output** and the edge cases before writing code.\n2. **Break the problem into small functions**, each doing one thing.\n3. **Handle edge cases** explicitly: empty input, a single element, very large values / overflow.\n4. **Test with your own examples** before declaring done.\n\n**Worked intuition:** for \"sum of an array\", the robust version returns 0 for an empty array instead of crashing.\n\n**Common mistake:** writing the whole program then testing once at the end. Build and test in small pieces.",
-      sourceIds: ["zoho-careers", "gfg-dsa"],
-    },
-  ],
-  quiz: [
-    q("Coding", "hard", "When designing a program in a timed machine round, you should FIRST:", ["Write the whole thing then test", "Clarify input/output and edge cases", "Optimise prematurely", "Pick the fanciest data structure"], 1, "Clarify I/O and edge cases first; correctness on edges wins these rounds.", "zoho-careers"),
-    q("Coding", "medium", "A robust function for 'sum of array' must handle:", ["Only positive numbers", "An empty array", "Only sorted arrays", "Only size 10"], 1, "Empty input is the classic edge case - return 0 rather than crashing.", "gfg-dsa"),
-    q("Coding", "medium", "The best way to build a solution in a timed coding round is to:", ["Write everything, then test once", "Build and test in small pieces", "Skip edge cases", "Avoid functions"], 1, "Building and testing incrementally catches bugs early and saves time.", "gfg-dsa"),
-  ],
-}
 
 // ============================================================================
 // EXTRA CHAPTERS - broaden coverage for serious placement prep (all tracks)
@@ -1901,7 +1639,10 @@ const codingDpGreedy: Chapter = {
     q("Dynamic Programming", "medium", "Adding memoization improves recursive Fibonacci to:", ["O(1)", "O(n)", "O(n^2)", "O(2ⁿ)"], 1, "Each Fib(k) is computed once -> O(n).", "gfg-dsa"),
     q("Greedy", "easy", "A greedy algorithm makes:", ["a random choice", "the locally optimal choice each step", "all choices at once", "no choice"], 1, "Greedy picks the best option available at each step.", "gfg-dsa"),
     q("Dynamic Programming", "medium", "Memoization stores subproblem results mainly to avoid:", ["using memory", "recomputation", "sorting", "recursion"], 1, "Storing results avoids recomputing the same subproblem.", "gfg-dsa"),
-  ],
+        q("Dynamic Programming", "easy", "Which two properties commonly indicate that dynamic programming may be useful?", ["Overlapping subproblems and optimal substructure","Sorted input and constant memory","A graph with no cycles only","A locally optimal choice that is always final"], 0, "DP is useful when subproblems repeat and an optimal solution can be built from optimal subproblem solutions.", "studybench-original-2026"),
+        q("Dynamic Programming", "medium", "A memoized function computes each of n distinct states once, and each state takes O(1) work aside from recursive calls. What is the total time when all states are visited?", ["O(n)","O(n²)","O(2ⁿ)","O(log n)"], 0, "Each of the n states is solved once, with constant work per state, giving O(n) total work.", "studybench-original-2026"),
+        q("Greedy Algorithms", "medium", "For interval scheduling when the goal is to select the maximum number of non-overlapping activities, which greedy choice is standard?", ["Choose the compatible activity that finishes earliest","Choose the activity that starts earliest","Choose the longest activity first","Choose the activity with the largest label"], 0, "Earliest finishing time leaves as much room as possible for later compatible activities; this choice has a correctness proof for this problem.", "studybench-original-2026")
+      ],
 }
 
 // ---- CS CORE ----
@@ -1933,7 +1674,10 @@ const csFundamentals: Chapter = {
     q("Memory", "easy", "RAM is best described as:", ["Permanent storage", "Volatile memory", "A hard disk", "A CPU"], 1, "RAM is volatile - its contents are lost when power is off.", "gfg-cs-core"),
     q("Number Systems", "medium", "The decimal number 10 in binary is:", ["1000", "1010", "1100", "1001"], 1, "10 = 8 + 2 = 1010 in binary.", "gfg-cs-core"),
     q("Software", "easy", "An operating system is an example of:", ["Application software", "System software", "Hardware", "A web browser"], 1, "The OS is system software that manages the machine.", "gfg-cs-core"),
-  ],
+        q("Number Systems", "easy", "What is the decimal value of binary 1101₂?", ["13","11","12","14"], 0, "1101₂ = 1×8 + 1×4 + 0×2 + 1×1 = 13.", "studybench-original-2026"),
+        q("Number Systems", "medium", "What is the binary representation of decimal 18?", ["10010₂","10100₂","11000₂","10001₂"], 0, "18 = 16 + 2, so its powers-of-two representation is 10010₂.", "studybench-original-2026"),
+        q("Computer Memory", "easy", "Which memory normally loses its contents when power is removed?", ["RAM","SSD","ROM","Flash storage"], 0, "RAM is volatile working memory. SSD, ROM and flash storage are non-volatile.", "studybench-original-2026")
+      ],
 }
 
 const quantDataInterpretation: Chapter = {
@@ -1964,7 +1708,10 @@ const quantDataInterpretation: Chapter = {
     q("Data Interpretation", "medium", "The values 12, 18, 24 and 30 have an average of:", ["20", "21", "22", "24"], 1, "Sum = 84 and count = 4, so average = 21.", "rs-aggarwal-quant"),
     q("Data Interpretation", "medium", "If total revenue is Rs 900 and product A contributes Rs 225, A's contribution is:", ["20%", "25%", "30%", "35%"], 1, "225/900 x 100 = 25%.", "indiabix-aptitude"),
     q("Data Interpretation", "hard", "A value falls from 500 to 400. The percentage decrease is:", ["10%", "20%", "25%", "40%"], 1, "Decrease = 100 on base 500 -> 100/500 x 100 = 20%.", "rs-aggarwal-quant"),
-  ],
+        q("Data Interpretation", "easy", "A table shows sales of 120 units in January and 150 in February. What is the percentage increase?", ["25%","20%","30%","35%"], 0, "Increase = 30. Base = January sales 120. Percentage increase = 30/120 × 100 = 25%.", "studybench-original-2026"),
+        q("Data Interpretation", "medium", "Four branches report sales of 40, 50, 60 and 70 units. What is the average sales per branch?", ["55","50","60","65"], 0, "Total = 40 + 50 + 60 + 70 = 220. Divide by four branches: 220/4 = 55.", "studybench-original-2026"),
+        q("Data Interpretation", "medium", "A pie chart represents 800 applications. A category occupies 15% of the chart. How many applications are in that category?", ["120","100","140","150"], 0, "15% of 800 = 0.15 × 800 = 120 applications.", "studybench-original-2026")
+      ],
 }
 
 const reasonSeatingPuzzles: Chapter = {
@@ -1995,13 +1742,16 @@ const reasonSeatingPuzzles: Chapter = {
     q("Puzzles", "medium", "Exactly two people sit between A and B in five seats. Which pair is possible?", ["1 and 2", "1 and 4", "2 and 4", "3 and 5"], 1, "Seats 1 and 4 have exactly seats 2 and 3 between them.", "rs-aggarwal-reasoning"),
     q("Seating", "medium", "If A and B are not adjacent, they cannot be in seats:", ["1 and 3", "2 and 4", "3 and 5", "4 and 5"], 3, "Seats 4 and 5 are adjacent, so that violates the clue.", "rs-aggarwal-reasoning"),
     q("Puzzles", "hard", "The safest first step in a seating puzzle is to:", ["Guess an option", "Draw slots and place fixed clues", "Memorise all names", "Skip all negative clues"], 1, "Slots and fixed clues turn the word problem into a visible arrangement.", "rs-aggarwal-reasoning"),
-  ],
+        q("Seating Arrangement", "easy", "Five people A, B, C, D and E sit in a row. A is at the left end and E is at the right end. How many middle positions remain for B, C and D?", ["3","2","4","5"], 0, "Seats 2, 3 and 4 are the middle positions, so three positions remain.", "studybench-original-2026"),
+        q("Seating Arrangement", "medium", "In a row, P sits immediately to the left of Q. Which relationship must be true?", ["Q is immediately to the right of P","Q is somewhere to the left of P","P and Q occupy the two ends","P and Q have one person between them"], 0, "“Immediately left” means adjacent seats with P before Q from the stated left-to-right orientation.", "studybench-original-2026"),
+        q("Logical Puzzles", "medium", "A, B and C occupy three different consecutive seats. B is not at either end. Which person must sit in the middle?", ["B","A","C","Cannot be determined"], 0, "With three consecutive seats, the only non-end position is the middle seat.", "studybench-original-2026")
+      ],
 }
 
 const verbalWrittenEnglish: Chapter = {
   id: "verbal-written-english",
   title: "Essay, Email & Cloze Test",
-  summary: "Written communication for Wipro-style tests and grammar-in-context questions.",
+  summary: "Professional written communication and grammar-in-context practice.",
   lessons: [
     {
       id: "l-we-1",
@@ -2026,7 +1776,10 @@ const verbalWrittenEnglish: Chapter = {
     q("Cloze Test", "medium", "'She is interested ___ data analytics.'", ["on", "in", "at", "with"], 1, "The fixed phrase is 'interested in'.", "high-agg-verbal"),
     q("Written English", "medium", "Before writing an essay, the best first step is to:", ["Start immediately without thinking", "Create a short outline", "Copy a memorised quote", "Use only complex words"], 1, "A quick outline prevents repetition and keeps the answer structured.", "studybench-curriculum"),
     q("Email Writing", "hard", "The best closing line for a recruiter follow-up email is:", ["Reply fast.", "I demand selection.", "Thank you for your time. I look forward to your response.", "No subject needed."], 2, "The line is polite, specific and professional.", "studybench-curriculum"),
-  ],
+        q("Written Communication", "easy", "Which subject line is clearest for an email requesting an interview schedule?", ["Request for Interview Schedule","Hello","Important!!!","Need this ASAP"], 0, "The first subject is specific, professional and tells the recipient what the email concerns.", "studybench-original-2026"),
+        q("Grammar", "medium", "Choose the grammatically correct sentence.", ["Each of the applicants has submitted a résumé.","Each of the applicants have submitted a résumé.","Each applicants has submitted a résumé.","Each of applicant have submitted résumé."], 0, "“Each” is singular, so it takes the singular verb “has”.", "studybench-original-2026"),
+        q("Cloze Test", "medium", "Choose the correct preposition: “The team is responsible ___ maintaining the database.”", ["for","to","at","with"], 0, "The standard collocation is “responsible for” followed by a noun or gerund.", "studybench-original-2026")
+      ],
 }
 
 const csCloudWeb: Chapter = {
@@ -2057,7 +1810,10 @@ const csCloudWeb: Chapter = {
     q("HTTP", "medium", "HTTP status code 404 means:", ["Success", "Unauthorized", "Not found", "Server error"], 2, "404 means the requested resource was not found.", "mdn-http"),
     q("HTTP", "medium", "GET is usually used to:", ["Read data", "Delete every record", "Format a disk", "Compile code"], 0, "GET commonly retrieves data from a server.", "mdn-http"),
     q("Cloud", "medium", "In PaaS, the platform mainly manages:", ["Only your resume", "Server/runtime infrastructure", "Your keyboard", "Nothing"], 1, "PaaS lets developers deploy code while the platform handles much of the runtime infrastructure.", "gfg-cs-core"),
-  ],
+        q("Cloud Computing", "easy", "A company rents virtual machines and manages its own operating system and applications. Which service model is this?", ["IaaS","PaaS","SaaS","FaaS"], 0, "IaaS provides infrastructure such as virtual machines; the customer manages the OS and applications.", "studybench-original-2026"),
+        q("HTTP & APIs", "easy", "Which HTTP method is conventionally used to retrieve a resource?", ["GET","POST","PATCH","DELETE"], 0, "GET is conventionally used to retrieve a representation of a resource.", "studybench-original-2026"),
+        q("HTTP & APIs", "medium", "A client sends a request for a resource that does not exist. Which status code is the conventional response?", ["404","200","401","500"], 0, "404 Not Found indicates that the requested resource could not be found.", "studybench-original-2026")
+      ],
 }
 
 const csSecurityBasics: Chapter = {
@@ -2088,7 +1844,10 @@ const csSecurityBasics: Chapter = {
     q("Security", "medium", "Passwords should usually be stored as:", ["Plain text", "Hashed values", "Screenshots", "Comments"], 1, "Passwords should be stored using strong one-way hashing.", "gfg-cs-core"),
     q("Security", "hard", "The principle of least privilege means:", ["Give all access to everyone", "Give only necessary access", "Disable all accounts", "Avoid authentication"], 1, "Least privilege reduces risk by granting only required permissions.", "studybench-curriculum"),
     q("Security", "medium", "SQL injection is mainly caused by:", ["Unsafe query construction", "Too much RAM", "A sorted array", "A slow monitor"], 0, "Unsafe query construction can let attacker input change the query.", "gfg-cs-core"),
-  ],
+        q("Cybersecurity", "easy", "A user successfully signs in, but is denied access to the admin page. Which control decides whether the user may open that page?", ["Authorization","Authentication","Hashing","Compression"], 0, "Authentication verifies identity; authorization checks whether that identity has permission to access a resource.", "studybench-original-2026"),
+        q("Cybersecurity", "medium", "Why should passwords be stored using a purpose-built password-hashing algorithm with a salt?", ["To make offline guessing more expensive and prevent identical passwords having identical stored hashes","To allow the server to decrypt the original password","To make passwords visible to administrators","To compress the password database"], 0, "A salted password hash is one-way and computationally expensive to attack; a salt also prevents identical passwords from sharing the same hash.", "studybench-original-2026"),
+        q("Web Security", "medium", "Which practice most directly prevents SQL injection when querying a database?", ["Use parameterized queries","Concatenate raw user input into SQL","Hide database errors only","Store SQL statements in browser local storage"], 0, "Parameterized queries keep user input separate from SQL syntax, preventing input from changing the query structure.", "studybench-original-2026")
+      ],
 }
 
 const csAiDataBasics: Chapter = {
@@ -2101,7 +1860,7 @@ const csAiDataBasics: Chapter = {
       title: "Data pipeline basics",
       minutes: 6,
       body:
-        "A simple data pipeline has four steps: **collect -> clean -> transform -> analyse/report**.\n\nBad data creates bad decisions. Cleaning handles missing values, duplicates, wrong formats and outliers.\n\n**Worked example:** if a salary column contains 'five lakh' and '500000', cleaning converts them into one consistent numeric format.\n\n**Exam tip:** analytics questions reward clarity: name the input, transformation and output.",
+        "A data pipeline moves information from its source to a useful output. A simple pipeline has four stages: **collect → clean → transform → analyse/report**.\n\n**1. Collect:** bring data from forms, applications, sensors or databases into one workspace. Record where it came from and when it was collected.\n\n**2. Clean:** check missing values, duplicates, inconsistent formats and impossible values. Do not delete an unusual value automatically; first decide whether it is an error or a genuine outlier.\n\n**3. Transform:** convert fields into consistent units and formats, combine sources, or create useful measures. Keep the original data so the transformation can be traced.\n\n**Worked example:** a salary column contains “five lakh”, “₹500000” and “500000”. After validating the currency and meaning, convert them into one numeric representation such as 500000.\n\n**Common mistake:** treating cleaning as simply deleting blank rows. Missing values may need investigation, imputation or an explicit “unknown” category.\n\n**Remember:** collect → validate/clean → transform → analyse. Document each step so another analyst can reproduce the result.",
       sourceIds: ["studybench-curriculum", "gfg-cs-core"],
     },
     {
@@ -2119,7 +1878,10 @@ const csAiDataBasics: Chapter = {
     q("AI Basics", "medium", "In supervised learning, labels are:", ["Known answers", "Network ports", "SQL joins", "CSS classes"], 0, "Labels are the known outputs used for training.", "studybench-curriculum"),
     q("AI Basics", "hard", "Overfitting means the model:", ["Learns general patterns only", "Memorizes training data and fails on new data", "Uses no data", "Cannot be evaluated"], 1, "Overfitting gives poor generalization to unseen data.", "studybench-curriculum"),
     q("Analytics", "medium", "For imbalanced data, accuracy alone can be misleading because:", ["It ignores class distribution issues", "It is always zero", "It measures RAM", "It sorts rows"], 0, "A high accuracy can hide poor performance on a minority class.", "studybench-curriculum"),
-  ],
+        q("Data Analytics", "easy", "A dataset contains the same customer row twice. Which cleaning action addresses this issue?", ["Deduplication","Normalization of network traffic","Encryption","Model deployment"], 0, "Deduplication identifies and removes repeated records according to a defined key or rule.", "studybench-original-2026"),
+        q("Machine Learning", "easy", "In supervised learning, what is a label?", ["The target value the model is trained to predict","A random feature removed before training","The model’s source-code filename","A database index"], 0, "A label is the known target/output associated with a training example.", "studybench-original-2026"),
+        q("Machine Learning", "medium", "A model scores very highly on training data but performs poorly on unseen test data. What is the likely issue?", ["Overfitting","Underfitting only","Data encryption","Load balancing"], 0, "Overfitting occurs when a model learns training-specific patterns that do not generalize well.", "studybench-original-2026")
+      ],
 }
 
 const csTestingSdlc: Chapter = {
@@ -2140,7 +1902,7 @@ const csTestingSdlc: Chapter = {
       title: "SDLC and bug reports",
       minutes: 6,
       body:
-        "A common SDLC flow is **requirements -> design -> implementation -> testing -> deployment -> maintenance**.\n\nA useful bug report includes: title, environment, steps to reproduce, expected result, actual result and evidence.\n\n**Placement tip:** companies value freshers who can communicate bugs clearly. 'It is not working' is weak; 'Login fails with 401 after password reset on Chrome' is useful.",
+        "A common **Software Development Life Cycle (SDLC)** flow is **requirements → design → implementation → testing → deployment → maintenance**. Real teams may iterate between these stages, but the sequence helps explain the purpose of each activity.\n\n- **Requirements:** agree what the product must do and its constraints.\n- **Design:** plan components, data and interfaces.\n- **Implementation:** write and review the code.\n- **Testing:** check expected behaviour and defects.\n- **Deployment:** release the change to its target environment.\n- **Maintenance:** monitor, fix and improve the system.\n\nA useful bug report includes a clear title, environment, preconditions, reproducible steps, expected result, actual result and evidence such as logs or screenshots.\n\n**Worked example:** “Login fails” is too vague. A useful report says: “On Chrome 130, after resetting a password, submitting the new password returns HTTP 401; expected a successful login.”\n\n**Common mistake:** reporting only the expected result without exact reproduction steps. Another developer must be able to repeat the failure.\n\n**Remember:** a good bug report makes the problem reproducible, observable and specific.",
       sourceIds: ["studybench-curriculum"],
     },
   ],
@@ -2150,7 +1912,10 @@ const csTestingSdlc: Chapter = {
     q("SDLC", "easy", "A common SDLC phase after implementation is:", ["Testing", "Deleting requirements", "Ignoring users", "Buying hardware only"], 0, "Testing typically follows implementation.", "studybench-curriculum"),
     q("Testing", "medium", "A good bug report should include:", ["Steps to reproduce", "Only anger", "No expected result", "No environment"], 0, "Steps to reproduce make the bug actionable.", "studybench-curriculum"),
     q("Testing", "hard", "Testing two modules working together is:", ["Integration testing", "Unit testing only", "Syntax checking", "Authentication"], 0, "Integration testing checks interactions between modules.", "studybench-curriculum"),
-  ],
+        q("Software Testing", "easy", "A test checks one function in isolation. Which testing level is this?", ["Unit testing","System testing","Acceptance testing","Performance testing"], 0, "Unit testing focuses on a small unit such as a function or module in isolation.", "studybench-original-2026"),
+        q("Software Testing", "medium", "A code change accidentally breaks a feature that previously worked. Which test suite is intended to catch this?", ["Regression tests","Load tests only","Usability tests only","Installation tests only"], 0, "Regression testing checks that existing behaviour still works after a change.", "studybench-original-2026"),
+        q("SDLC", "easy", "Which activity normally comes immediately after requirements analysis in a simple SDLC sequence?", ["Design","Maintenance","Deployment","Retirement"], 0, "A common sequence is requirements, design, implementation, testing, deployment and maintenance.", "studybench-original-2026")
+      ],
 }
 
 const csDevopsBasics: Chapter = {
@@ -2163,7 +1928,7 @@ const csDevopsBasics: Chapter = {
       title: "Git and collaboration",
       minutes: 6,
       body:
-        "**Git** tracks code history. A **commit** records a snapshot. A **branch** lets you work separately. A **merge** combines changes.\n\n**Pull requests** are used to review code before merging. They reduce bugs and help teams discuss trade-offs.\n\n**Common mistake:** saying GitHub and Git are the same. Git is the version-control tool; GitHub hosts repositories and collaboration features.",
+        "**Git** is a distributed version-control system. It records changes so a developer can inspect history, create parallel work and combine contributions.\n\n- A **repository** contains project files and their history.\n- A **commit** records a named snapshot of staged changes.\n- A **branch** is a movable pointer used to develop work separately.\n- A **merge** combines histories, sometimes requiring conflict resolution.\n- A **pull request** is a collaboration workflow for discussion and review before merging; it is commonly hosted by GitHub or similar services.\n\n**Typical workflow:** update the base branch, create a feature branch, edit files, run tests, stage and commit changes, push the branch, then open a pull request.\n\n**Worked example:** create `feature/login`, implement login validation, commit the change and ask a teammate to review it before merging into `main`.\n\n**Common mistake:** saying Git and GitHub are the same. Git is the version-control tool; GitHub is a hosting and collaboration platform.\n\n**Remember:** commit = snapshot, branch = isolated line of work, merge = combine histories, pull request = review workflow.",
       sourceIds: ["studybench-curriculum", "gfg-cs-core"],
     },
     {
@@ -2171,7 +1936,7 @@ const csDevopsBasics: Chapter = {
       title: "CI/CD and environments",
       minutes: 6,
       body:
-        "**CI** runs checks automatically when code changes. **CD** automates release/deployment.\n\n**Environment variables** store configuration like API URLs and secrets outside the code. Never hardcode secrets into a public repository.\n\n**Deployment flow:** build the app, run checks, configure environment, release, monitor logs.\n\n**Placement tip:** even freshers should understand that shipping code includes testing, deployment and monitoring, not only writing functions.",
+        "**Continuous Integration (CI)** automatically builds and checks changes as developers integrate code. Typical checks include formatting, linting, type checks and automated tests.\n\n**Continuous Delivery/Deployment (CD)** automates preparing or releasing validated software. In continuous delivery, a human may approve production release; continuous deployment can release automatically when checks pass.\n\n**Environment variables** provide configuration outside source code, such as a service URL or feature flag. Sensitive values should be stored in protected deployment secrets, never committed to a public repository or exposed in browser code.\n\n**A safe deployment flow:** build → run checks → deploy to a test/staging environment → verify health → release → monitor logs and metrics. Keep a rollback plan for failed releases.\n\n**Worked example:** a pull request triggers tests. After approval, the application deploys to staging. Once verified, the release is promoted to production.\n\n**Common mistake:** assuming CI/CD guarantees a bug-free release. Automated checks reduce risk but do not replace review, monitoring or rollback planning.\n\n**Remember:** CI validates changes; CD prepares or delivers releases.",
       sourceIds: ["studybench-curriculum"],
     },
   ],
@@ -2181,7 +1946,10 @@ const csDevopsBasics: Chapter = {
     q("DevOps", "medium", "CI commonly means:", ["Continuous Integration", "Computer Internet", "Code Ignore", "Cloud Image"], 0, "CI automates checks during integration.", "studybench-curriculum"),
     q("DevOps", "hard", "Secrets should usually be stored in:", ["Environment variables or secret managers", "Public source code", "Comments", "Screenshots"], 0, "Secrets should not be hardcoded into public code.", "studybench-curriculum"),
     q("DevOps", "medium", "Monitoring after deployment mainly helps teams:", ["Detect errors and performance issues", "Avoid users", "Remove all logs", "Skip testing"], 0, "Monitoring shows whether the released app is healthy.", "studybench-curriculum"),
-  ],
+        q("Git", "easy", "Which Git command creates a new branch named feature/login?", ["git branch feature/login","git commit feature/login","git push feature/login","git status feature/login"], 0, "git branch creates a branch. Switching to it is a separate operation unless using git switch -c.", "studybench-original-2026"),
+        q("CI/CD", "medium", "A CI pipeline runs tests automatically whenever a pull request is opened. What is the main benefit?", ["Find integration problems early and consistently","Guarantee that no production bug can occur","Replace code review entirely","Remove the need for version control"], 0, "Automated checks provide repeatable early feedback, but they do not guarantee bug-free software or replace review.", "studybench-original-2026"),
+        q("Deployment", "easy", "Where should production API secrets normally be stored?", ["A protected secret manager or deployment environment variable","A public Git repository","A client-side JavaScript constant","A screenshot in the README"], 0, "Secrets belong in protected server/deployment configuration, not public source code or client bundles.", "studybench-original-2026")
+      ],
 }
 
 const csSystemDesignBasics: Chapter = {
@@ -2202,7 +1970,7 @@ const csSystemDesignBasics: Chapter = {
       title: "Scaling vocabulary",
       minutes: 6,
       body:
-        "**Caching** stores frequently used data for faster access. **Load balancing** distributes traffic across servers. **Database indexing** speeds lookups but costs write overhead and storage.\n\nFor freshers, interviewers usually expect concepts, not enterprise architecture. Explain trade-offs simply.\n\n**Common mistake:** saying every problem needs microservices. Many fresher projects are better explained as a clean monolith with good database design.",
+        "Scaling means handling more users, requests or data while meeting performance and reliability goals. Start by measuring the bottleneck; do not add infrastructure based on guesses.\n\n- **Caching** stores reusable results closer to the caller. It can reduce repeated work, but cached data may become stale and needs an expiry or invalidation strategy.\n- **Load balancing** distributes requests across healthy application instances. It improves capacity and resilience, but does not fix a slow database by itself.\n- **Database indexing** helps the database find rows faster for suitable queries. Indexes consume storage and add work to inserts, updates and deletes.\n- **Horizontal scaling** adds more instances; **vertical scaling** gives one instance more resources.\n\n**Worked example:** if a dashboard repeatedly reads the same public course catalogue, a short-lived cache may reduce database load. User-specific progress should not be shared in a public cache key.\n\n**Common mistake:** assuming every product needs microservices. A well-structured monolith is often simpler for a small team.\n\n**Remember:** measure first, choose the smallest effective change, and understand its trade-offs.",
       sourceIds: ["studybench-curriculum", "gfg-cs-core"],
     },
   ],
@@ -2212,7 +1980,10 @@ const csSystemDesignBasics: Chapter = {
     q("System Design", "medium", "A load balancer distributes:", ["Traffic across servers", "Marks across students", "Rows into columns", "Passwords publicly"], 0, "Load balancing spreads requests across available servers.", "gfg-cs-core"),
     q("DBMS", "hard", "Database indexes speed reads but can slow:", ["Writes", "The monitor", "All authentication", "HTML rendering only"], 0, "Indexes must be updated during writes, so they add write overhead.", "gfg-cs-core"),
     q("System Design", "medium", "For many fresher projects, a clean monolith is:", ["Often acceptable", "Always illegal", "Not software", "The same as DNS"], 0, "A clear monolith can be suitable before scale requires more complexity.", "studybench-curriculum"),
-  ],
+        q("System Design", "easy", "What should be clarified before choosing technologies for a system design?", ["Functional requirements and constraints","The colour of the dashboard","The names of all future developers","The number of microservices"], 0, "Requirements and constraints define what the system must do and guide appropriate design choices.", "studybench-original-2026"),
+        q("System Design", "medium", "What is a common trade-off of adding a database index?", ["Faster reads for indexed queries, with extra storage and write overhead","Faster writes with no storage cost","Automatic elimination of duplicate data","Guaranteed consistency across regions"], 0, "Indexes can speed lookups but consume storage and must be maintained when data changes.", "studybench-original-2026"),
+        q("Scalability", "easy", "What does a load balancer typically do?", ["Distributes incoming requests across multiple servers","Encrypts database backups","Replaces the application database","Compiles source code"], 0, "A load balancer spreads traffic across healthy instances to improve capacity and availability.", "studybench-original-2026")
+      ],
 }
 
 // ---- NEW QUANT CHAPTERS ----
@@ -2235,7 +2006,7 @@ const quantMensuration: Chapter = {
       title: "3-D shapes: volume and surface area",
       minutes: 5,
       body:
-        "**Step-by-step method for any 3-D problem:**\n1. Identify the shape (cube, cuboid, cylinder, cone, sphere).\n2. Decide: total surface area or volume?\n3. Write the formula, substitute, calculate.\n\n**Formulas to memorise:**\n- Cube (side s): Volume = s^3, TSA = 6s^2.\n- Cuboid: Volume = l x b x h, TSA = 2(lb + bh + hl).\n- Cylinder (radius r, height h): Volume = π r^2 h, CSA = 2πrh.\n- Sphere: Volume = (4/3)πr^3, SA = 4πr^2.\n\n**Worked example:** A cube with side 4 cm. Volume = 4^3 = **64 cm³**. TSA = 6 x 4^2 = **96 cm²**.\n\n**Key insight:** Volume is measured in cm³ (cubed units), surface area in cm² (squared units). Examiners often include both in one question to test if you use the right formula.\n\n**Company context:** Mensuration appears in TCS NQT, Wipro and Cognizant aptitude sections, usually as 1-2 questions per test.",
+        "**Step-by-step method for any 3-D problem:**\n1. Identify the shape (cube, cuboid, cylinder, cone, sphere).\n2. Decide: total surface area or volume?\n3. Write the formula, substitute, calculate.\n\n**Formulas to memorise:**\n- Cube (side s): Volume = s^3, TSA = 6s^2.\n- Cuboid: Volume = l x b x h, TSA = 2(lb + bh + hl).\n- Cylinder (radius r, height h): Volume = π r^2 h, CSA = 2πrh.\n- Sphere: Volume = (4/3)πr^3, SA = 4πr^2.\n\n**Worked example:** A cube with side 4 cm. Volume = 4^3 = **64 cm³**. TSA = 6 x 4^2 = **96 cm²**.\n\n**Key insight:** Volume is measured in cm³ (cubed units), surface area in cm² (squared units). Examiners often include both in one question to test if you use the right formula.\n\n**Assessment context:** Mensuration is a useful quantitative skill when a role or assessment includes geometry-based problem solving. Check the current employer assessment guide before assuming it will appear.",
       sourceIds: ["rs-aggarwal-quant", "indiabix-aptitude"],
     },
   ],
@@ -2246,7 +2017,9 @@ const quantMensuration: Chapter = {
     q("Mensuration", "medium", "The volume of a cube with side 5 cm is:", ["25 cm³", "75 cm³", "125 cm³", "150 cm³"], 2, "Volume = 5^3 = 125 cm³.", "rs-aggarwal-quant"),
     q("Mensuration", "medium", "A cylinder has radius 7 cm and height 10 cm. Its volume is (π = 22/7):", ["1540 cm³", "440 cm³", "770 cm³", "1070 cm³"], 0, "Volume = (22/7) x 7^2 x 10 = 22 x 7 x 10 = 1540 cm³.", "rs-aggarwal-quant"),
     q("Mensuration", "hard", "If the radius of a circle doubles, its area becomes:", ["Twice", "Three times", "Four times", "Half"], 2, "Area = πr²; when r becomes 2r, area = π(2r)² = 4πr² = 4 times the original.", "rs-aggarwal-quant"),
-  ],
+        q("Mensuration", "easy", "A square has side 9 cm. What is its perimeter?", ["36 cm","81 cm","18 cm","27 cm"], 0, "Perimeter of a square = 4 × side = 4 × 9 = 36 cm.", "studybench-original-2026"),
+        q("Mensuration", "medium", "A cylinder has radius 3 cm and height 5 cm. What is its volume? Use π = 3.14.", ["141.3 cm³","94.2 cm³","47.1 cm³","282.6 cm³"], 0, "Volume = πr²h = 3.14 × 3² × 5 = 3.14 × 45 = 141.3 cm³.", "studybench-original-2026")
+      ],
 }
 
 const quantAlgebra: Chapter = {
@@ -2278,7 +2051,9 @@ const quantAlgebra: Chapter = {
     q("Ages", "medium", "A father is 3 times his son's age. In 12 years, he will be twice his son's age. The son's age now is:", ["10", "12", "14", "15"], 1, "3x + 12 = 2(x + 12) -> x + 12 = 24 -> x = 12.", "rs-aggarwal-quant"),
     q("Algebra", "medium", "The difference of two numbers is 8 and their sum is 32. The larger number is:", ["18", "20", "22", "24"], 1, "Add equations: 2a = 40 -> a = 20.", "rs-aggarwal-quant"),
     q("Ages", "hard", "Asha is 5 years older than Priya. Three years ago Asha was twice Priya's age. Asha's present age is:", ["11", "13", "15", "17"], 1, "Let Priya = x, Asha = x+5. Three years ago: x+5-3 = 2(x-3) -> x+2 = 2x-6 -> x = 8. Asha = 13.", "rs-aggarwal-quant"),
-  ],
+        q("Algebra", "easy", "If x/4 = 6, what is x?", ["24","10","2","18"], 0, "Multiply both sides by 4: x = 6 × 4 = 24.", "studybench-original-2026"),
+        q("Algebra", "medium", "A number is doubled and 3 is added. The result is 19. What is the number?", ["8","11","16","22"], 0, "Let the number be x. 2x + 3 = 19, so 2x = 16 and x = 8.", "studybench-original-2026")
+      ],
 }
 
 // ---- NEW REASONING CHAPTERS ----
@@ -2311,7 +2086,10 @@ const reasonInputOutput: Chapter = {
     q("Input-Output", "medium", "A machine rearranges words alphabetically from the left one step at a time. Input: red blue pink. After Step 1, the sequence is:", ["red pink blue", "blue red pink", "pink red blue", "blue pink red"], 1, "Step 1 places the first alphabetically ('blue') at position 1: blue red pink.", "indiabix-aptitude"),
     q("Input-Output", "medium", "Input: 5 2 8 4 1. A machine moves the largest number to the right end each step. After Step 1:", ["5 2 4 1 8", "1 2 4 5 8", "2 5 4 1 8", "5 2 8 1 4"], 0, "Largest (8) moves to the right end: 5 2 4 1 8.", "rs-aggarwal-reasoning"),
     q("Input-Output", "hard", "After Step 2 of the above (largest to right each time), the sequence is:", ["1 2 4 5 8", "5 2 4 1 8", "2 4 1 5 8", "5 4 2 1 8"], 2, "Step 2 moves next largest (5) to second from right: 2 4 1 5 8.", "rs-aggarwal-reasoning"),
-  ],
+        q("Input Output", "easy", "A machine adds 3 to every input. What is the output for input 8?", ["11","5","24","83"], 0, "Apply the stated operation: 8 + 3 = 11.", "studybench-original-2026"),
+        q("Input Output", "medium", "A machine doubles a number and then subtracts 1. What is the output for input 6?", ["11","10","13","7"], 0, "First double 6 to get 12, then subtract 1: output = 11.", "studybench-original-2026"),
+        q("Input Output", "medium", "A word machine sorts the words CAT, APPLE and BALL alphabetically. What is the resulting order?", ["APPLE, BALL, CAT","BALL, APPLE, CAT","CAT, BALL, APPLE","APPLE, CAT, BALL"], 0, "Alphabetical order compares the first differing letters: APPLE comes before BALL, then CAT.", "studybench-original-2026")
+      ],
 }
 
 const reasonStatements: Chapter = {
@@ -2342,7 +2120,10 @@ const reasonStatements: Chapter = {
     q("Statement-Argument", "medium", "Statement: Should exams be made open-book? Argument: Yes, it tests understanding rather than memory. Is the argument strong or weak?", ["Strong", "Weak", "Neither", "Cannot say"], 0, "It directly addresses the purpose of assessment — a relevant, reasoned point. Strong.", "rs-aggarwal-reasoning"),
     q("Statement-Argument", "medium", "Statement: Should public transport be free? Argument: No, people have always paid for transport. Is the argument strong or weak?", ["Strong", "Weak", "Neither", "Both"], 1, "Tradition is not a reasoned objection. The argument is weak.", "rs-aggarwal-reasoning"),
     q("Statement-Assumption", "hard", "Statement: 'Read this guide carefully before installing the software.' Assumption I: Users can read. Assumption II: The software requires special steps to install.", ["Only I", "Only II", "Both I and II", "Neither"], 2, "I is implicit (addressing someone who can read) and II is implicit (otherwise the guide would be unnecessary). Both follow.", "rs-aggarwal-reasoning"),
-  ],
+        q("Statement Assumption", "medium", "Statement: “Install streetlights to improve night-time visibility.” Which assumption is necessary?", ["Poor lighting can reduce visibility at night","Streetlights guarantee zero accidents","All residents drive at night","Daylight is unavailable"], 0, "The recommendation relies on the idea that inadequate lighting can reduce night-time visibility. The other claims are not necessary.", "studybench-original-2026"),
+        q("Statement Argument", "medium", "Proposal: “The college should provide filtered drinking water.” Which is the strongest argument?", ["Safe drinking water supports student health","Filtered water looks more modern","Other colleges may have different buildings","The proposal sounds popular"], 0, "Student health is directly relevant and evidence-based; appearance and popularity do not establish the practical need.", "studybench-original-2026"),
+        q("Critical Reasoning", "medium", "A survey of 20 volunteers at one office is used to claim that all workers in the country prefer remote work. What is the main weakness?", ["The sample is too small and not representative","The survey contains a number","The question concerns work preferences","The volunteers answered voluntarily"], 0, "A small, single-office volunteer sample cannot support a general claim about all workers.", "studybench-original-2026")
+      ],
 }
 
 // ---- NEW VERBAL CHAPTER ----
@@ -2375,7 +2156,10 @@ const verbalCriticalReasoning: Chapter = {
     q("Critical Reasoning", "medium", "Argument: 'Students who sleep 8 hours score higher.' Which statement STRENGTHENS this?", ["Sleep is enjoyable.", "A study of 10,000 students shows consistent high scores with 8-hour sleep across age groups.", "Some students sleep 6 hours and do fine.", "Sleeping more is always better."], 1, "Broad multi-study evidence directly supports the link claimed in the argument.", "high-agg-verbal"),
     q("Critical Reasoning", "medium", "The same argument ('Students who sleep 8 hours score higher') is WEAKENED by:", ["Exams are getting harder.", "A controlled study shows similar scores among students sleeping 6 or 8 hours.", "More students study at night.", "Schools start too early."], 1, "It directly challenges the assumed link between 8-hour sleep and higher scores.", "high-agg-verbal"),
     q("Critical Reasoning", "hard", "Passage: 'Only engineers who pass the ethics exam are promoted.' Inference: 'Some engineers who passed the ethics exam are not promoted.'", ["True", "False", "Cannot say", "True only if stated"], 2, "The passage says passing is required for promotion, but does not say it guarantees promotion. Some passers may or may not be promoted — we cannot say from the passage alone.", "high-agg-verbal"),
-  ],
+        q("Critical Reasoning", "easy", "A claim says a new policy caused sales to rise because sales rose after the policy began. Which issue should be checked before accepting the claim?", ["Whether other factors could explain the rise","Whether the policy has a short name","Whether the graph uses blue bars","Whether sales are measured in a table"], 0, "A sequence in time alone does not prove causation. Other changes may have contributed.", "studybench-original-2026"),
+        q("Critical Reasoning", "medium", "A company says its new training caused productivity to improve, but it measured only trained employees and had no comparison group. What is the main limitation?", ["There is no comparison group to help isolate the training effect","The employees received training","Productivity was measured","The company made a claim"], 0, "Without a suitable comparison, other explanations for the improvement cannot be ruled out.", "studybench-original-2026"),
+        q("Argument Evaluation", "medium", "Which evidence would best support the claim that a help-desk redesign reduced waiting time?", ["Comparable waiting-time data before and after the redesign, accounting for ticket volume","A manager says the new design looks better","The redesign used a newer colour scheme","One employee prefers the new layout"], 0, "Comparable measured outcomes with ticket volume considered provide relevant evidence for the claimed effect.", "studybench-original-2026")
+      ],
 }
 
 // ---- CODING: Sorting & Searching ----
@@ -2397,7 +2181,7 @@ const codingSearchSort: Chapter = {
       title: "Sorting algorithms: bubble, selection, insertion, merge, quick",
       minutes: 8,
       body:
-        "**Step-by-step comparison (know each one):**\n\n**Bubble Sort:** Repeatedly compare adjacent elements and swap if out of order. Largest 'bubbles' to the end each pass. O(n²) worst/average, O(n) best (with early-exit flag). Stable. Easy to code, not practical for large inputs.\n\n**Selection Sort:** Find the minimum in the unsorted part, swap it to the front. O(n²) always — but only n-1 swaps total (useful when write cost is high). Not stable.\n\n**Insertion Sort:** Take each element and insert it into its correct position in the sorted prefix. O(n²) worst, O(n) best (nearly sorted). Stable. Best choice for small or nearly-sorted arrays.\n\n**Merge Sort:** Divide in half, sort each half, merge. O(n log n) all cases. Stable. Uses O(n) extra space. Best for linked lists and external sorting.\n\n**Quick Sort:** Pick a pivot, partition so that smaller elements are left and larger are right, recurse on both sides. O(n log n) average, O(n²) worst (sorted array with bad pivot). Not stable. Fastest in practice due to cache-friendliness.\n\n**Summary table:**\n- Merge sort: guaranteed O(n log n), stable, O(n) space.\n- Quick sort: O(n log n) average, not stable, O(log n) space.\n- For production code: use the language's built-in sort (TimSort = merge+insertion, O(n log n), stable).\n\n**Exam tip:** Know the worst case of each. 'Quick sort worst case' is O(n²) — this comes up in every company's assessment.",
+        "**Step-by-step comparison (know each one):**\n\n**Bubble Sort:** Repeatedly compare adjacent elements and swap if out of order. Largest 'bubbles' to the end each pass. O(n²) worst/average, O(n) best (with early-exit flag). Stable. Easy to code, not practical for large inputs.\n\n**Selection Sort:** Find the minimum in the unsorted part, swap it to the front. O(n²) always — but only n-1 swaps total (useful when write cost is high). Not stable.\n\n**Insertion Sort:** Take each element and insert it into its correct position in the sorted prefix. O(n²) worst, O(n) best (nearly sorted). Stable. Best choice for small or nearly-sorted arrays.\n\n**Merge Sort:** Divide in half, sort each half, merge. O(n log n) all cases. Stable. Uses O(n) extra space. Best for linked lists and external sorting.\n\n**Quick Sort:** Pick a pivot, partition so that smaller elements are left and larger are right, recurse on both sides. O(n log n) average, O(n²) worst (sorted array with bad pivot). Not stable. Fastest in practice due to cache-friendliness.\n\n**Summary table:**\n- Merge sort: guaranteed O(n log n), stable, O(n) space.\n- Quick sort: O(n log n) average, not stable, O(log n) space.\n- For production code: use the language's built-in sort (TimSort = merge+insertion, O(n log n), stable).\n\n**Interview practice:** Know the worst case of each algorithm and be able to explain why quicksort can degrade to O(n²), while merge sort maintains O(n log n) time.",
       sourceIds: ["gfg-dsa", "rs-aggarwal-quant"],
     },
   ],
@@ -2556,7 +2340,10 @@ const commResumeProjects: Chapter = {
     q("Project Explanation", "hard", "If an interviewer asks what you would improve in your project, the best answer is:", ["Nothing, it is perfect", "A specific limitation, why it matters and a practical next step", "I do not remember", "My teammate handled it"], 1, "A realistic improvement answer shows ownership and engineering maturity.", "studybench-curriculum"),
     q("Proof of Work", "medium", "A GitHub README for a placement project should include:", ["Only the repository title", "Setup steps, screenshots, features and limitations", "Only copied commands", "No explanation"], 1, "A useful README helps others understand, run and evaluate the project.", "studybench-curriculum"),
     q("Proof of Work", "hard", "Which proof signal is strongest for a fresher?", ["A copied tutorial with no changes", "A deployed project with README and clear ownership", "A long list of buzzwords", "A private empty repository"], 1, "Working proof with ownership is more credible than buzzwords or copied content.", "studybench-curriculum"),
-  ],
+        q("Resume Writing", "easy", "Which project bullet is strongest for a software internship résumé?", ["Built a task tracker with login and CRUD features using React and Supabase","Worked on a very good project","Know many technologies","Interested in software development"], 0, "The first bullet states an action, concrete features and technologies rather than unsupported adjectives.", "studybench-original-2026"),
+        q("Project Explanation", "medium", "When explaining a project in an interview, which sequence is clearest?", ["Problem, your role, approach, result and learning","List every technology before explaining the problem","Describe only the final UI","Discuss unrelated personal interests"], 0, "A problem-to-result structure helps the interviewer understand purpose, contribution and outcome.", "studybench-original-2026"),
+        q("Resume Accuracy", "easy", "Which résumé practice is most appropriate?", ["State measurable results only when they are genuine and explainable","Invent metrics to make a project impressive","List tools never used","Copy another candidate’s project description"], 0, "Claims must be truthful and defensible; fabricated metrics damage credibility.", "studybench-original-2026")
+      ],
 }
 
 const commApplicationsDrive: Chapter = {
@@ -2596,7 +2383,10 @@ const commApplicationsDrive: Chapter = {
     q("Recruiter Email", "hard", "The best subject line for a follow-up is:", ["Hiii please reply", "Application for Software Engineer - Priya Kumar", "Important!!!!", "Job"], 1, "A clear subject line helps the recruiter identify the role and candidate quickly.", "studybench-curriculum"),
     q("Test Day", "medium", "The safest online test setup habit is to:", ["Open the test link at the last minute", "Check internet, charger, camera and login before the test", "Keep all tabs open", "Ignore instructions"], 1, "Setup issues should be solved before the timer starts.", "studybench-curriculum"),
     q("Documents", "hard", "Which mistake can block an otherwise eligible student?", ["Having a clean resume PDF", "Submitting the wrong resume or missing a required document", "Keeping ID proof ready", "Checking eligibility"], 1, "Administrative misses can prevent shortlisting even when the student is prepared.", "studybench-curriculum"),
-  ],
+        q("Job Applications", "easy", "Before submitting an online job application, what should you check first?", ["Role requirements, eligibility and application details","Only the company logo","Whether the form is colourful","The number of social-media followers"], 0, "Checking eligibility and role requirements prevents avoidable application errors.", "studybench-original-2026"),
+        q("Job Applications", "medium", "A recruiter asks for a résumé by email. Which response is most professional?", ["A brief polite message with the requested résumé attached and a clear subject","A blank email with an attachment","A message demanding an immediate reply","An informal message full of abbreviations"], 0, "A concise, polite email with a clear subject and the requested attachment is professional and actionable.", "studybench-original-2026"),
+        q("Application Tracking", "easy", "Why maintain an application tracker?", ["To record role, company, date, status and follow-up action","To guarantee an interview","To replace the résumé","To send the same email repeatedly"], 0, "A tracker helps organise applications and prevents missed follow-ups; it cannot guarantee selection.", "studybench-original-2026")
+      ],
 }
 
 const commInterviewCapstone: Chapter = {
@@ -2636,7 +2426,10 @@ const commInterviewCapstone: Chapter = {
     q("Recovery", "hard", "Why is a brute-force approach useful in an interview?", ["It is always accepted as final", "It proves a working baseline before optimization", "It avoids thinking", "It hides complexity"], 1, "A brute-force idea shows problem understanding and creates a path toward optimization.", "gfg-dsa"),
     q("Final Day", "medium", "The final day before an interview should focus on:", ["Random new topics all night", "Self-intro, project, weak mistakes and key flash notes", "Only watching videos", "Skipping sleep"], 1, "Final-day preparation should stabilize recall and confidence.", "studybench-curriculum"),
     q("Offer Conversion", "hard", "The strongest closing question to ask a panel is:", ["How much leave will I get first?", "What does success look like for a fresher in the first six months?", "Can I leave early daily?", "Do I have to work?"], 1, "A forward-looking question shows seriousness and role awareness.", "studybench-curriculum"),
-  ],
+        q("Interview Preparation", "easy", "What is the best first step when answering “Tell me about yourself”?", ["Give a concise professional introduction relevant to the role","Describe your entire childhood","Read every line of your résumé","Ask the interviewer to answer first"], 0, "A concise role-relevant introduction gives the interviewer a useful professional overview.", "studybench-original-2026"),
+        q("Behavioural Interview", "medium", "In the STAR method, what does the “A” represent?", ["Action","Aim","Assessment","Answer"], 0, "STAR stands for Situation, Task, Action and Result. Action describes what you personally did.", "studybench-original-2026"),
+        q("Interview Preparation", "medium", "If you do not know the answer to a technical question, what is the strongest response?", ["Be honest, explain what you do know and describe how you would investigate","Invent an answer confidently","Change the subject immediately","Blame the question wording"], 0, "Honest reasoning and a clear learning approach are stronger than bluffing.", "studybench-original-2026")
+      ],
 }
 
 /** Extra chapters appended to every track to broaden real placement coverage. */
@@ -2644,7 +2437,6 @@ const EXTRA_CHAPTERS: Partial<Record<SectionId, Chapter[]>> = {
   quant: [quantTimeWork, quantAveragesAges, quantPermutations, quantDataInterpretation, quantMensuration, quantAlgebra],
   reasoning: [reasonSyllogism, reasonClocksCalendars, reasonSeatingPuzzles, reasonInputOutput, reasonStatements],
   verbal: [verbalWrittenEnglish, verbalCriticalReasoning],
-  coding: [codingTreesGraphs, codingDpGreedy, codingSearchSort, codingStacksQueues],
   "cs-core": [
     csFundamentals,
     csCloudWeb,
@@ -2659,531 +2451,236 @@ const EXTRA_CHAPTERS: Partial<Record<SectionId, Chapter[]>> = {
   "comm-interview": [commResumeProjects, commApplicationsDrive, commInterviewCapstone],
 }
 
-export const CHAPTER_QUIZ_TOTAL_PER_TRACK = 5000
-export const CHAPTER_PRACTICE_TARGET = 1200
-
-// Verified against the current hiring emphasis reflected across official company
-// assessment/careers pages plus public sample-assessment material where the
-// company publishes it. We keep the ratios here so each track can stay capped
-// at 5000 chapter-quiz questions while still biasing toward what matters most
-// for that recruiter.
-const COMPANY_CHAPTER_QUIZ_SECTION_WEIGHTS: Record<CompanyId, Record<SectionId, number>> = {
-  tcs: { quant: 270, reasoning: 240, verbal: 210, coding: 255, "cs-core": 195, "comm-interview": 225 },
-  infosys: { quant: 270, reasoning: 240, verbal: 210, coding: 285, "cs-core": 195, "comm-interview": 225 },
-  wipro: { quant: 255, reasoning: 225, verbal: 270, coding: 225, "cs-core": 180, "comm-interview": 270 },
-  accenture: { quant: 240, reasoning: 255, verbal: 225, coding: 210, "cs-core": 315, "comm-interview": 270 },
-  zoho: { quant: 165, reasoning: 165, verbal: 105, coding: 780, "cs-core": 255, "comm-interview": 210 },
-  cognizant: { quant: 255, reasoning: 255, verbal: 225, coding: 270, "cs-core": 225, "comm-interview": 255 },
-  general: { quant: 300, reasoning: 285, verbal: 255, coding: 330, "cs-core": 285, "comm-interview": 300 },
-}
-
-const MIN_CHAPTER_QUIZ_TARGET = 45
-
-function sectionQuizTargets(companyId: CompanyId): Record<SectionId, number> {
-  // Guard: if a stale/removed companyId somehow reaches here (e.g. old
-  // "ibm" stored in localStorage), fall back to "general" weights so we
-  // never crash with Object.values(undefined).
-  const weights = COMPANY_CHAPTER_QUIZ_SECTION_WEIGHTS[companyId] ?? COMPANY_CHAPTER_QUIZ_SECTION_WEIGHTS["general"]
-  const totalWeight = Object.values(weights).reduce((sum, value) => sum + value, 0)
-  const sections = Object.keys(weights) as SectionId[]
-  let allocated = 0
-
-  return sections.reduce(
-    (acc, sectionId, index) => {
-      const target =
-        index === sections.length - 1
-          ? CHAPTER_QUIZ_TOTAL_PER_TRACK - allocated
-          : Math.round((weights[sectionId] / totalWeight) * CHAPTER_QUIZ_TOTAL_PER_TRACK)
-      allocated += target
-      acc[sectionId] = target
-      return acc
-    },
-    {} as Record<SectionId, number>,
-  )
-}
-
-function chapterQuizTargets(
-  companyId: CompanyId,
-  section: Section,
-): Record<string, number> {
-  const sectionTarget = sectionQuizTargets(companyId)[section.id]
-  const lessonWeights = section.chapters.map((chapter) => Math.max(chapter.lessons.length, 1))
-  const minRequired = MIN_CHAPTER_QUIZ_TARGET * section.chapters.length
-  const baseline = Math.min(MIN_CHAPTER_QUIZ_TARGET, Math.floor(sectionTarget / section.chapters.length))
-  const distributable = Math.max(0, sectionTarget - baseline * section.chapters.length)
-  const totalLessonWeight = lessonWeights.reduce((sum, value) => sum + value, 0)
-
-  const provisional = section.chapters.map((chapter, index) => {
-    const raw = totalLessonWeight === 0 ? 0 : (lessonWeights[index] / totalLessonWeight) * distributable
-    const extra = Math.floor(raw)
-    return {
-      chapterId: chapter.id,
-      target: baseline + extra,
-      remainder: raw - extra,
-    }
-  })
-
-  let allocated = provisional.reduce((sum, item) => sum + item.target, 0)
-  if (sectionTarget >= minRequired) {
-    provisional.forEach((item) => {
-      if (item.target < MIN_CHAPTER_QUIZ_TARGET) {
-        allocated += MIN_CHAPTER_QUIZ_TARGET - item.target
-        item.target = MIN_CHAPTER_QUIZ_TARGET
-        item.remainder = 0
-      }
-    })
-  }
-
-  const ordered = [...provisional].sort(
-    (a, b) => b.remainder - a.remainder || a.chapterId.localeCompare(b.chapterId),
-  )
-
-  let remaining = sectionTarget - allocated
-  for (let i = 0; i < ordered.length && remaining > 0; i++) {
-    ordered[i].target += 1
-    remaining -= 1
-  }
-
-  return provisional.reduce(
-    (acc, item) => {
-      acc[item.chapterId] = item.target
-      return acc
-    },
-    {} as Record<string, number>,
-  )
-}
-
-function stableSeed(input: string): number {
-  let hash = 2166136261
-  for (let i = 0; i < input.length; i++) {
-    hash ^= input.charCodeAt(i)
-    hash = Math.imul(hash, 16777619)
-  }
-  return Math.abs(hash)
-}
-
-function communicationSupplements(
-  companyId: CompanyId,
-  chapter: Chapter,
-  count: number,
-): Question[] {
-  const templates = [
-    {
-      topic: "Interview Structure",
-      prompt: `For "${chapter.title}", which answer structure is strongest in an interview?`,
-      options: ["Memorise a long script", "Use a clear point, evidence and closing line", "Avoid examples", "Speak until interrupted"],
-      explanation: "Strong interview answers are structured, specific and concise: point, evidence, and a closing link to the role.",
-    },
-    {
-      topic: "Communication",
-      prompt: `While practising "${chapter.title}", what should you prioritise first?`,
-      options: ["Fast speaking", "Clarity and relevant examples", "A fake accent", "Technical jargon only"],
-      explanation: "Recruiters reward clarity, relevance and evidence more than speed or jargon.",
-    },
-    {
-      topic: "HR Readiness",
-      prompt: `Which response is safest for a behavioural question in "${chapter.title}"?`,
-      options: ["A generic claim", "A short STAR example", "Blaming teammates", "Changing the topic"],
-      explanation: "STAR keeps behavioural answers grounded: situation, task, action and result.",
-    },
-    {
-      topic: "Project Explanation",
-      prompt: `When explaining a project during "${chapter.title}", what should you include?`,
-      options: ["Only the tech stack", "Problem, your role, challenge and result", "Only team achievements", "Only screenshots"],
-      explanation: "A good project answer makes your ownership visible: problem, role, challenge, result and learning.",
-    },
-  ]
-
-  return Array.from({ length: count }, (_, i) => {
-    const t = templates[i % templates.length]
-    return {
-      id: `supp-${companyId}-${chapter.id}-${i + 1}`,
-      topic: t.topic,
-      difficulty: i % 3 === 2 ? "medium" : "easy",
-      prompt: `${getCompany(companyId).short} ${chapter.title} practice ${i + 1}: ${t.prompt}`,
-      options: t.options,
-      answer: 1,
-      explanation: `${t.explanation} This practice item is aligned to ${getCompany(companyId).short}.`,
-      sourceId: "studybench-curriculum",
-    }
-  })
-}
-
-const GENERAL_SECTION_SOURCE: Record<SectionId, string> = {
-  quant: "rs-aggarwal-quant",
-  reasoning: "rs-aggarwal-reasoning",
-  verbal: "high-agg-verbal",
-  coding: "gfg-dsa",
-  "cs-core": "gfg-cs-core",
-  "comm-interview": "studybench-curriculum",
-}
-
-const SECTION_BOOSTER_COPY: Record<SectionId, { hard: string; mock: string }> = {
-  quant: {
-    hard:
-      "For hard aptitude questions, first identify the base value and formula, then estimate the answer before doing exact arithmetic. If the calculation is long, use options to eliminate impossible values.",
-    mock:
-      "In mocks, do not spend more than 90 seconds on a stuck quant question. Mark it mentally, move on, and return only if the section timer leaves room.",
-  },
-  reasoning: {
-    hard:
-      "For hard reasoning, convert words into diagrams: slots, circles, arrows, tables or cases. A messy diagram is still better than solving a puzzle only in your head.",
-    mock:
-      "In mocks, solve fixed-clue puzzles first and leave case-heavy puzzles for later. Reasoning rewards clean setup more than speed guessing.",
-  },
-  verbal: {
-    hard:
-      "For hard verbal questions, check grammar and meaning together. In RC, select only what the passage supports; avoid answers that are true in real life but not stated or implied.",
-    mock:
-      "In verbal mocks, answer direct grammar first, then RC. Do not reread the entire passage for every question; scan back to the relevant line.",
-  },
-  coding: {
-    hard:
-      "For hard coding, state inputs, constraints, brute force, optimized idea, edge cases and complexity before writing code. Hidden tests usually target edge cases, not the sample path.",
-    mock:
-      "In coding mocks, solve for correctness first, then optimize. Test empty input, one item, duplicates, negatives and large values before submission.",
-  },
-  "cs-core": {
-    hard:
-      "For hard CS-core questions, answer with definition, example and trade-off. Recruiters want proof that you understand the concept beyond a keyword.",
-    mock:
-      "In technical mocks, do not over-explain the first concept. Give a crisp answer, then add a practical example if the interviewer asks deeper.",
-  },
-  "comm-interview": {
-    hard:
-      "For hard communication questions, stay specific and evidence-based. Use STAR for behavioural answers and avoid blaming teammates or giving memorised slogans.",
-    mock:
-      "In interview mocks, record yourself once. Check clarity, filler words, answer length and whether each answer has one concrete example.",
-  },
-}
-
-function enrichChapterForPlacement(sectionId: SectionId, chapter: Chapter): Chapter {
-  if (chapter.lessons.some((lesson) => lesson.id === `boost-${chapter.id}-hard`)) return chapter
-
-  const copy = SECTION_BOOSTER_COPY[sectionId]
-  const sourceId = GENERAL_SECTION_SOURCE[sectionId]
-  const boosterLessons: Lesson[] = [
-    {
-      id: `boost-${chapter.id}-hard`,
-      title: `Hard-question playbook for ${chapter.title}`,
-      minutes: 4,
-      body:
-        `${copy.hard}\n\n**Why recruiters test this:** hard questions measure whether you can slow down, structure the problem and avoid panic, not only whether you remember a formula.`,
-      sourceIds: [sourceId],
-    },
-    {
-      id: `boost-${chapter.id}-mock-transfer`,
-      title: `Mock-test transfer for ${chapter.title}`,
-      minutes: 4,
-      body:
-        `${copy.mock}\n\n**Practice like a topper:** after every mock, write one line for why each wrong answer happened: concept gap, calculation error, misread question or time pressure.`,
-      sourceIds: [sourceId],
-    },
-  ]
-
-  const boosterQuiz: Question[] = [
-    {
-      id: `boost-q-${chapter.id}-hard`,
-      topic: `${chapter.title} Strategy`,
-      difficulty: "hard",
-      prompt: `While solving a hard ${chapter.title} question, what should you do first?`,
-      options: [
-        "Identify the question type, constraints and safest method",
-        "Guess the longest option",
-        "Ignore all edge cases",
-        "Skip the explanation after solving",
-      ],
-      answer: 0,
-      explanation: "Hard questions become manageable when you classify the type, constraints and method before calculating or coding.",
-      sourceId,
-      curated: true,
-    },
-    {
-      id: `boost-q-${chapter.id}-mock`,
-      topic: `${chapter.title} Mock Strategy`,
-      difficulty: "medium",
-      prompt: `After a mock mistake in ${chapter.title}, the best review action is to:`,
-      options: [
-        "Label the cause and redo a similar question",
-        "Forget it immediately",
-        "Blame the timer only",
-        "Memorise the option letter",
-      ],
-      answer: 0,
-      explanation: "Mistake review works when you identify the cause and practise a related question to close the gap.",
-      sourceId,
-      curated: true,
-    },
-  ]
-
-  return {
-    ...chapter,
-    lessons: [...chapter.lessons, ...boosterLessons],
-    quiz: [...chapter.quiz, ...boosterQuiz],
-  }
-}
+export const CHAPTER_PRACTICE_TARGET = 30 // maximum cap; not a padding target
 
 function enrichGeneralChapter(chapter: Chapter): Chapter {
   return {
     ...chapter,
-    summary: `${chapter.summary} Includes examples, shortcuts and 100 practice questions.`,
+    summary: `${chapter.summary} Includes examples, shortcuts and chapter-specific practice.`,
   }
-}
-
-function fallbackCompanyQuestion(
-  companyId: CompanyId,
-  sectionId: SectionId,
-  chapter: Chapter,
-  index: number,
-  difficulty: Question["difficulty"] = "medium",
-): Question {
-  const company = getCompany(companyId).short
-  const sourceId = GENERAL_SECTION_SOURCE[sectionId] ?? "studybench-curriculum"
-  const sectionTemplates: Record<SectionId, Omit<Question, "id" | "sourceId">[]> = {
-    quant: [
-      {
-        topic: "Quant Review",
-        difficulty,
-        prompt: `${company} ${chapter.title} ${difficulty} quantitative review ${index + 1}: what is the safest first step in a calculation question?`,
-        options: ["Write the formula and identify the base", "Guess from the largest option", "Skip unit conversion", "Use all options equally"],
-        answer: 0,
-        explanation: "A correct formula and base prevent most aptitude mistakes, especially in percentages, ratios, speed and work problems.",
-      },
-    ],
-    reasoning: [
-      {
-        topic: "Reasoning Review",
-        difficulty,
-        prompt: `${company} ${chapter.title} ${difficulty} reasoning review ${index + 1}: what should you do before answering a pattern question?`,
-        options: ["List the rule or draw the relation", "Pick the middle option", "Ignore alternate terms", "Avoid checking the sequence"],
-        answer: 0,
-        explanation: "Writing the rule, gap, relation or diagram makes the pattern visible and reduces guessing.",
-      },
-    ],
-    verbal: [
-      {
-        topic: "Verbal Review",
-        difficulty,
-        prompt: `${company} ${chapter.title} ${difficulty} verbal review ${index + 1}: what improves accuracy in grammar and comprehension questions?`,
-        options: ["Read the complete sentence and context", "Choose the shortest option", "Ignore tense and subject", "Answer before reading"],
-        answer: 0,
-        explanation: "Grammar and comprehension depend on context, subject-verb agreement, tense and the intended meaning.",
-      },
-    ],
-    coding: [
-      {
-        topic: "Coding Review",
-        difficulty,
-        prompt: `${company} ${chapter.title} ${difficulty} coding review ${index + 1}: what should you state before writing code?`,
-        options: ["Inputs, constraints, edge cases and complexity", "Only the final answer", "Only the language name", "Nothing until the code is complete"],
-        answer: 0,
-        explanation: "Interviewers and coding rounds reward a clear approach: inputs, constraints, edge cases, algorithm and complexity.",
-      },
-    ],
-    "cs-core": [
-      {
-        topic: "CS Core Review",
-        difficulty,
-        prompt: `${company} ${chapter.title} ${difficulty} CS-core review ${index + 1}: what makes a technical answer stronger?`,
-        options: ["Definition plus practical example", "Only a memorized keyword", "A vague one-word answer", "Changing the topic"],
-        answer: 0,
-        explanation: "A definition plus a practical example proves you understand the concept beyond memorization.",
-      },
-    ],
-    "comm-interview": [
-      {
-        topic: "Interview Review",
-        difficulty,
-        prompt: `${company} ${chapter.title} ${difficulty} interview review ${index + 1}: what is the best structure for a behavioural answer?`,
-        options: ["Situation, task, action and result", "A long memorized speech", "Only blaming others", "No example"],
-        answer: 0,
-        explanation: "STAR keeps behavioural answers concise, truthful and evidence-based.",
-      },
-    ],
-  }
-  const template = sectionTemplates[sectionId][0]
-  return {
-    ...template,
-    id: `supp-${companyId}-${chapter.id}-fallback-${index + 1}`,
-    sourceId,
-  }
-}
-
-function generatedSupplements(
-  companyId: CompanyId,
-  sectionId: SectionId,
-  chapter: Chapter,
-  count: number,
-): Question[] {
-  const seed = stableSeed(`${companyId}:${sectionId}:${chapter.id}`)
-  const company = getCompany(companyId)
-  const candidates = generateDrills(sectionId, count * 5, seed)
-  const used = new Set(chapter.quiz.map((question) => question.prompt.trim().toLowerCase()))
-  const out: Question[] = []
-
-  for (const question of candidates) {
-    const scopedPrompt = `${company.short} ${chapter.title} pattern practice: ${question.prompt}`
-    const key = scopedPrompt.trim().toLowerCase()
-    if (used.has(key)) continue
-    used.add(key)
-    out.push({
-      ...question,
-      id: `supp-${companyId}-${chapter.id}-${out.length + 1}`,
-      prompt: scopedPrompt,
-      explanation: `${question.explanation} This item is aligned to the ${company.short} track's expected topic mix.`,
-    })
-    if (out.length === count) break
-  }
-
-  while (out.length < count) {
-    const fallback = fallbackCompanyQuestion(companyId, sectionId, chapter, out.length)
-    const key = fallback.prompt.trim().toLowerCase()
-    if (!used.has(key)) {
-      used.add(key)
-      out.push(fallback)
-    }
-  }
-
-  return out
-}
-
-function ensureUniqueChapterQuiz(
-  companyId: CompanyId,
-  sectionId: SectionId,
-  chapter: Chapter,
-  quiz: Question[],
-): Question[] {
-  const usedPrompts = new Set<string>()
-  const usedIds = new Set<string>()
-  return quiz.map((question, index) => {
-    const promptKey = question.prompt.trim().toLowerCase()
-    const idKey = question.id.trim().toLowerCase()
-    if (!usedPrompts.has(promptKey) && !usedIds.has(idKey)) {
-      usedPrompts.add(promptKey)
-      usedIds.add(idKey)
-      return question
-    }
-
-    let replacement = fallbackCompanyQuestion(companyId, sectionId, chapter, index + 1000)
-    let guard = 0
-    while (
-      (usedPrompts.has(replacement.prompt.trim().toLowerCase()) ||
-        usedIds.has(replacement.id.trim().toLowerCase())) &&
-      guard < 100
-    ) {
-      replacement = fallbackCompanyQuestion(companyId, sectionId, chapter, index + 1000 + guard)
-      guard += 1
-    }
-    usedPrompts.add(replacement.prompt.trim().toLowerCase())
-    usedIds.add(replacement.id.trim().toLowerCase())
-    return replacement
-  })
-}
-
-function ensureDifficultyCoverage(
-  companyId: CompanyId,
-  sectionId: SectionId,
-  chapter: Chapter,
-  quiz: Question[],
-): Question[] {
-  const requiredPerDifficulty = chapter.lessons.length
-  const difficulties: Question["difficulty"][] = ["easy", "medium", "hard"]
-  const next = [...quiz]
-  const counts = () =>
-    difficulties.reduce(
-      (acc, difficulty) => ({
-        ...acc,
-        [difficulty]: next.filter((question) => question.difficulty === difficulty).length,
-      }),
-      {} as Record<Question["difficulty"], number>,
-    )
-  const usedPrompts = new Set(next.map((question) => question.prompt.trim().toLowerCase()))
-  const usedIds = new Set(next.map((question) => question.id.trim().toLowerCase()))
-
-  for (const difficulty of difficulties) {
-    let currentCounts = counts()
-    while (currentCounts[difficulty] < requiredPerDifficulty) {
-      const replacementIndex = next.findIndex(
-        (question) =>
-          question.difficulty !== difficulty &&
-          currentCounts[question.difficulty] > requiredPerDifficulty,
-      )
-      if (replacementIndex === -1) break
-
-      let replacement = fallbackCompanyQuestion(
-        companyId,
-        sectionId,
-        chapter,
-        3000 + replacementIndex + currentCounts[difficulty],
-        difficulty,
-      )
-      let guard = 0
-      while (
-        (usedPrompts.has(replacement.prompt.trim().toLowerCase()) ||
-          usedIds.has(replacement.id.trim().toLowerCase())) &&
-        guard < 100
-      ) {
-        replacement = fallbackCompanyQuestion(
-          companyId,
-          sectionId,
-          chapter,
-          3100 + replacementIndex + guard,
-          difficulty,
-        )
-        guard += 1
-      }
-
-      usedPrompts.delete(next[replacementIndex].prompt.trim().toLowerCase())
-      usedIds.delete(next[replacementIndex].id.trim().toLowerCase())
-      next[replacementIndex] = replacement
-      usedPrompts.add(replacement.prompt.trim().toLowerCase())
-      usedIds.add(replacement.id.trim().toLowerCase())
-      currentCounts = counts()
-    }
-  }
-
-  return next
 }
 
 function expandChapterQuiz(
-  companyId: CompanyId,
-  sectionId: SectionId,
+  _companyId: CompanyId,
+  _sectionId: SectionId,
   chapter: Chapter,
-  target: number,
+  _target: number,
 ): Chapter {
-  const missing = Math.max(0, target - chapter.quiz.length)
-  if (missing === 0) {
-    return {
-      ...chapter,
-      quiz: ensureDifficultyCoverage(
-        companyId,
-        sectionId,
-        chapter,
-        ensureUniqueChapterQuiz(companyId, sectionId, chapter, chapter.quiz),
-      ),
-    }
-  }
-
-  const generated =
-    sectionId === "comm-interview"
-      ? communicationSupplements(companyId, chapter, missing)
-      : generatedSupplements(companyId, sectionId, chapter, missing)
-
-  const quiz = ensureDifficultyCoverage(
-    companyId,
-    sectionId,
-    chapter,
-    ensureUniqueChapterQuiz(companyId, sectionId, chapter, [...chapter.quiz, ...generated]),
-  )
+  // Never manufacture chapter questions from a section-wide random generator.
+  // A chapter quiz must remain tied to the concepts actually taught in that chapter.
+  const seenPrompts = new Set<string>()
+  const seenIds = new Set<string>()
+  const quiz = chapter.quiz.filter((question) => {
+    const prompt = question.prompt.trim().toLowerCase().replace(/\s+/g, " ")
+    const id = question.id.trim().toLowerCase()
+    if (!prompt || !id || seenPrompts.has(prompt) || seenIds.has(id)) return false
+    seenPrompts.add(prompt)
+    seenIds.add(id)
+    return true
+  })
   return { ...chapter, quiz }
 }
 
 function withExtras(sections: Section[]): Section[] {
-  return sections.map((s) => {
-    const extra = EXTRA_CHAPTERS[s.id]
-    return extra ? { ...s, chapters: [...s.chapters, ...extra] } : s
+  return sections.map((section) => {
+    const extra = EXTRA_CHAPTERS[section.id]
+    if (!extra) return section
+    const normalized = section.id === "coding"
+      ? extra.map((chapter) => ({
+          ...chapter,
+          pathId: "dsa",
+          pathName: "Data Structures & Algorithms",
+          pathKind: "dsa" as const,
+        }))
+      : extra
+    return { ...section, chapters: [...section.chapters, ...normalized] }
   })
 }
+
+
+const TYPED_RECALL_BY_CHAPTER: Record<string, {
+  topic: string
+  prompt: string
+  answers: string[]
+  explanation: string
+  hint: string
+}> = {
+  "quant-percentages": {
+    topic: "Percentages",
+    prompt: "12.5% written as a simplified fraction is ____.",
+    answers: ["1/8"],
+    explanation: "12.5/100 = 0.125 = 1/8. The fraction shortcut makes this calculation faster and easier to verify.",
+    hint: "Divide 100 by 12.5 to find the denominator.",
+  },
+  "quant-tsd": {
+    topic: "Time-Speed-Distance",
+    prompt: "Distance = speed × ____.",
+    answers: ["time"],
+    explanation: "The core relationship is distance = speed × time. Keep units consistent before calculating.",
+    hint: "It is the quantity measured in hours or seconds.",
+  },
+  "quant-time-work": {
+    topic: "Time and Work",
+    prompt: "If a person completes one job in d days, the one-day work rate is ____.",
+    answers: ["1/d", "one divided by d"],
+    explanation: "One complete job divided across d days gives a daily rate of 1/d job per day.",
+    hint: "Represent one whole job as 1.",
+  },
+  "reason-series": {
+    topic: "Number Series",
+    prompt: "Complete the sequence: 2, 4, 8, 16, ____.",
+    answers: ["32"],
+    explanation: "Each term is multiplied by 2. The next term is 16 × 2 = 32.",
+    hint: "Look for a constant multiplication rule.",
+  },
+  "reason-blood": {
+    topic: "Blood Relations",
+    prompt: "Your mother's brother is your maternal ____.",
+    answers: ["uncle"],
+    explanation: "A mother's brother is an uncle on the maternal side of the family.",
+    hint: "The same relation as your parent's brother.",
+  },
+  "verbal-grammar": {
+    topic: "Subject-Verb Agreement",
+    prompt: "Complete the sentence: Neither of the answers ____ correct.",
+    answers: ["is"],
+    explanation: "In formal standard usage, neither is treated as singular here, so it takes 'is'.",
+    hint: "Choose the singular form of 'be'.",
+  },
+  "verbal-rc": {
+    topic: "Reading Comprehension",
+    prompt: "The central point an author wants the reader to understand is the ____ idea.",
+    answers: ["main", "central"],
+    explanation: "The main idea is the passage's central message; supporting details explain or develop it.",
+    hint: "It is the opposite of a minor supporting detail.",
+  },
+  "cs-dbms": {
+    topic: "DBMS",
+    prompt: "A primary key uniquely identifies each ____ in a table.",
+    answers: ["row", "record"],
+    explanation: "A primary key identifies one row (record) and cannot contain NULL values.",
+    hint: "It is one horizontal entry in a table.",
+  },
+  "cs-os-oop": {
+    topic: "Operating Systems",
+    prompt: "A process can contain one or more ____ of execution.",
+    answers: ["threads", "thread"],
+    explanation: "A process contains one or more threads, which are units of execution within that process.",
+    hint: "They share a process's address space.",
+  },
+  "cs-networks": {
+    topic: "Computer Networks",
+    prompt: "UDP is a ____-oriented transport protocol.",
+    answers: ["connectionless"],
+    explanation: "UDP is connectionless; it does not establish a TCP-style connection or guarantee delivery and ordering.",
+    hint: "It does not establish a connection before sending data.",
+  },
+  "dsa-arrays-complexity": {
+    topic: "Array Complexity",
+    prompt: "Reading an array element by its index takes ____ time.",
+    answers: ["o(1)", "constant", "constant time"],
+    explanation: "Direct indexed access is constant time, conventionally written O(1).",
+    hint: "The Big-O notation has a 1 inside the parentheses.",
+  },
+  "dsa-searching-sorting": {
+    topic: "Binary Search",
+    prompt: "Binary search requires the input sequence to be ____.",
+    answers: ["sorted", "in sorted order"],
+    explanation: "Binary search discards half the search interval using ordering; it is not valid on arbitrary unsorted input.",
+    hint: "The values must be in ascending or descending order.",
+  },
+  "dsa-hashing-frequency-maps": {
+    topic: "Hashing",
+    prompt: "A hash map stores ____ pairs.",
+    answers: ["key-value", "key value"],
+    explanation: "A map associates a key with a value, such as a word and its frequency.",
+    hint: "One side identifies the record; the other side stores its associated data.",
+  },
+  "dsa-recursion-backtracking": {
+    topic: "Recursion",
+    prompt: "A terminating recursive function needs a ____ case.",
+    answers: ["base"],
+    explanation: "The base case stops recursive calls when the smallest subproblem is reached.",
+    hint: "It is the condition that ends recursion.",
+  },
+  "dsa-linked-lists": {
+    topic: "Linked Lists",
+    prompt: "In a singly linked list, each node stores a value and a reference to the ____ node.",
+    answers: ["next"],
+    explanation: "The next reference links the current node to the following node.",
+    hint: "It points forward in the chain.",
+  },
+  "dsa-stacks-queues": {
+    topic: "Stacks and Queues",
+    prompt: "A stack follows the ____-in, first-out rule.",
+    answers: ["last"],
+    explanation: "A stack is LIFO: the most recently pushed item is popped first.",
+    hint: "The opposite of first-in.",
+  },
+  "dsa-trees-bst-traversal": {
+    topic: "Tree Traversal",
+    prompt: "Inorder traversal visits left subtree, node, then ____ subtree.",
+    answers: ["right"],
+    explanation: "Inorder traversal follows left-node-right.",
+    hint: "It visits the other child after the current node.",
+  },
+  "dsa-heaps-priority-queues": {
+    topic: "Heaps",
+    prompt: "A priority queue returns the element with the highest ____ according to its ordering rule.",
+    answers: ["priority"],
+    explanation: "A priority queue exposes the element with the best priority as defined by its comparator.",
+    hint: "The data structure is named after this property.",
+  },
+  "dsa-graphs-bfs-dfs": {
+    topic: "Graph Traversal",
+    prompt: "Breadth-first search uses a ____ to process the frontier.",
+    answers: ["queue"],
+    explanation: "BFS uses FIFO order to visit vertices level by level.",
+    hint: "It follows first-in, first-out.",
+  },
+  "dsa-dynamic-programming": {
+    topic: "Dynamic Programming",
+    prompt: "Dynamic programming often reuses results from overlapping ____.",
+    answers: ["subproblems"],
+    explanation: "DP avoids recalculating overlapping subproblems by storing their results.",
+    hint: "They are smaller versions of the original problem.",
+  },
+  "dsa-bit-manipulation": {
+    topic: "Bit Manipulation",
+    prompt: "The bitwise operator that returns 1 only when both bits are 1 is ____.",
+    answers: ["and", "&"],
+    explanation: "Bitwise AND returns 1 only when both corresponding bits are set.",
+    hint: "It is also the name of a Boolean operator.",
+  },
+}
+
+function addTypedRecallExercise(chapter: Chapter): Chapter {
+  const recall = TYPED_RECALL_BY_CHAPTER[chapter.id]
+  if (!recall || chapter.quiz.some((question) => question.id === `${chapter.id}-typed-recall`)) {
+    return chapter
+  }
+  return {
+    ...chapter,
+    quiz: [
+      ...chapter.quiz,
+      {
+        id: `${chapter.id}-typed-recall`,
+        topic: recall.topic,
+        difficulty: "medium",
+        prompt: recall.prompt,
+        options: [],
+        answer: -1,
+        explanation: recall.explanation,
+        sourceId: "studybench-curriculum",
+        curated: true,
+        type: "fill_blank",
+        acceptedAnswers: recall.answers,
+        hint: recall.hint,
+      },
+    ],
+  }
+}
+
 
 const sectionCache = new Map<CompanyId, Section[]>()
 
@@ -3194,30 +2691,38 @@ export function getSections(companyId: CompanyId): Section[] {
 
   // Guard: unknown/removed company ids (e.g. stale "ibm" from old localStorage)
   // fall back to the general track so the app never crashes on bad input.
-  const safeId: CompanyId = (companyId in COMPANY_CHAPTER_QUIZ_SECTION_WEIGHTS)
-    ? companyId
-    : "general"
+  const safeId: CompanyId = companyId in COMPANY_BY_ID ? companyId : "general"
 
   const base = withExtras(BASE_SECTIONS)
-  const companySections =
-    safeId === "zoho"
-      ? base.map((s) =>
-          s.id === "coding" ? { ...s, chapters: [...s.chapters, ZOHO_EXTRA] } : s,
-        )
-      : base
+  const companySections = base
 
   const sections = companySections.map((section) => {
-    const chapterTargets = chapterQuizTargets(safeId, section)
     return {
       ...section,
       chapters: section.chapters.map((chapter) => {
-        const baseChapter = safeId === "general" ? enrichGeneralChapter(chapter) : chapter
-        const enrichedChapter = enrichChapterForPlacement(section.id, baseChapter)
+        const baseChapter = safeId === "general" && !chapter.pathKind ? enrichGeneralChapter(chapter) : chapter
+        const enrichedChapter = addTypedRecallExercise(baseChapter)
+        if (enrichedChapter.pathKind === "language") {
+          return {
+            ...enrichedChapter,
+            quiz: enrichedChapter.quiz.filter(
+              (question) => question.sourceId === "studybench-curriculum",
+            ),
+          }
+        }
+        if (enrichedChapter.pathKind === "sql-dbms") {
+          return {
+            ...enrichedChapter,
+            quiz: enrichedChapter.quiz.filter(
+              (question) => question.sourceId === "studybench-curriculum",
+            ),
+          }
+        }
         return expandChapterQuiz(
           safeId,
           section.id,
           enrichedChapter,
-          chapterTargets[chapter.id] ?? MIN_CHAPTER_QUIZ_TARGET,
+          enrichedChapter.quiz.length,
         )
       }),
     }
@@ -3234,9 +2739,100 @@ export function getChapter(companyId: CompanyId, sectionId: SectionId, chapterId
   return getSection(companyId, sectionId)?.chapters.find((c) => c.id === chapterId)
 }
 
-// Generating a 300-question chapter bank is deterministic but expensive, so we
+// SQL/DBMS practice is intentionally a compact, distinct authored set. We do not
+// inflate the count by cloning the same template across scenario nouns.
+function sqlDbmsPracticeSupplement(chapter: Chapter, count: number): Question[] {
+  const relational = [
+    ["Primary key", "Which constraint uniquely identifies each row in an enrolments table?", ["PRIMARY KEY", "ORDER BY", "GROUP BY", "VIEW"], 0, "A primary key uniquely identifies each row and cannot contain NULL."],
+    ["Foreign key", "Which constraint prevents an enrolment from referencing a student who does not exist?", ["Foreign key constraint", "ORDER BY", "DISTINCT", "Alias"], 0, "A foreign key enforces referential integrity between related tables."],
+    ["First normal form", "A student record stores three phone numbers in one comma-separated field. What is the best 1NF correction?", ["Store one atomic value per field, with a related phone table if needed", "Keep the list and add more commas", "Repeat phone_1, phone_2, phone_3 without a limit", "Store the whole list in a primary-key column"], 0, "First normal form requires atomic field values and no repeating groups."],
+    ["Second normal form", "A table has a composite key (student_id, course_id). course_name depends only on course_id. Which issue is present?", ["Partial dependency", "Transitive dependency", "No candidate key", "A missing ORDER BY"], 0, "A non-key attribute depending on only part of a composite candidate key violates 2NF."],
+    ["Third normal form", "In Employee(employee_id, department_id, department_name), department_name depends on department_id. What should be done for 3NF?", ["Move department details to a Department table", "Duplicate department_name on every row", "Remove employee_id", "Replace the key with ORDER BY"], 0, "A non-key attribute depending on another non-key attribute is a transitive dependency."],
+    ["UNIQUE constraint", "A college requires every student email address to be distinct. Which constraint enforces this?", ["UNIQUE", "ORDER BY", "HAVING", "LIMIT"], 0, "UNIQUE prevents duplicate values in the constrained column or column set."],
+    ["NOT NULL", "A course registration must always include a course_id. Which constraint enforces that requirement?", ["NOT NULL", "DISTINCT", "OFFSET", "UNION"], 0, "NOT NULL disallows missing values in the constrained column."],
+    ["CHECK constraint", "How should a database reject a negative quantity in an order_items row?", ["CHECK (quantity >= 0)", "ORDER BY quantity", "GROUP BY quantity", "CREATE VIEW quantity"], 0, "A CHECK constraint enforces a Boolean condition on inserted or updated values."],
+    ["Composite key", "A junction table links students and courses. Each student can enrol in a course only once. Which key is suitable?", ["A composite key of (student_id, course_id)", "A key made from the course title only", "No key is needed", "A key based on the display order"], 0, "A composite key uses more than one column to identify a row."],
+    ["Referential integrity", "What determines what happens to enrolment rows when a referenced student is deleted?", ["The foreign key's declared ON DELETE action", "The ORDER BY clause", "The SELECT list", "The database's physical row order"], 0, "The configured foreign-key action determines whether deletion is restricted, cascaded or set null."],
+    ["Candidate key", "A relation has two distinct minimal sets of attributes that each uniquely identify a row. What are those sets called?", ["Candidate keys", "Foreign keys", "Partial indexes", "Functional dependencies"], 0, "Each minimal superkey is a candidate key. One candidate key is selected as the primary key."],
+    ["Denormalisation", "A read-heavy reporting model deliberately duplicates a department label to avoid a join. What is this design choice called?", ["Denormalisation", "Referential integrity", "Atomicity", "Projection"], 0, "Denormalisation trades some duplication for simpler or faster reads and requires a strategy to keep duplicated values consistent."],
+  ] as const
+  const querying = [
+    ["Projection", "Which SQL clause chooses the columns returned by a query?", ["SELECT", "WHERE", "HAVING", "COMMIT"], 0, "SELECT defines the output columns."],
+    ["Row filtering", "Which clause filters individual rows before GROUP BY is applied?", ["WHERE", "HAVING", "ORDER BY", "GROUP BY"], 0, "WHERE filters rows before groups are formed."],
+    ["Sorting", "Which statement sorts orders by created_at with newest orders first?", ["ORDER BY created_at DESC", "GROUP BY created_at", "WHERE created_at DESC", "HAVING created_at"], 0, "ORDER BY with DESC sorts from newest to oldest."],
+    ["COUNT", "Which expression counts every row in a result, including rows with NULL in a particular column?", ["COUNT(*)", "SUM(*)", "AVG(*)", "TOTAL(*)"], 0, "COUNT(*) counts rows, including rows with NULL values in individual columns."],
+    ["Aggregation", "Which aggregate calculates the average order amount?", ["AVG(amount)", "COUNT(amount)", "MAX(amount)", "DISTINCT(amount)"], 0, "AVG computes the arithmetic mean of non-NULL values."],
+    ["Grouping", "Which clause groups registrations by course_id?", ["GROUP BY course_id", "ORDER BY course_id", "WHERE course_id", "LIMIT course_id"], 0, "GROUP BY forms one result group for each course_id value."],
+    ["Group filtering", "Which clause filters courses after COUNT(*) has been calculated?", ["HAVING COUNT(*) > 1", "WHERE COUNT(*) > 1", "ORDER BY COUNT(*)", "FROM COUNT(*)"], 0, "HAVING filters groups after aggregation."],
+    ["Distinct values", "How do you return each distinct status value once?", ["SELECT DISTINCT status", "SELECT UNIQUE ROW status", "GROUP status ONLY", "ORDER BY DISTINCT status"], 0, "DISTINCT removes duplicate rows from the selected result."],
+    ["NULL handling", "Which predicate correctly finds students whose email is missing?", ["email IS NULL", "email = NULL", "email == NULL", "email EQUALS NULL"], 0, "SQL uses IS NULL; NULL is not compared with the equals operator."],
+    ["Subquery", "What is the main purpose of a subquery?", ["Use one query's result inside another query", "Create a network socket", "Encrypt a database file", "Replace every table constraint"], 0, "A subquery supplies a value or row set to an enclosing query."],
+    ["CASE expression", "Which SQL construct returns a value based on the first matching condition?", ["CASE", "COMMIT", "FOREIGN KEY", "CREATE INDEX"], 0, "CASE evaluates conditions in order and returns the result for the first matching WHEN branch."],
+    ["Set operations", "Which operator combines two compatible result sets and removes duplicate rows?", ["UNION", "UNION ALL", "CROSS JOIN", "INTERSECT ALL"], 0, "UNION combines compatible SELECT results and removes duplicates; UNION ALL preserves them."],
+    ["CTE", "Which clause names a temporary result set that can be referenced by the main query?", ["WITH", "HAVING", "COMMIT", "GRANT"], 0, "A common table expression is introduced with WITH and is scoped to the statement that follows it."],
+    ["Window function", "Which SQL construct calculates a row number within each department without collapsing rows?", ["ROW_NUMBER() OVER (PARTITION BY department_id ORDER BY salary DESC)", "GROUP BY department_id", "COUNT(*)", "DISTINCT department_id"], 0, "ROW_NUMBER with OVER assigns a sequence within each partition while retaining individual rows."],
+    ["Window aggregate", "How can a query show each employee's salary alongside the average salary in that employee's department?", ["AVG(salary) OVER (PARTITION BY department_id)", "AVG(salary) GROUP BY employee_id", "HAVING AVG(salary)", "ORDER BY AVG(salary)"], 0, "An aggregate used with OVER computes a window value while preserving each employee row."],
+    ["Practical SELECT", "Given Employees(employee_id, name, salary), return names and salaries for employees earning at least 60000. Which query is correct?", ["SELECT name, salary FROM Employees WHERE salary >= 60000;", "SELECT name, salary FROM Employees HAVING salary >= 60000;", "SELECT name, salary WHERE salary >= 60000 FROM Employees;", "SELECT name, salary FROM Employees GROUP BY salary >= 60000;"], 0, "SELECT chooses output columns; FROM identifies the table; WHERE filters individual rows."],
+    ["Practical sort and limit", "Given Products(product_id, name, price), return the three most expensive products. Which query is correct?", ["SELECT name, price FROM Products ORDER BY price DESC LIMIT 3;", "SELECT name, price FROM Products LIMIT 3 ORDER BY price DESC;", "SELECT name, price FROM Products GROUP BY price DESC LIMIT 3;", "SELECT name, price FROM Products WHERE price DESC LIMIT 3;"], 0, "Sort by price descending before limiting the result. LIMIT is supported by PostgreSQL and several other engines; SQL Server uses TOP or OFFSET/FETCH."],
+    ["Practical aggregation", "Given Orders(order_id, customer_id, amount), calculate total spend per customer. Which query is correct?", ["SELECT customer_id, SUM(amount) FROM Orders GROUP BY customer_id;", "SELECT customer_id, SUM(amount) FROM Orders ORDER BY customer_id;", "SELECT customer_id, amount FROM Orders GROUP BY customer_id;", "SELECT SUM(amount) FROM Orders WHERE customer_id;"], 0, "Every selected non-aggregated column must be grouped. SUM calculates each customer's total."],
+    ["Practical HAVING", "Given Orders(order_id, customer_id, amount), return customers whose combined order value exceeds 10000. Which query is correct?", ["SELECT customer_id FROM Orders GROUP BY customer_id HAVING SUM(amount) > 10000;", "SELECT customer_id FROM Orders WHERE SUM(amount) > 10000 GROUP BY customer_id;", "SELECT customer_id FROM Orders GROUP BY customer_id WHERE SUM(amount) > 10000;", "SELECT customer_id FROM Orders HAVING amount > 10000;"], 0, "WHERE filters rows before grouping. HAVING filters groups after aggregate values are calculated."],
+    ["Practical INNER JOIN", "Students(student_id, name) and Enrolments(student_id, course_id) are related by student_id. Return each enrolled student's name and course_id. Which query is correct?", ["SELECT s.name, e.course_id FROM Students s INNER JOIN Enrolments e ON e.student_id = s.student_id;", "SELECT s.name, e.course_id FROM Students s INNER JOIN Enrolments e ON s.student_id = e.course_id;", "SELECT name, course_id FROM Students JOIN Enrolments;", "SELECT s.name, e.course_id FROM Students s WHERE e.student_id = s.student_id;"], 0, "Join the matching student_id columns explicitly. The foreign key is compared with the referenced primary key."],
+    ["Practical LEFT JOIN", "Return every student, including those with no enrolment. Which query preserves all rows from Students(student_id, name)?", ["SELECT s.name, e.course_id FROM Students s LEFT JOIN Enrolments e ON e.student_id = s.student_id;", "SELECT s.name, e.course_id FROM Students s INNER JOIN Enrolments e ON e.student_id = s.student_id;", "SELECT s.name, e.course_id FROM Enrolments e LEFT JOIN Students s ON e.student_id = s.student_id;", "SELECT s.name, e.course_id FROM Students s WHERE e.student_id = s.student_id;"], 0, "Students is the left table, so LEFT JOIN preserves every student. Unmatched enrolment columns become NULL."],
+    ["Practical anti-join", "Find students who have no enrolment. Which LEFT JOIN query is correct?", ["SELECT s.student_id FROM Students s LEFT JOIN Enrolments e ON e.student_id = s.student_id WHERE e.student_id IS NULL;", "SELECT s.student_id FROM Students s INNER JOIN Enrolments e ON e.student_id = s.student_id WHERE e.student_id IS NULL;", "SELECT s.student_id FROM Students s LEFT JOIN Enrolments e ON e.student_id = s.student_id WHERE e.student_id IS NOT NULL;", "SELECT s.student_id FROM Enrolments e LEFT JOIN Students s ON e.student_id = s.student_id WHERE e.student_id IS NULL;"], 0, "An unmatched right-side row has NULL values. Filtering for a NULL right-side key returns students without enrolments."],
+  ] as const
+  const transactions = [
+    ["INNER JOIN", "Which join returns only rows with matching keys on both sides?", ["INNER JOIN", "LEFT JOIN", "CROSS JOIN", "FULL OUTER JOIN"], 0, "INNER JOIN returns rows where the join condition matches on both sides."],
+    ["LEFT JOIN", "Which join keeps every student row even when no matching enrolment exists?", ["LEFT JOIN", "INNER JOIN", "CROSS JOIN", "NATURAL JOIN"], 0, "LEFT JOIN preserves all left-side rows and fills unmatched right-side columns with NULL."],
+    ["Join cardinality", "Why can joining students to enrolments produce more rows than the students table?", ["One student can match multiple enrolment rows", "JOIN always removes duplicates", "JOIN sorts rows", "JOIN converts NULL to zero"], 0, "One-to-many relationships legitimately produce multiple joined rows for one left row."],
+    ["Index trade-off", "What is a common cost of adding an index to a frequently updated table?", ["Extra storage and slower writes", "Automatic encryption", "Removal of constraints", "Guaranteed faster every query"], 0, "Indexes consume storage and must be maintained during writes."],
+    ["COMMIT", "What does COMMIT do after a successful transaction?", ["Makes the transaction's changes permanent", "Reverses all changes", "Deletes the database", "Locks every table forever"], 0, "COMMIT completes the transaction and makes its changes durable."],
+    ["ROLLBACK", "What does ROLLBACK do when a transaction must be cancelled before commit?", ["Undo uncommitted changes in the transaction", "Sort the rows", "Create an index", "Grant table permissions"], 0, "ROLLBACK abandons the current transaction's uncommitted changes."],
+    ["Atomicity", "Which ACID property means a bank transfer is all-or-nothing?", ["Atomicity", "Consistency", "Isolation", "Durability"], 0, "Atomicity prevents a transaction from being partially applied."],
+    ["Consistency", "Which ACID property ensures a transaction preserves declared database constraints?", ["Consistency", "Atomicity", "Isolation", "Durability"], 0, "Consistency means a committed transaction preserves database constraints and invariants."],
+    ["Isolation", "Which ACID property controls what concurrent transactions can observe?", ["Isolation", "Durability", "Atomicity", "Projection"], 0, "Isolation defines how concurrent transactions interact and what intermediate states they can observe."],
+    ["Durability", "Which ACID property ensures committed changes survive a system crash?", ["Durability", "Consistency", "Isolation", "Atomicity"], 0, "Durability means committed changes persist despite a system failure."],
+    ["Deadlock", "Two transactions each hold a lock the other needs. What has occurred?", ["A deadlock", "A dirty read", "A full table scan", "A lost index"], 0, "A deadlock is a cycle of transactions waiting on locks held by one another; the database aborts a participant to break it."],
+    ["Composite index", "A query commonly filters by customer_id and then created_at. What should guide the order of a composite index?", ["The query predicates, selectivity and access patterns", "Alphabetical order of column names", "The order columns appear in the SELECT list only", "The number of rows currently displayed"], 0, "Composite index column order should match common predicates and ordering patterns; measure the workload rather than guessing."],
+  ] as const
+
+  const chapterId = chapter.id
+  const chapterLabel = `${chapterId} ${chapter.title}`.toLowerCase()
+  const families = chapterLabel.includes("relational-foundations")
+    ? relational
+    : chapterLabel.includes("query") || chapterLabel.includes("fundamentals")
+      ? querying
+      : transactions
+  const difficultyByTopic: Record<string, Question["difficulty"]> = {
+    "Primary key": "easy", "Foreign key": "easy", "First normal form": "medium", "Second normal form": "hard",
+    "Third normal form": "hard", "UNIQUE constraint": "easy", "NOT NULL": "easy", "CHECK constraint": "medium",
+    "Composite key": "medium", "Referential integrity": "medium", "Candidate key": "medium", Denormalisation: "hard", Projection: "easy", "Row filtering": "easy",
+    Sorting: "easy", COUNT: "medium", Aggregation: "medium", Grouping: "medium", "Group filtering": "hard",
+    "Distinct values": "medium", "NULL handling": "medium", Subquery: "hard", "CASE expression": "medium", "Set operations": "medium", CTE: "hard", "Window function": "hard", "Window aggregate": "hard", "Practical SELECT": "easy", "Practical sort and limit": "easy", "Practical aggregation": "medium", "Practical HAVING": "medium", "Practical INNER JOIN": "medium", "Practical LEFT JOIN": "medium", "Practical anti-join": "hard", "INNER JOIN": "easy",
+    "LEFT JOIN": "easy", "Join cardinality": "medium", "Index trade-off": "medium", COMMIT: "easy",
+    ROLLBACK: "easy", Atomicity: "medium", Consistency: "medium", Isolation: "hard", Durability: "medium", Deadlock: "hard", "Composite index": "hard",
+  }
+  return families.slice(0, count).map(([topic, prompt, options, answer, explanation], index) => {
+    // Rotate the authored options deterministically so the correct answer is not
+    // always A. Difficulty is assigned by the learning objective, not row order.
+    const rotation = index % 4
+    const rotatedOptions = [...options.slice(rotation), ...options.slice(0, rotation)]
+    return {
+      id: `sql-practice-${chapter.id}-${index + 1}`,
+      topic,
+      difficulty: difficultyByTopic[topic] ?? "medium",
+      prompt: prompt.replaceAll("{scenario}", "the relational dataset"),
+      options: rotatedOptions,
+      answer: (answer - rotation + options.length) % options.length,
+      explanation,
+      sourceId: "studybench-curriculum",
+      curated: true,
+    }
+  })
+}
+
+// Generating a bounded chapter practice bank is deterministic but expensive, so we
 // memoize per chapter. Without this, every chapter switch or page revisit
-// rebuilt all 300 questions from scratch on the client.
+// rebuilt the practice questions from scratch on the client.
 const practiceCache = new Map<string, Question[]>()
 
 export function chapterPracticeQuestions(
@@ -3271,30 +2867,25 @@ export function chapterPracticeQuestions(
     })
   }
 
+  if (chapter.pathKind === "language") {
+    practiceCache.set(cacheKey, out)
+    return out
+  }
+
   const missing = Math.max(0, CHAPTER_PRACTICE_TARGET - out.length)
-  const generated =
-    sectionId === "comm-interview"
-      ? communicationSupplements(companyId, chapter, missing)
-      : generateDrills(sectionId, missing, stableSeed(`${companyId}:${sectionId}:${chapterId}:practice`)).map(
-          (question, index) => ({
-            ...question,
-            prompt: `${getCompany(companyId).short} ${chapter.title} practice ${index + 1}: ${question.prompt}`,
-            explanation: `${question.explanation} This original practice question is scoped to ${getCompany(companyId).short} ${chapter.title}.`,
-          }),
-        )
-
-  for (const question of generated) {
-    add({
-      ...question,
-      id: `chapter-practice-${companyId}-${chapter.id}-${out.length}`,
-    })
-    if (out.length >= CHAPTER_PRACTICE_TARGET) break
+  if (chapter.pathKind === "sql-dbms") {
+    for (const question of sqlDbmsPracticeSupplement(chapter, missing)) add(question)
+    // SQL chapters expose only the distinct authored questions available; never
+    // inflate a small reviewed bank with scenario-noun permutations.
+    const result = out.slice(0, CHAPTER_PRACTICE_TARGET)
+    practiceCache.set(cacheKey, result)
+    return result
   }
+  // The chapter quiz is the authoritative chapter-specific practice pool.
+  // Do not top it up with random questions from the wider section: that creates
+  // false topic alignment. SQL/DBMS keeps its separately authored supplements.
 
-  while (out.length < CHAPTER_PRACTICE_TARGET) {
-    add(fallbackCompanyQuestion(companyId, sectionId, chapter, out.length + 2000))
-  }
-
+  // Return only authored chapter-specific questions and explicit SQL supplements.
   const result = out.slice(0, CHAPTER_PRACTICE_TARGET)
   practiceCache.set(cacheKey, result)
   return result

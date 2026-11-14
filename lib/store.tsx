@@ -1,41 +1,69 @@
 "use client"
 
 import * as React from "react"
+import { updatePassedLessonIds } from "@/lib/learning-progress"
+import { preserveKnownEntitlement } from "@/lib/entitlement-state"
 import type { Session } from "@supabase/supabase-js"
 import { createClient } from "@/lib/supabase/client"
+import { logger } from "@/lib/logger"
 import {
-  deleteAllMistakes,
-  deleteMistake,
-  deleteOutcome,
-  ensureUserState,
   loadUserState,
-  syncAll,
+  deleteMistake,
+  deleteAllMistakes,
+  deleteOutcome,
+  syncUserState,
+  syncProfile,
   syncCompanyProgress,
   syncDaily,
-  syncMistakeSchedule,
   syncOneMistake,
+  syncMistakeSchedule,
   syncOutcome,
-  syncProfile,
-  syncUserState,
 } from "@/lib/supabase/db"
+import {
+  enqueueProgressSync,
+  type ProgressSyncOperations,
+  clearPendingProgressSync,
+  getPendingProgressSnapshot,
+  hasPendingProgressSync,
+  retryProgressSync,
+  installProgressSyncRecovery,
+} from "@/lib/supabase/progress-sync-queue"
 import type {
   AppState,
   CodingAttempt,
   CompanyId,
   DriveOutcome,
   Profile,
+  LearningPreferences,
+  SavedLearningCard,
   Question,
   SectionId,
 } from "@/lib/types"
-import { levelFromXP, XP } from "@/lib/scoring"
+import { levelFromXP } from "@/lib/scoring"
 import { nextSchedule } from "@/lib/spaced-repetition"
 import { identifyAnalyticsUser, track } from "@/lib/analytics"
-import { COMPANIES } from "@/lib/data/companies"
+import { SELECTABLE_COMPANIES } from "@/lib/data/companies"
+import { addDaysToDateKey, localDateKey, localWeekStartKey } from "@/lib/date-keys"
 
 const MISTAKE_CAP = 60
 
 const STORAGE_KEY = "studybench.state.v1"
 const LEGACY_STORAGE_KEY = "placeready.state.v1"
+
+/** Retry temporary entitlement-status failures before reconciling the UI. */
+async function fetchPremiumStatusWithRetry(): Promise<Response | null> {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const response = await fetch("/api/premium/status", { cache: "no-store" })
+      if (response.ok || response.status === 401 || response.status === 402) return response
+      if (response.status < 500 && response.status !== 429) return response
+    } catch {
+      // Network interruption: retry below, then retain the last known state.
+    }
+    if (attempt < 2) await new Promise((resolve) => window.setTimeout(resolve, 400 * (attempt + 1)))
+  }
+  return null
+}
 
 const DEFAULT_STATE: AppState = {
   onboarded: false,
@@ -43,6 +71,7 @@ const DEFAULT_STATE: AppState = {
   premiumUntil: undefined,
   entitlementSource: "free",
   profile: { name: "", college: "", branch: "", gradYear: "", cgpa: "", backlogs: "" },
+  learningPreferences: undefined,
   interested: [],
   primary: "general",
   xp: 0,
@@ -68,21 +97,19 @@ function normalizeEntitlement(state: AppState): AppState {
  * This prevents crashes when a user's stored state still references a removed
  * company (e.g. old "ibm" persisted in localStorage or Supabase).
  */
-const ACTIVE_COMPANY_IDS = new Set(COMPANIES.map((c) => c.id))
+const ACTIVE_COMPANY_IDS = new Set(SELECTABLE_COMPANIES.map((company) => company.id))
 function sanitizeCompanyIds(state: AppState): AppState {
-  const primary = ACTIVE_COMPANY_IDS.has(state.primary) ? state.primary : "general"
   const interested = (state.interested ?? []).filter((id) => ACTIVE_COMPANY_IDS.has(id))
+  const primary = ACTIVE_COMPANY_IDS.has(state.primary) ? state.primary : interested[0] ?? "tcs"
   if (primary === state.primary && interested.length === (state.interested ?? []).length) return state
   return { ...state, primary, interested }
 }
 
 function today(): string {
-  return new Date().toISOString().slice(0, 10)
+  return localDateKey()
 }
-function yesterday(d: string): string {
-  const dt = new Date(d + "T00:00:00")
-  dt.setDate(dt.getDate() - 1)
-  return dt.toISOString().slice(0, 10)
+function yesterday(dateKey: string): string {
+  return addDaysToDateKey(dateKey, -1)
 }
 
 function ensureProgress(state: AppState, id: CompanyId) {
@@ -101,16 +128,11 @@ function ensureProgress(state: AppState, id: CompanyId) {
 
 function bumpStreak(state: AppState): number {
   const t = today()
-  let milestoneXp = 0
   if (state.streak.lastActive === t) return 0
   const prev = state.streak.count
   const count = state.streak.lastActive === yesterday(t) ? prev + 1 : 1
   state.streak = { count, lastActive: t }
-  if (count === 7 && prev < 7) milestoneXp = XP.streak7
-  if (count === 30 && prev < 30) milestoneXp = XP.streak30
-  if (count === 100 && prev < 100) milestoneXp = XP.streak100
-  state.xp += milestoneXp
-  return milestoneXp
+  return 0
 }
 
 function applyTopics(
@@ -145,26 +167,34 @@ interface StoreStateValue {
 }
 
 interface StoreActionsValue {
-  completeOnboarding: (p: Profile, interested: CompanyId[], primary: CompanyId) => Promise<void>
+  completeOnboarding: (p: Profile, interested: CompanyId[], primary: CompanyId, preferences?: LearningPreferences) => Promise<void>
   setPrimary: (id: CompanyId) => void
   addInterested: (id: CompanyId) => void
   removeInterested: (id: CompanyId) => void
   activatePremium: (premiumUntil?: string, source?: "creator" | "purchase") => void
+  applyServerRewards: (rewards: { xp: number; badges: string[] }) => void
   updateProfile: (p: Partial<Profile>) => void
+  updateLearningPreferences: (preferences: LearningPreferences) => void
   submitQuiz: (args: {
     companyId: CompanyId
     sectionId: SectionId
     chapterId: string
     results: { topic: string; correct: boolean }[]
+    verifiedScore?: number
   }) => QuizResult
   skipChapter: (companyId: CompanyId, chapterId: string) => void
+  recordLearningCard: (companyId: CompanyId, chapterId: string, cardId: string, totalCards: number, completed: boolean, lessonId?: string, lessonCompleted?: boolean) => void
+  completeChapterRecall: (companyId: CompanyId, chapterId: string) => void
+  recordLessonPractice: (companyId: CompanyId, chapterId: string, lessonId: string, results: { topic: string; correct: boolean }[], verifiedScore?: number) => number
+  toggleLearningBookmark: (companyId: CompanyId, chapterId: string, card: SavedLearningCard) => void
   submitDaily: (
     category: "general" | "aptitude" | "coding",
     results: { topic: string; correct: boolean }[],
   ) => { xpGained: number }
+  submitWeekly: (results: { topic: string; correct: boolean }[]) => { xpGained: number }
   submitMock: (companyId: CompanyId, score: number) => { xpGained: number }
   recordCodingAttempt: (attempt: CodingAttempt) => void
-  recordMistake: (q: Question, chosen: number) => void
+  recordMistake: (q: Question, chosen: number, responseText?: string) => void
   /** Record the outcome of a spaced-repetition review for one card. */
   reviewMistake: (questionId: string, correct: boolean) => void
   clearMistake: (questionId: string) => void
@@ -222,10 +252,17 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     async function hydrate() {
       // 1. Restore from localStorage immediately so UI doesn't flash blank.
       let restoredFromCache = false
+      let cachedEntitlement: Pick<AppState, "premium" | "premiumUntil" | "entitlementSource"> | null = null
       try {
         const raw = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(LEGACY_STORAGE_KEY)
         if (raw) {
-          setState(sanitizeCompanyIds(normalizeEntitlement({ ...DEFAULT_STATE, ...JSON.parse(raw) })))
+          const cachedState = normalizeEntitlement({ ...DEFAULT_STATE, ...JSON.parse(raw) })
+          cachedEntitlement = {
+            premium: cachedState.premium,
+            premiumUntil: cachedState.premiumUntil,
+            entitlementSource: cachedState.entitlementSource,
+          }
+          setState(sanitizeCompanyIds(cachedState))
           restoredFromCache = true
           // Returning users can use the cached app immediately while Supabase
           // refreshes in the background. This removes a full-network loader.
@@ -249,16 +286,25 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
         setUserId(user.id)
         setUserCreatedAt(user.created_at ?? null)
         identifyAnalyticsUser(user.id)
-        // 3. Refresh state and entitlement concurrently; neither depends on the
-        // other and serializing them adds an avoidable network round trip.
+        // A pending local snapshot is newer than the last acknowledged remote
+        // state. Restore and flush it before reading Supabase, otherwise a stale
+        // remote response could overwrite work completed while offline.
         try {
-          const remotePromise = loadUserState(user.id)
-          const statusPromise = fetch("/api/premium/status", { cache: "no-store" }).catch(() => null)
+          const pendingSnapshot = getPendingProgressSnapshot(user.id)
+          if (pendingSnapshot) {
+            setState(sanitizeCompanyIds(normalizeEntitlement(pendingSnapshot)))
+            setHydrated(true)
+            await retryProgressSync(user.id, { force: false })
+          }
+
+          const statusPromise = fetchPremiumStatusWithRetry()
+          const remotePromise = hasPendingProgressSync(user.id)
+            ? Promise.resolve(null)
+            : loadUserState(user.id)
           const [remote, statusResponse] = await Promise.all([remotePromise, statusPromise])
-          
+
           if (remote) {
             const normalized = sanitizeCompanyIds(normalizeEntitlement({ ...DEFAULT_STATE, ...remote }))
-            void ensureUserState(user.id, normalized)
             if (statusResponse && statusResponse.ok) {
               const entitlement = (await statusResponse.json()) as {
                 premium: boolean
@@ -272,17 +318,22 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
                 entitlementSource: entitlement.source,
               })
             } else {
-              setState(normalized)
+              // user_state is not an entitlement authority. Preserve the last
+              // locally known entitlement when the dedicated status endpoint
+              // is unavailable; never let a general-state response downgrade
+              // a creator/purchased account to Free during an outage.
+              setState((previous) => preserveKnownEntitlement(normalized, cachedEntitlement ?? {
+                premium: previous.premium,
+                premiumUntil: previous.premiumUntil,
+                entitlementSource: previous.entitlementSource,
+              }))
             }
-          } else {
-            // `remote` is null only for brand-new users who have no rows in
-            // user_state yet. Seed their row so subsequent syncs have a target.
-            // ensureUserState uses a one-way ratchet on `onboarded`, so this
-            // is safe to call with DEFAULT_STATE (which has onboarded=false).
-            await ensureUserState(user.id, DEFAULT_STATE)
+          } else if (!hasPendingProgressSync(user.id)) {
+            // New account: seed its initial row through the same durable queue.
+            await enqueueProgressSync(user.id, DEFAULT_STATE)
           }
         } catch {
-          /* offline — localStorage fallback stays */
+          /* Keep the last locally acknowledged/pending snapshot on network failure. */
         }
       } else {
         identifyAnalyticsUser(null)
@@ -336,9 +387,17 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     uidRef.current = userId
   }, [userId])
 
-  // mutate is stable (empty deps) — state is always read via setState(prev => ...)
+  React.useEffect(() => installProgressSyncRecovery(() => userId), [userId])
+
+  // mutate is stable (empty deps) — state is always read via setState(prev => ...).
+  // The legacy syncFn argument is now an intent marker only: its granular write
+  // is replaced by one durable, complete snapshot in the queue below.
   const mutate = React.useCallback(
-    <T,>(fn: (draft: AppState) => T, syncFn?: (uid: string, next: AppState) => void | PromiseLike<void>): T => {
+    <T,>(
+      fn: (draft: AppState) => T,
+      syncFn?: (uid: string, next: AppState) => void | PromiseLike<void>,
+      queueOperations: ProgressSyncOperations = {},
+    ): T => {
       const prev = stateRef.current
       const draft: AppState = {
         ...prev,
@@ -361,8 +420,9 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       // Fire-and-forget sync to Supabase after state is committed.
       if (syncFn && uidRef.current) {
         const uid = uidRef.current
-        // Use a microtask so React has time to commit the new state.
-        Promise.resolve().then(() => syncFn(uid, draft))
+        // Queue a complete snapshot, not an individual best-effort write. The
+        // queue persists before network I/O and retries all related tables.
+        void Promise.resolve().then(() => enqueueProgressSync(uid, draft, queueOperations)).catch((error) => logger.error("[store] unable to persist progress sync queue", { message: error instanceof Error ? error.message : String(error) }))
       }
       return out
     },
@@ -372,9 +432,10 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
   // ── Actions context — deps: [mutate] only, so this is STABLE after mount ──
   const actionsValue = React.useMemo<StoreActionsValue>(
     () => ({
-      completeOnboarding: async (profile, interested, primary) => {
+      completeOnboarding: async (profile, interested, primary, preferences) => {
         const nextState = mutate((d) => {
             d.profile = profile
+            d.learningPreferences = preferences
             d.interested = interested
             d.primary = primary
             d.onboarded = true
@@ -386,7 +447,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
 
         const uid = uidRef.current
         if (uid) {
-          await syncAll(uid, nextState)
+          await enqueueProgressSync(uid, nextState)
         }
       },
 
@@ -421,6 +482,11 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       // Local echo after a server-verified payment. The authoritative write
       // already happened in the verify route / webhook via the service role —
       // clients can no longer write entitlement columns (DB trigger).
+      applyServerRewards: (rewards) => mutate((d) => {
+        d.xp = Math.max(0, Math.floor(rewards.xp))
+        d.badges = [...new Set(rewards.badges)]
+      }),
+
       activatePremium: (premiumUntil, source = "purchase") =>
         mutate((d) => {
           const next = normalizeEntitlement({
@@ -440,12 +506,18 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
           (uid, s) => syncProfile(uid, s.profile),
         ),
 
-      submitQuiz: ({ companyId, sectionId, chapterId, results }) =>
+      updateLearningPreferences: (preferences) =>
+        mutate(
+          (d) => { d.learningPreferences = preferences },
+          (uid, s) => syncUserState(uid, s),
+        ),
+
+      submitQuiz: ({ companyId, sectionId, chapterId, results, verifiedScore }) =>
         mutate(
           (d): QuizResult => {
             const total = results.length || 1
             const correct = results.filter((r) => r.correct).length
-            const score = Math.round((correct / total) * 100)
+            const score = Number.isFinite(verifiedScore) ? Math.max(0, Math.min(100, Math.round(verifiedScore!))) : Math.round((correct / total) * 100)
             const prog = ensureProgress(d, companyId)
             const prev = prog.chapters[chapterId] ?? {
               bestScore: 0,
@@ -463,19 +535,120 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
               attempts: prev.attempts + 1,
             }
             applyTopics(d, results)
-            let xpGained = correct * XP.correctFirst
             const newlyPassed = passed && !wasPassed
-            if (newlyPassed) xpGained += XP.quizPass
-            d.xp += xpGained
-            xpGained += bumpStreak(d)
+            // XP is reconciled from the server reward ledger after the verified
+            // assessment response; never mint it from the browser result.
+            const totalXpGained = 0
+            bumpStreak(d)
+            const learning = prev.learning ?? {
+              completedCardIds: [],
+              completedLessonIds: [],
+              practiceAttempts: [],
+              savedCards: [],
+            }
             void sectionId
+            prog.chapters[chapterId].learning = {
+              ...learning,
+              practiceAttempts: [
+                ...(learning.practiceAttempts ?? []),
+                { score, correct, total: results.length, completedAt: Date.now() },
+              ].slice(-20),
+            }
             track("quiz_attempt", { company: companyId, chapter: chapterId, score, passed, newly_passed: newlyPassed })
-            return { score, passed, xpGained, newlyPassed }
+            return { score, passed, xpGained: totalXpGained, newlyPassed }
           },
           (uid, s) => {
             syncCompanyProgress(uid, companyId, s)
             syncUserState(uid, s)
           },
+        ),
+
+      recordLearningCard: (companyId, chapterId, cardId, totalCards, completed, lessonId, lessonCompleted) =>
+        mutate(
+          (d) => {
+            const prog = ensureProgress(d, companyId)
+            const prev = prog.chapters[chapterId] ?? { bestScore: 0, passed: false, skipped: false, attempts: 0 }
+            const learning = prev.learning ?? { completedCardIds: [], completedLessonIds: [], practiceAttempts: [], savedCards: [] }
+            const existingCompleted = learning.completedCardIds ?? []
+            const completedCardIds = !completed || existingCompleted.includes(cardId)
+              ? existingCompleted
+              : [...existingCompleted, cardId]
+            prog.chapters[chapterId] = {
+              ...prev,
+              learning: {
+                ...learning,
+                completedCardIds,
+                // Finishing learning cards unlocks practice, not the next lesson.
+                // Keep this legacy field stable; passedLessonIds is the mastery source.
+                completedLessonIds: learning.completedLessonIds ?? [],
+                lastViewedCardId: cardId,
+                completedAt: completed && completedCardIds.length >= totalCards ? learning.completedAt ?? Date.now() : learning.completedAt,
+              },
+            }
+          },
+          (uid, s) => syncCompanyProgress(uid, companyId, s),
+        ),
+
+      completeChapterRecall: (companyId, chapterId) =>
+        mutate(
+          (d) => {
+            const prog = ensureProgress(d, companyId)
+            const prev = prog.chapters[chapterId] ?? { bestScore: 0, passed: false, skipped: false, attempts: 0 }
+            const learning = prev.learning ?? { completedCardIds: [], completedLessonIds: [], practiceAttempts: [], savedCards: [] }
+            prog.chapters[chapterId] = {
+              ...prev,
+              learning: { ...learning, recallCompletedAt: learning.recallCompletedAt ?? Date.now() },
+            }
+          },
+          (uid, s) => syncCompanyProgress(uid, companyId, s),
+        ),
+
+      recordLessonPractice: (companyId, chapterId, lessonId, results, verifiedScore) =>
+        mutate(
+          (d): number => {
+            const total = results.length
+            const correct = results.filter((item) => item.correct).length
+            const score = Number.isFinite(verifiedScore) ? Math.max(0, Math.min(100, Math.round(verifiedScore!))) : total ? Math.round((correct / total) * 100) : 0
+            const prog = ensureProgress(d, companyId)
+            const prev = prog.chapters[chapterId] ?? { bestScore: 0, passed: false, skipped: false, attempts: 0 }
+            const learning = prev.learning ?? { completedCardIds: [], completedLessonIds: [], practiceAttempts: [], savedCards: [] }
+            prog.chapters[chapterId] = {
+              ...prev,
+              learning: {
+                ...learning,
+                practiceAttempts: [
+                  ...(learning.practiceAttempts ?? []),
+                  { score, correct, total, completedAt: Date.now(), lessonId },
+                ].slice(-50),
+                passedLessonIds: updatePassedLessonIds(learning.passedLessonIds ?? [], lessonId, score),
+              },
+            }
+            applyTopics(d, results)
+            track("lesson_practice", { company: companyId, chapter: chapterId, lesson: lessonId, score })
+            return score
+          },
+          (uid, s) => syncCompanyProgress(uid, companyId, s),
+        ),
+
+      toggleLearningBookmark: (companyId, chapterId, card) =>
+        mutate(
+          (d) => {
+            const prog = ensureProgress(d, companyId)
+            const prev = prog.chapters[chapterId] ?? { bestScore: 0, passed: false, skipped: false, attempts: 0 }
+            const learning = prev.learning ?? { completedCardIds: [], completedLessonIds: [], practiceAttempts: [], savedCards: [] }
+            const savedCards = learning.savedCards ?? []
+            const exists = savedCards.some((item) => item.id === card.id)
+            prog.chapters[chapterId] = {
+              ...prev,
+              learning: {
+                ...learning,
+                savedCards: exists
+                  ? savedCards.filter((item) => item.id !== card.id)
+                  : [...savedCards, card],
+              },
+            }
+          },
+          (uid, s) => syncCompanyProgress(uid, companyId, s),
         ),
 
       skipChapter: (companyId, chapterId) =>
@@ -489,6 +662,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
               passed: false,
               skipped: true,
               attempts: prev?.attempts ?? 0,
+              learning: prev?.learning,
             }
           },
           (uid, s) => syncCompanyProgress(uid, companyId, s),
@@ -499,16 +673,44 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
           (d) => {
             const t = today()
             if (d.daily.date !== t)
-              d.daily = { date: t, general: false, aptitude: false, coding: false }
+              d.daily = {
+                ...d.daily,
+                date: t,
+                general: false,
+                aptitude: false,
+                coding: false,
+              }
             applyTopics(d, results)
-            const correct = results.filter((r) => r.correct).length
-            let xpGained = correct * XP.correctFirst
-            if (!d.daily[category]) {
+            const firstCompletionToday = !d.daily[category]
+            let xpGained = 0
+            if (firstCompletionToday) {
               d.daily[category] = true
-              xpGained += XP.daily
             }
-            d.xp += xpGained
-            xpGained += bumpStreak(d)
+            // Daily challenge XP is paused until its own server grading ledger exists.
+            bumpStreak(d)
+            return { xpGained }
+          },
+          (uid, s) => {
+            syncDaily(uid, s)
+            syncUserState(uid, s)
+          },
+        ),
+
+      submitWeekly: (results) =>
+        mutate(
+          (d) => {
+            const weekKey = localWeekStartKey()
+            applyTopics(d, results)
+            const alreadyCompleted = d.daily.weeklyDate === weekKey && d.daily.weeklyCompleted === true
+            const correct = results.filter((result) => result.correct).length
+            let xpGained = 0
+            if (!alreadyCompleted) {
+              d.daily.weeklyDate = weekKey
+              d.daily.weeklyCompleted = true
+              d.daily.weeklyScore = results.length ? Math.round((correct / results.length) * 100) : 0
+            }
+            // Daily challenge XP is paused until its own server grading ledger exists.
+            bumpStreak(d)
             return { xpGained }
           },
           (uid, s) => {
@@ -522,9 +724,9 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
           (d) => {
             const prog = ensureProgress(d, companyId)
             prog.mockScores.push(score)
-            let xpGained = XP.mock
-            d.xp += XP.mock
-            xpGained += bumpStreak(d)
+            const xpGained = 0
+            // Mock XP is paused until mock submissions are server-verified.
+            bumpStreak(d)
             track("mock_complete", { company: companyId, score })
             return { xpGained }
           },
@@ -539,12 +741,15 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
           d.codingAttempts = [attempt, ...(d.codingAttempts ?? [])].slice(0, 80)
         }, syncUserState),
 
-      recordMistake: (qn, chosen) =>
+      recordMistake: (qn, chosen, responseText) =>
         mutate(
           (d) => {
             const without = (d.mistakes ?? []).filter((m) => m.questionId !== qn.id)
             const entry = {
               questionId: qn.id,
+              type: qn.type,
+              acceptedAnswers: qn.acceptedAnswers,
+              responseText,
               prompt: qn.prompt,
               options: qn.options,
               answer: qn.answer,
@@ -563,7 +768,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
             d.mistakes = [entry, ...without].slice(0, MISTAKE_CAP)
           },
           (uid, s) => {
-            // Sync only the new/updated entry — cheaper than a full syncAll.
+            // The durable queue syncs the full snapshot, including this entry.
             const entry = s.mistakes.find((m) => m.questionId === qn.id)
             if (entry) syncOneMistake(uid, entry)
           },
@@ -593,12 +798,14 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
             d.mistakes = (d.mistakes ?? []).filter((m) => m.questionId !== questionId)
           },
           (uid) => deleteMistake(uid, questionId),
+          { deleteMistakeIds: [questionId] },
         ),
 
       clearMistakes: () =>
         mutate(
           (d) => void (d.mistakes = []),
           (uid) => deleteAllMistakes(uid),
+          { clearAllMistakes: true },
         ),
 
       recordOutcome: (outcome) =>
@@ -634,11 +841,15 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
             d.outcomes = (d.outcomes ?? []).filter((o) => o.id !== id)
           },
           (uid) => deleteOutcome(uid, id),
+          { deleteOutcomeIds: [id] },
         ),
 
       reset: () => {
         setState(DEFAULT_STATE)
-        if (uidRef.current) syncAll(uidRef.current, DEFAULT_STATE)
+        if (uidRef.current) void enqueueProgressSync(uidRef.current, DEFAULT_STATE, {
+          clearAllMistakes: true,
+          clearAllOutcomes: true,
+        }).catch((error) => logger.error("[store] unable to queue reset snapshot", { message: error instanceof Error ? error.message : String(error) }))
       },
 
       signOut: async () => {
@@ -658,12 +869,18 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       },
 
       deleteAccount: async () => {
-        // Server route erases the auth user + all rows with the service-role key.
-        try {
-          await fetch("/api/account/delete", { method: "POST" })
-        } catch {
-          /* network — still sign out and clear locally below */
+        // Drain any in-flight snapshot before the server removes the account.
+        // The deletion endpoint remains authoritative and removes the rows;
+        // this ordering prevents a queued upsert racing after account deletion.
+        if (uidRef.current) await retryProgressSync(uidRef.current)
+        // Do not clear local state unless the server confirms that every row
+        // and the authenticated identity were deleted successfully.
+        const response = await fetch("/api/account/delete", { method: "POST" })
+        const payload = await response.json().catch(() => ({})) as { error?: string; ok?: boolean }
+        if (!response.ok || payload.ok !== true) {
+          throw new Error(payload.error ?? "Account deletion could not be completed.")
         }
+        if (uidRef.current) clearPendingProgressSync(uidRef.current)
         // Same guard as signOut: kill hydrated first so the persist effect
         // cannot re-write DEFAULT_STATE back into localStorage.
         setHydrated(false)

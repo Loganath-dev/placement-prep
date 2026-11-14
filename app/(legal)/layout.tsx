@@ -1,6 +1,6 @@
 import Link from "next/link"
-import { StudyBenchWordmark } from "@/components/app/brand"
-import { Icon } from "@/components/app/icon"
+import { StudyBenchWordmark } from "@/app/brand"
+import { Icon } from "@/components/app-icon"
 
 export default function LegalLayout({ children }: { children: React.ReactNode }) {
   return (

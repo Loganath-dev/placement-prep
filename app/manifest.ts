@@ -6,7 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: `${SITE_NAME} - Campus Placement Preparation`,
     short_name: SITE_NAME,
     description:
-      "Company-wise campus placement preparation with aptitude, coding, CS core, mocks, PYQs, interviews and readiness analytics.",
+      "Structured learning paths for aptitude, logical and verbal ability, CS Core, programming languages and DSA, with practice and mock assessments.",
     start_url: "/",
     scope: "/",
     display: "standalone",

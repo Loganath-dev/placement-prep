@@ -1,20 +1,20 @@
 ﻿import type { Metadata } from "next"
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
-import { Icon } from "@/components/app/icon"
-import { JsonLd } from "@/components/app/json-ld"
+import { Icon } from "@/components/app-icon"
+import { JsonLd } from "@/app/json-ld"
 import { BLOG_POSTS } from "@/lib/content/blog"
 import { SITE_NAME, SITE_URL } from "@/lib/content/blocks"
 
 export const metadata: Metadata = {
   title: "Placement Preparation Blog - Guides for Freshers | StudyBench",
   description:
-    "In-depth guides on campus placement preparation: roadmaps, aptitude, coding interviews, group discussion and HR tips, and measuring your readiness.",
+    "In-depth learning guides covering aptitude, logical reasoning, verbal ability, CS Core, programming fundamentals and DSA.",
   alternates: { canonical: `${SITE_URL}/blog` },
   openGraph: {
     title: "StudyBench Blog - Campus Placement Preparation Guides",
     description:
-      "Step-by-step guides to crack campus placements: aptitude, coding interviews, GD/HR and readiness.",
+      "Step-by-step guides to build strong foundations in aptitude, CS Core, programming and DSA.",
     type: "website",
     url: `${SITE_URL}/blog`,
   },
@@ -56,8 +56,7 @@ export default function BlogIndexPage() {
           Placement preparation guides for freshers
         </h1>
         <p className="mt-2 text-muted-foreground">
-          Practical, no-fluff guides to crack campus placements - from aptitude and coding to
-          interviews and measuring your readiness.
+          Practical, no-fluff guides to build foundations in aptitude, CS Core, programming and DSA.
         </p>
       </div>
 

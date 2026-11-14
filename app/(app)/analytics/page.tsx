@@ -1,16 +1,15 @@
-﻿"use client"
+"use client"
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { BrandedBar, BrandedColumns } from "@/components/app/charts"
-import { Icon } from "@/components/app/icon"
-import { PageHeader } from "@/components/app/page-header"
-import { CompanyAvatar } from "@/components/app/ui-bits"
+import { BrandedBar, BrandedColumns } from "@/app/charts"
+import { Icon } from "@/components/app-icon"
+import { PageHeader } from "@/app/page-header"
+import { CompanyAvatar } from "@/app/ui-bits"
 import { getCompany } from "@/lib/data/companies"
-import { getSections, totalChapters } from "@/lib/data/content"
+import { getSections, totalChapters } from "@/lib/data/content-catalog"
 import {
-  computePRI,
   EMPTY_PROGRESS,
   mockMastery,
   sectionMastery,
@@ -30,9 +29,9 @@ export default function AnalyticsPage() {
   const totalAnswered = allTopics.reduce((n, t) => n + t.total, 0)
   const totalCorrect = allTopics.reduce((n, t) => n + t.correct, 0)
   const accuracy = totalAnswered ? Math.round((totalCorrect / totalAnswered) * 100) : 0
-  const companies = state.interested.length
+  const companies = (state.interested.length
     ? state.interested
-    : ([state.primary] as CompanyId[])
+    : ([state.primary === "general" ? "tcs" : state.primary] as CompanyId[])).filter((id) => id !== "general")
 
   let passed = 0
   let skipped = 0
@@ -74,7 +73,7 @@ export default function AnalyticsPage() {
               Premium adds weakest topics, strongest topics and company-wise progress analysis.
             </p>
             <Button asChild className="mt-1">
-              <Link href="/settings">Go Premium</Link>
+              <Link href="/pricing">Choose a Premium plan</Link>
             </Button>
           </CardContent>
         </Card>
@@ -124,7 +123,6 @@ export default function AnalyticsPage() {
         <CardContent className="space-y-4">
           {companies.map((id) => {
             const progress = state.progress[id] ?? EMPTY_PROGRESS
-            const pri = computePRI(id, progress)
             const total = totalChapters(id)
             const done = getSections(id).reduce(
               (n, s) => n + s.chapters.filter((c) => progress.chapters[c.id]?.passed).length,
@@ -138,10 +136,10 @@ export default function AnalyticsPage() {
                   <div className="flex items-center justify-between text-sm">
                     <span className="font-medium">{getCompany(id).short}</span>
                     <span className="tabular-nums text-muted-foreground">
-                      PRI {pri} - {done}/{total} chapters{mock ? ` - mock ${mock}%` : ""}
+                      {done}/{total} chapters completed{mock ? ` · mock average ${mock}%` : ""}
                     </span>
                   </div>
-                  <BrandedBar value={pri} tone="info" height={10} className="mt-1.5" />
+                  <BrandedBar value={total ? (done / total) * 100 : 0} tone="info" height={10} className="mt-1.5" />
                 </div>
               </div>
             )
@@ -149,7 +147,7 @@ export default function AnalyticsPage() {
           {skipped > 0 ? (
             <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
               <Icon name="Lock" className="size-3.5" /> {skipped} chapter
-              {skipped > 1 ? "s" : ""} skipped - these don&apos;t count toward your PRI.
+              {skipped > 1 ? "s" : ""} skipped - these are available to revisit whenever you are ready.
             </p>
           ) : null}
         </CardContent>
@@ -249,52 +247,53 @@ function MockTrendCard({ companyId }: { companyId: CompanyId }) {
   const { state } = useStore()
   const progress = state.progress[companyId] ?? EMPTY_PROGRESS
   const scores = progress.mockScores.slice(-6)
-  const best = scores.length ? Math.max(...scores) : 0
   const latest = scores.at(-1)
+  const best = scores.length ? Math.max(...scores) : 0
+  const average = scores.length
+    ? Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length)
+    : 0
   const first = scores[0]
   const delta = latest != null && first != null ? latest - first : 0
-  const cutoff = getCompany(companyId).cutoffPRI
-  // This is an estimated band from score vs cutoff — NOT a real cohort percentile.
-  const scoreBand = best >= cutoff + 10 ? "Above cutoff" : best >= cutoff ? "At cutoff" : "Below cutoff"
-  const scoreBandColor = best >= cutoff + 10 ? "text-[color:var(--success)]" : best >= cutoff ? "text-warning-foreground" : "text-destructive"
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 font-heading text-base">
-          <Icon name="TrendingUp" className="size-4 text-primary" /> Mock trend
+          <Icon name="TrendingUp" className="size-4 text-primary" /> Your mock-test history
         </CardTitle>
+        <p className="text-sm text-muted-foreground">
+          Your six most recent completed mock scores for {getCompany(companyId).short}.
+        </p>
       </CardHeader>
       <CardContent className="space-y-4">
         {scores.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            Take one mock to unlock trend, benchmark percentile and score movement.
-          </p>
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">
+              Your score history will appear here after you complete a mock test.
+            </p>
+            <Link href="/mock" className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline">
+              Take a mock test <Icon name="ArrowRight" className="size-3.5" />
+            </Link>
+          </div>
         ) : (
           <>
-            <div className="grid grid-cols-3 gap-2 text-center">
-              <MiniMetric label="Latest" value={`${latest}%`} />
-              <MiniMetric label="Trend" value={`${delta >= 0 ? "+" : ""}${delta}`} />
-              <div className="rounded-xl border border-border p-3">
-                <p className={`font-heading text-base font-bold ${scoreBandColor}`}>{scoreBand}</p>
-                <p className="text-xs text-muted-foreground">vs cutoff</p>
-              </div>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              <MiniMetric label="Latest score" value={`${latest}%`} />
+              <MiniMetric label="Average" value={`${average}%`} />
+              <MiniMetric label="Best" value={`${best}%`} />
+              <MiniMetric label="Change · last 6" value={`${delta >= 0 ? "+" : ""}${delta} pts`} />
             </div>
-            <p className="text-xs text-muted-foreground">
-              Cutoff comparison is estimated from your scores vs {getCompany(companyId).short}&apos;s typical threshold. Not real cohort data.
-            </p>
             <BrandedColumns
-              className="h-28 rounded-xl bg-muted/40"
-              tone={best >= cutoff ? "success" : "warning"}
-              cutoff={cutoff}
+              className="h-32 rounded-xl bg-muted/40"
+              tone={delta >= 0 ? "success" : "warning"}
               data={scores.map((score, index) => ({
                 value: score,
-                label: String(score),
+                label: `#${index + 1}`,
                 title: `Mock ${index + 1}: ${score}%`,
               }))}
             />
             <p className="text-xs text-muted-foreground">
-              Percentile is an estimate from your mock score versus the target, not a public candidate ranking.
+              These are your recorded mock results, not a peer percentile, hiring probability or placement guarantee.
             </p>
           </>
         )}
@@ -317,7 +316,7 @@ function SectionHistoryCard({ companyId }: { companyId: CompanyId }) {
       <CardHeader>
         <CardTitle className="font-heading text-base">Per-section history snapshot</CardTitle>
         <p className="text-sm text-muted-foreground">
-          Current section mastery from chapter history. Dated section attempts can be added when attempt events are stored.
+          Section progress is calculated from your completed chapters and recorded quiz results.
         </p>
       </CardHeader>
       <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

@@ -5,10 +5,10 @@ import * as React from "react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { EmptyState } from "@/components/app/empty-state"
-import { Icon } from "@/components/app/icon"
-import { PageHeader } from "@/components/app/page-header"
-import { QuizRunner } from "@/components/app/quiz-runner"
+import { EmptyState } from "@/app/empty-state"
+import { Icon } from "@/components/app-icon"
+import { PageHeader } from "@/app/page-header"
+import { QuizRunner } from "@/app/quiz-runner"
 import { useStore } from "@/lib/store"
 import {
   boxOf,
@@ -42,12 +42,15 @@ export default function MistakesPage() {
   const sessionCards = mode === "due" ? dueCards : mistakes
   const sessionQuestions = sessionCards.map((m) => ({
     id: m.questionId,
+    type: m.type,
+    acceptedAnswers: m.acceptedAnswers,
     topic: m.topic,
     difficulty: m.difficulty,
     prompt: m.prompt,
     options: m.options,
     answer: m.answer,
     explanation: m.explanation,
+    hint: m.responseText ? `Your previous answer: ${m.responseText}` : undefined,
   }))
 
   if (mode !== "idle" && sessionQuestions.length > 0) {
@@ -172,7 +175,16 @@ export default function MistakesPage() {
                     </div>
 
                     <p className="font-medium">{m.prompt}</p>
+                    {m.type === "fill_blank" && m.responseText ? (
+                      <p className="text-xs text-muted-foreground">Your previous answer: {m.responseText}</p>
+                    ) : null}
 
+                    {m.type === "fill_blank" ? (
+                      <div className="rounded-lg border border-success/30 bg-success/5 px-3 py-2 text-sm">
+                        <span className="text-muted-foreground">Accepted answer: </span>
+                        <strong>{(m.acceptedAnswers ?? []).join(" / ")}</strong>
+                      </div>
+                    ) : (
                     <div className="grid gap-2 sm:grid-cols-2">
                       {m.options.map((opt, i) => {
                         const isAnswer = i === m.answer
@@ -197,6 +209,7 @@ export default function MistakesPage() {
                         )
                       })}
                     </div>
+                    )}
 
                     <div className="rounded-xl bg-muted/60 p-3 text-sm text-muted-foreground">
                       {m.explanation}

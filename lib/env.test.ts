@@ -5,6 +5,8 @@ const TOUCHED = [
   "NEXT_PUBLIC_SUPABASE_URL",
   "NEXT_PUBLIC_SUPABASE_ANON_KEY",
   "SUPABASE_SERVICE_ROLE_KEY",
+  "UPSTASH_REDIS_REST_URL",
+  "UPSTASH_REDIS_REST_TOKEN",
   "RAZORPAY_KEY_ID",
   "RAZORPAY_KEY_SECRET",
   "RAZORPAY_WEBHOOK_SECRET",
@@ -48,13 +50,15 @@ describe("inspectEnv", () => {
     process.env.NEXT_PUBLIC_SUPABASE_URL = "https://x.supabase.co"
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon"
     process.env.SUPABASE_SERVICE_ROLE_KEY = "service"
+    process.env.UPSTASH_REDIS_REST_URL = "https://redis.example"
+    process.env.UPSTASH_REDIS_REST_TOKEN = "redis-token"
 
     const report = inspectEnv()
     expect(report.ok).toBe(true)
     expect(report.missingRequired).toEqual([])
     // payments / email / rate-limit are all unset → reported as disabled features.
     expect(Object.keys(report.unconfiguredFeatures)).toEqual(
-      expect.arrayContaining(["payments", "email", "rate-limit"]),
+      expect.arrayContaining(["payments", "email"]),
     )
   })
 

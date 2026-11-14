@@ -9,7 +9,6 @@ alter table public.affiliate_settings
 update public.affiliate_settings
 set minimum_payout_paise = 25000,
     payout_day_of_month = 25,
-    waiting_period_days = 15,
     updated_at = now()
 where id = 1;
 

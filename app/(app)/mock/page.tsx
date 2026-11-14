@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
@@ -6,71 +6,132 @@ import * as React from "react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Icon } from "@/components/app/icon"
-import { PageHeader } from "@/components/app/page-header"
-import { QuizRunner } from "@/components/app/quiz-runner"
-import { CompanyAvatar } from "@/components/app/ui-bits"
-import { CompanyPicker } from "@/components/app/company-picker"
+import { Icon } from "@/components/app-icon"
+import { PageHeader } from "@/app/page-header"
+import { QuizRunner } from "@/app/quiz-runner"
+import { CompanyAvatar } from "@/app/ui-bits"
+import { CompanyPicker } from "@/app/company-picker"
 import {
-  canAccessMockCompany,
   FREE_MOCK_COMPANY,
-  premiumPriceLabel,
-  visibleMocksForPlan,
+  FREE_MOCK_LIMIT,
 } from "@/lib/access"
-import { COMPANY_BY_ID, getCompany } from "@/lib/data/companies"
-import { buildMockQuestions, mocksForCompany } from "@/lib/data/mocks"
+import { COMPANY_BY_ID, COMPANIES, getCompany } from "@/lib/data/companies"
 import { buildMockAnalysis, mockPressureLabel, type MockAnalysis } from "@/lib/domain/mock-analysis"
 import { EMPTY_PROGRESS, mockMastery } from "@/lib/scoring"
 import { useStore } from "@/lib/store"
-import type { CompanyId, Question } from "@/lib/types"
+import type { CompanyId, MockTest, Question } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
 export default function MockPage() {
-  const { state, submitMock, recordMistake } = useStore()
+  const { state, submitMock, recordMistake, applyServerRewards } = useStore()
   const searchParams = useSearchParams()
   const queryCompany = companyFromParam(searchParams.get("company"))
   const journey = searchParams.get("journey")
-  const isTcsJourney = journey === "tcs-nqt"
   const [selectedCompany, setSelectedCompany] = React.useState<CompanyId | null>(null)
   const [mockIndex, setMockIndex] = React.useState(0)
   const [playing, setPlaying] = React.useState(false)
   const [retakingWrong, setRetakingWrong] = React.useState(false)
   const [lastAnalysis, setLastAnalysis] = React.useState<MockAnalysis | null>(null)
   const [wrongQuestions, setWrongQuestions] = React.useState<Question[]>([])
-  const company = selectedCompany ?? queryCompany ?? state.primary ?? FREE_MOCK_COMPANY
-
+  const [mock, setMock] = React.useState<Pick<MockTest, "id" | "companyId" | "title" | "description" | "sections" | "cutoffPercent"> | null>(null)
+  const [questions, setQuestions] = React.useState<Question[]>([])
+  const [submissionToken, setSubmissionToken] = React.useState("")
+  const [locked, setLocked] = React.useState(false)
+  const [mockCount, setMockCount] = React.useState(0)
+  const [mockLoading, setMockLoading] = React.useState(true)
+  const [mockError, setMockError] = React.useState<string | null>(null)
+  const [mockUnavailable, setMockUnavailable] = React.useState(false)
+  const [loadAttempt, setLoadAttempt] = React.useState(0)
+  const company =
+    selectedCompany ??
+    queryCompany ??
+    (state.premium ? (state.primary ?? FREE_MOCK_COMPANY) : FREE_MOCK_COMPANY)
+  const isTcsJourney = journey === "tcs-nqt" && company === "tcs"
   const c = getCompany(company)
-  const mocks = React.useMemo(() => mocksForCompany(company), [company])
-  const journeyMocks = React.useMemo(
-    () => (isTcsJourney && company === "tcs" ? mocks.slice(0, 2) : mocks),
-    [company, isTcsJourney, mocks],
-  )
-  const selectedMock = journeyMocks[mockIndex] ?? journeyMocks[0]
-  const locked =
-    isTcsJourney && company === "tcs"
-      ? !state.premium && mockIndex > 0
-      : !canAccessMockCompany(company, state.premium)
-  const visibleMocks = React.useMemo(() => {
-    if (isTcsJourney && company === "tcs") {
-      return state.premium ? journeyMocks : journeyMocks.slice(0, 1)
-    }
-    return visibleMocksForPlan(mocks, company, state.premium)
-  }, [company, isTcsJourney, journeyMocks, mocks, state.premium])
-  const mock = locked ? selectedMock : visibleMocks[mockIndex] ?? visibleMocks[0] ?? selectedMock
   const progress = state.progress[company] ?? EMPTY_PROGRESS
-  const questions = React.useMemo(
-    () => (!locked && mock ? buildMockQuestions(mock) : []),
-    [locked, mock],
+
+  React.useEffect(() => {
+    const controller = new AbortController()
+    async function loadMock() {
+      setMockLoading(true)
+      setMockError(null)
+      setMockUnavailable(false)
+      setLocked(false)
+      setMock(null)
+      setQuestions([])
+      setSubmissionToken("")
+      setMockCount(0)
+      try {
+        const params = new URLSearchParams({ company, index: String(mockIndex) })
+        if (isTcsJourney) params.set("journey", "tcs-nqt")
+        const response = await fetch(`/api/content/mock?${params.toString()}`, {
+          signal: controller.signal,
+          cache: "no-store",
+        })
+        const payload = await response.json()
+        setMockCount(Number(payload.mockCount ?? 0))
+        if (payload.unavailable) {
+          setMockUnavailable(true)
+          setMock(null)
+          setQuestions([])
+          return
+        }
+        if (response.status === 402 && payload.locked) {
+          setLocked(true)
+          setMock(payload.mock ?? null)
+          setQuestions([])
+          return
+        }
+        if (!response.ok) throw new Error(payload.error || "Unable to load this mock test.")
+        if (!Array.isArray(payload.questions) || payload.questions.length === 0) {
+          setMockUnavailable(true)
+          setMock(null)
+          setQuestions([])
+          return
+        }
+        setLocked(false)
+        setMock(payload.mock ?? null)
+        setQuestions(payload.questions)
+        setSubmissionToken(typeof payload.submissionToken === "string" ? payload.submissionToken : "")
+      } catch (error) {
+        if (controller.signal.aborted) return
+        setMockError(error instanceof Error ? error.message : "Unable to load this mock test.")
+        setMock(null)
+        setQuestions([])
+      } finally {
+        if (!controller.signal.aborted) setMockLoading(false)
+      }
+    }
+    void loadMock()
+    return () => controller.abort()
+  }, [company, mockIndex, isTcsJourney, loadAttempt])
+
+  const journeyMocks = React.useMemo(
+    () => Array.from({ length: mockCount }, (_, index) => ({ id: `${company}-${index}` })),
+    [company, mockCount],
   )
-  const hiddenMockCount = locked
-    ? Math.max(0, journeyMocks.length - visibleMocks.length)
-    : Math.max(0, journeyMocks.length - visibleMocks.length)
+  const hiddenMockCount = Math.max(0, mockCount - (state.premium ? mockCount : 1))
   const best = progress.mockScores.length ? Math.max(...progress.mockScores) : 0
   const timeLimitSec = mock
     ? mock.sections.reduce((sum, section) => sum + section.durationMinutes, 0) * 60
     : 0
-  const totalQuestions = questions.length
+  const totalQuestions = locked && mock
+    ? mock.sections.reduce((sum, section) => sum + section.questionCount, 0)
+    : questions.length
   const fullLength = totalQuestions >= 45
+
+  function selectMock(index: number) {
+    setMockIndex(index)
+    setPlaying(false)
+    setRetakingWrong(false)
+    setLastAnalysis(null)
+    setWrongQuestions([])
+  }
+
+  function selectCompany(id: CompanyId) {
+    setSelectedCompany(id)
+    selectMock(0)
+  }
 
   return (
     <div className="space-y-6">
@@ -79,21 +140,17 @@ export default function MockPage() {
         title={isTcsJourney ? "TCS NQT Mock Journey" : "Mock Tests"}
         description={
           isTcsJourney
-            ? "Start the first TCS simulation now, then continue into the next premium mock after you finish."
-            : "Timed company-pattern mocks with section-wise scoring and pass targets."
+            ? state.premium
+              ? "Begin with the first TCS simulation, review your results, then continue with the next mock."
+              : "Your first TCS paper is free. Premium unlocks the other nine timed simulations."
+            : "TCS, Infosys, Wipro, Accenture, Zoho and Cognizant each have 10 original timed papers. Free users get the first paper in each employer series and one general readiness mock; Premium unlocks all 10."
         }
       />
 
       <CompanyPicker
         value={company}
-        onChange={(id) => {
-          setSelectedCompany(id)
-          setMockIndex(0)
-          setPlaying(false)
-          setRetakingWrong(false)
-          setLastAnalysis(null)
-          setWrongQuestions([])
-        }}
+        companies={COMPANIES}
+        onChange={selectCompany}
       />
 
       {isTcsJourney ? (
@@ -108,7 +165,36 @@ export default function MockPage() {
         </div>
       ) : null}
 
-      {retakingWrong ? (
+      {mockLoading ? (
+        <Card><CardContent role="status" className="py-10 text-center text-sm text-muted-foreground">Loading mock test…</CardContent></Card>
+      ) : mockError ? (
+        <Card>
+          <CardContent className="flex flex-col items-center gap-3 py-10 text-center">
+            <p role="alert" className="text-sm text-destructive">{mockError}</p>
+            <Button type="button" variant="outline" onClick={() => setLoadAttempt((attempt) => attempt + 1)}>
+              <Icon name="RefreshCw" className="size-4" /> Retry
+            </Button>
+          </CardContent>
+        </Card>
+      ) : mockUnavailable ? (
+        <Card>
+          <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
+            <span className="grid size-14 place-items-center rounded-2xl bg-muted text-muted-foreground">
+              <Icon name="ClipboardCheck" className="size-7" />
+            </span>
+            <p className="font-medium">Mock test unavailable</p>
+            <p className="max-w-md text-sm text-muted-foreground">
+              This mock does not have any available questions right now. You can continue with topic practice while we prepare this set.
+            </p>
+            {!state.premium && company !== FREE_MOCK_COMPANY ? (
+              <Button type="button" onClick={() => selectCompany(FREE_MOCK_COMPANY)}>
+                Try the free readiness mock
+              </Button>
+            ) : null}
+            <Button asChild variant="outline"><Link href="/practice">Continue to practice</Link></Button>
+          </CardContent>
+        </Card>
+      ) : retakingWrong ? (
         <QuizRunner
           key={`wrong-${mock?.id}-${wrongQuestions.map((q) => q.id).join("-")}`}
           questions={wrongQuestions}
@@ -131,23 +217,50 @@ export default function MockPage() {
           questions={questions}
           timeLimitSec={timeLimitSec}
           passThreshold={mock?.cutoffPercent}
+          deferGrading
+          passThresholdLabel="to meet this practice target"
           onReturn={() => setPlaying(false)}
           returnLabel="Mock setup"
           onMistake={recordMistake}
           onFinish={(results, scorePct) => {
-            const { xpGained } = submitMock(company, scorePct)
-            const wrong = results
-              .filter((result) => !result.correct && result.questionIndex != null)
-              .map((result) => questions[result.questionIndex ?? -1])
-              .filter(Boolean)
-            setWrongQuestions(wrong)
-            setLastAnalysis(
-              buildMockAnalysis(results, scorePct, mock?.cutoffPercent ?? 70, {
+            void (async () => {
+              try {
+                const response = await fetch("/api/learning/reward-submission", {
+                  method: "POST", headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    submissionToken,
+                    answers: results.map((result) => ({ questionId: result.questionId, selected: result.selected, responseText: result.responseText })),
+                  }),
+                })
+                const payload = await response.json()
+                if (!response.ok) throw new Error(payload.error || "Could not verify this mock result.")
+                const previousXp = state.xp
+                applyServerRewards(payload.rewards)
+                submitMock(company, Number(payload.score))
+                const xpGained = Math.max(0, Number(payload.rewards?.xp ?? previousXp) - previousXp)
+                const verifiedById = new Map((payload.questionResults ?? []).map((item: { questionId: string; correct: boolean }) => [item.questionId, item.correct]))
+                const verifiedResults = results.map((result) => ({ ...result, correct: verifiedById.get(result.questionId ?? "") === true }))
+                const reviewById = new Map((payload.reviewQuestions ?? []).map((item: { id: string; answer: number; acceptedAnswers?: string[] }) => [item.id, item]))
+                const wrong = verifiedResults
+                  .filter((result) => !result.correct && result.questionId)
+                  .map((result) => {
+                    const question = questions.find((item) => item.id === result.questionId)
+                    const review = reviewById.get(result.questionId!)
+                    return question && review ? { ...question, answer: review.answer, acceptedAnswers: review.acceptedAnswers ?? [] } : null
+                  })
+                  .filter((question): question is Question => Boolean(question))
+                setWrongQuestions(wrong)
+                setLastAnalysis(
+              buildMockAnalysis(verifiedResults, Number(payload.score), mock?.cutoffPercent ?? 70, {
                 sections: mock?.sections,
                 timeLimitSec,
               }),
-            )
-            toast.success(`Mock complete - ${scorePct}%! +${xpGained} XP`)
+                )
+                toast.success(`Mock verified - ${payload.score}%! +${xpGained} XP`)
+              } catch (error) {
+                toast.error(error instanceof Error ? error.message : "Could not verify this mock result.")
+              }
+            })()
           }}
           doneActions={() => (
             <Button variant="outline" onClick={() => setPlaying(false)}>
@@ -163,15 +276,17 @@ export default function MockPage() {
             wrongCount={wrongQuestions.length}
             onRetakeWrong={() => setRetakingWrong(true)}
             onNextMock={
-              isTcsJourney && company === "tcs"
-                ? () => {
-                    setMockIndex(1)
-                    setLastAnalysis(null)
-                    setWrongQuestions([])
-                  }
+              mockIndex + 1 < mockCount
+                ? () => selectMock(mockIndex + 1)
                 : null
             }
-            nextMockLabel={state.premium ? "Take another TCS mock" : "Take another mock test"}
+            nextMockLabel={
+              !state.premium && mockIndex + 1 >= FREE_MOCK_LIMIT
+                ? "Preview the next mock - Premium"
+                : isTcsJourney
+                  ? "Take the next TCS mock"
+                  : "Take the next mock"
+            }
           />
         ) : null}
         <Card>
@@ -181,12 +296,24 @@ export default function MockPage() {
               <CardTitle className="font-heading text-base">
                 {mock?.title ?? `${c.name} Mock Test`}
               </CardTitle>
+              {mock?.description ? (
+                <p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">
+                  {mock.description}
+                </p>
+              ) : null}
+              {mock && company !== FREE_MOCK_COMPANY ? (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Original StudyBench practice simulation based on publicly described patterns; not an official company paper.
+                </p>
+              ) : null}
               <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                 <span>{totalQuestions} questions</span>
                 <span>-</span>
                 <span>{Math.round(timeLimitSec / 60)} min</span>
                 <span>-</span>
-                <span>cutoff {mock?.cutoffPercent ?? 70}%</span>
+                <span title="StudyBench practice benchmark; not an official employer cutoff">
+                  practice target {mock?.cutoffPercent ?? 70}%
+                </span>
                 <span>-</span>
                 <span>{mockPressureLabel(totalQuestions, timeLimitSec)} pressure</span>
                 <span
@@ -197,7 +324,7 @@ export default function MockPage() {
                       : "bg-primary/10 text-primary",
                   )}
                 >
-                  {fullLength ? "Full-length simulation" : "Practice simulation"}
+                  {fullLength ? "Full-length simulation" : "Focused practice simulation"}
                 </span>
               </div>
             </div>
@@ -209,15 +336,18 @@ export default function MockPage() {
                   <button
                     key={m.id}
                     type="button"
-                    onClick={() => setMockIndex(i)}
+                    onClick={() => selectMock(i)}
+                    aria-pressed={mockIndex === i}
                     className={cn(
                       "rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
-                      mock?.id === m.id
+                      mockIndex === i
                         ? "border-primary bg-primary/10 text-primary"
                         : "border-border hover:bg-muted/50",
                     )}
                   >
-                    {i === 1 && isTcsJourney && !state.premium ? "Mock 2 - Premium" : `Mock ${i + 1}`}
+                    {!state.premium && i >= FREE_MOCK_LIMIT
+                      ? `Mock ${i + 1} - Premium`
+                      : `Mock ${i + 1}`}
                   </button>
                 ))}
               </div>
@@ -243,16 +373,14 @@ export default function MockPage() {
                     <Icon name="Lock" className="size-7" />
                   </span>
                   <p className="font-medium">
-                    {isTcsJourney ? "Join Premium to unlock TCS Mock Test 2" : "Premium mock"}
+                    Join Premium to unlock {mock?.title ?? "this mock"}
                   </p>
                   <p className="max-w-sm text-sm text-muted-foreground">
-                    {isTcsJourney
-                      ? "You finished the first guided TCS test. Upgrade now to continue into the next mock and unlock the full company mock series."
-                      : "Upgrade to practise every company mock with full analytics."}
+                    Premium unlocks this mock and the full {c.short} mock series.
                   </p>
                   <Button asChild className="mt-1">
-                    <Link href="/settings">
-                      {isTcsJourney ? "Join Premium and unlock it" : `Go Premium - ${premiumPriceLabel()}`}
+                    <Link href="/pricing">
+                      View Premium plans
                     </Link>
                   </Button>
                   {isTcsJourney ? (
@@ -268,11 +396,13 @@ export default function MockPage() {
                   <span className="grid size-14 place-items-center rounded-2xl bg-primary/10 text-primary">
                     <Icon name="Target" className="size-7" />
                   </span>
-                  <p className="font-medium">Ready to simulate the {c.short} test?</p>
+                  <p className="font-medium">
+                    {`Ready to simulate the ${c.short} test?`}
+                  </p>
                   <p className="text-sm text-muted-foreground">
                     {fullLength
-                      ? "Full-length pressure practice with section-wise review."
-                      : "Full-length practice with section-wise review."}
+                      ? "Full-length timed practice with section-wise review."
+                      : "Focused timed practice with section-wise review."}
                   </p>
                   <div className="grid w-full max-w-xl gap-2 text-left sm:grid-cols-3">
                     <PressureTip label="Before" value="No pause. Treat it like drive time." />
@@ -302,7 +432,7 @@ export default function MockPage() {
 }
 
 function companyFromParam(value: string | null): CompanyId | null {
-  if (!value || !(value in COMPANY_BY_ID)) return null
+  if (!value || !Object.prototype.hasOwnProperty.call(COMPANY_BY_ID, value)) return null
   return value as CompanyId
 }
 
@@ -320,12 +450,12 @@ function MockAnalysisCard({
   nextMockLabel?: string
 }) {
   return (
-    <Card className="border-primary/25 bg-primary/[0.04]">
+    <Card className="border-primary/25 bg-primary/4">
       <CardHeader className="flex-row items-start justify-between gap-3 space-y-0">
         <div>
           <CardTitle className="font-heading text-base">Advanced mock analysis</CardTitle>
           <p className="mt-1 text-sm text-muted-foreground">
-            Section percentile, topic accuracy, speed loss and cutoff prediction.
+            Section accuracy, topic patterns, timing and progress toward this mock&apos;s practice target.
           </p>
         </div>
         <Button
@@ -354,10 +484,13 @@ function MockAnalysisCard({
 
         <div className="grid gap-3 md:grid-cols-4">
           <AnalysisMetric label="Score" value={`${analysis.scorePct}%`} />
-          <AnalysisMetric label="Cutoff" value={`${analysis.cutoff}%`} />
+          <AnalysisMetric label="Practice target" value={`${analysis.cutoff}%`} />
           <AnalysisMetric label="Avg time/question" value={formatSeconds(analysis.avgTimeSec)} />
-          <AnalysisMetric label="Projected score" value={`${analysis.cutoffPrediction.projectedScore}%`} />
+          <AnalysisMetric label="If pace errors were fixed" value={`${analysis.cutoffPrediction.projectedScore}%`} />
         </div>
+        <p className="text-xs text-muted-foreground">
+          The practice target and pace-adjusted estimate are study guides based on this mock, not official employer cutoffs or hiring predictions.
+        </p>
 
         <div className="rounded-xl border border-border bg-background p-4">
           <div className="flex flex-wrap items-start justify-between gap-3">
@@ -369,7 +502,7 @@ function MockAnalysisCard({
               className={cn(
                 "rounded-full px-2.5 py-1 text-xs font-semibold capitalize",
                 analysis.cutoffPrediction.status === "clear"
-                  ? "bg-success/15 text-[color:var(--success)]"
+                  ? "bg-success/15 text-success"
                   : analysis.cutoffPrediction.status === "near"
                     ? "bg-warning/15 text-warning-foreground"
                     : "bg-destructive/10 text-destructive",
@@ -381,15 +514,15 @@ function MockAnalysisCard({
         </div>
 
         <div className="space-y-3">
-          <p className="font-heading text-sm font-semibold">Section-wise percentile</p>
+          <p className="font-heading text-sm font-semibold">Section accuracy</p>
           <div className="grid gap-2 md:grid-cols-2">
             {analysis.sectionStats.length ? (
               analysis.sectionStats.map((section) => (
-                <div key={section.id} className="rounded-xl border border-border bg-background p-3">
+                <div key={section.sectionIndex} className="rounded-xl border border-border bg-background p-3">
                   <div className="flex items-center justify-between gap-2">
                     <p className="font-medium">{section.label}</p>
                     <span className="text-sm font-semibold tabular-nums text-primary">
-                      P{section.estimatedPercentile}
+                      {section.accuracy}%
                     </span>
                   </div>
                   <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted">
@@ -401,7 +534,7 @@ function MockAnalysisCard({
                 </div>
               ))
             ) : (
-              <p className="text-sm text-muted-foreground">Section analytics unlock after a mock attempt.</p>
+              <p className="text-sm text-muted-foreground">Section data is unavailable for this attempt.</p>
             )}
           </div>
         </div>
@@ -470,7 +603,7 @@ function MockAnalysisCard({
                       Q{item.questionNo}
                     </span>
                     <span className="min-w-0 flex-1 truncate">{item.topic}</span>
-                    <span className={item.correct ? "text-[color:var(--success)]" : "text-destructive"}>
+                    <span className={item.correct ? "text-success" : "text-destructive"}>
                       {formatSeconds(item.timeSpentSec)}
                     </span>
                   </div>
@@ -520,25 +653,26 @@ function JourneyBanner({ premium }: { premium: boolean }) {
             <Icon name="Briefcase" className="size-3.5" /> TCS guided flow
           </div>
           <h2 className="mt-3 font-heading text-xl font-bold tracking-tight">
-            First test now. Second test unlocks right after this one.
+            {premium
+              ? "Start with the first TCS mock; review your results before continuing."
+              : "Your first TCS practice paper is free; the other nine are included with Premium."}
           </h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-            Complete Mock Test 1, review your performance, then continue to Mock Test 2.
             {premium
-              ? " Premium is active, so the next paper is already open."
-              : " Premium unlocks the next paper and the complete TCS mock series."}
+              ? "Complete Mock Test 1 and review your performance before choosing the next paper. Premium is active, so you can continue whenever you are ready."
+              : "The first TCS practice paper is free. Premium unlocks all 10 original TCS simulations and the full company series."}
           </p>
         </div>
         <div className="grid gap-2 sm:grid-cols-2">
           <JourneyStatus
-            title="Mock test 1"
-            detail="Available now"
+            title="Paper 1"
+            detail="Free practice paper"
             icon="PlayCircle"
             tone="ready"
           />
           <JourneyStatus
-            title="Mock test 2"
-            detail={premium ? "Unlocked" : "Join Premium"}
+            title="Papers 2–10"
+            detail={premium ? "Included with Premium" : "Unlock with Premium"}
             icon={premium ? "BadgeCheck" : "Lock"}
             tone={premium ? "ready" : "locked"}
           />
@@ -623,5 +757,3 @@ function Stat({ label, value }: { label: string; value: string | number }) {
     </Card>
   )
 }
-
-

@@ -400,7 +400,7 @@ Do these before adding thousands of items.
 Completed in the current codebase:
 
 - Structured domain models for `CodingProblem`, `MockTest`, `MockSection`, and `CommunicationDrill` in `lib/types.ts`.
-- Source-backed starter banks in `lib/data/coding-problems.ts`, `lib/data/mocks.ts`, and `lib/data/communication.ts`.
+- Source-backed mock content in `lib/data/mocks.ts`; coding-problem bank references in this historical plan are retired and are not part of the current learning experience.
 - Validation tests for scalable content IDs, sources, coding test cases, communication rubrics, and mock question construction in `lib/content-governance.test.ts`.
 - Student-facing routes for `/coding` and `/communication`.
 - Structured company-pattern mocks powering `/mock`.

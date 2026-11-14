@@ -1,12 +1,11 @@
 name: CI
 
-# Run release checks on the canonical working branch and on pull requests.
-# Keep the Cloudflare OpenNext adapter build as the production build target.
+# Release checks run on the default branch and the canonical working branch.
+# This ZIP is a local candidate; it is not pushed or deployed by this workflow.
 
 on:
   push:
     branches:
-      - main
       - chore/root-cleanup-canonical-app
   pull_request:
   workflow_dispatch:
@@ -21,7 +20,7 @@ defaults:
 
 jobs:
   verify:
-    name: Lint, type-check, tests, dependency security and Cloudflare build
+    name: Lint, type-check, tests, dependency security and Vercel build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -29,7 +28,7 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9
+          version: 10.28.0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -38,17 +37,23 @@ jobs:
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
 
-      - name: Install dependencies
+      - name: Install dependencies from the committed lockfile
         run: pnpm install --frozen-lockfile
 
       - name: Dependency security audit
         run: pnpm audit --audit-level high
 
-      - name: Patched framework dependency gate
+      - name: Patched dependency and lockfile gate
         run: pnpm check:release-deps
 
       - name: Lint
         run: pnpm lint
+
+      - name: Next.js App Router directory
+        run: pnpm check:app-directory
+
+      - name: Client/server content boundary
+        run: pnpm check:boundaries
 
       - name: Type-check
         run: pnpm exec tsc --noEmit -p tsconfig.json
@@ -56,18 +61,18 @@ jobs:
       - name: Unit tests
         run: pnpm test
 
-      - name: Production build (OpenNext / Cloudflare)
+      - name: Production build
         env:
           NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-anon-key
         run: pnpm build
 
   migrations:
-    name: Migration source inventory
+    name: Ordered migration inventory
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Verify ordered migration inventory
+      - name: Verify migrations 0001–0036 are present exactly once
         shell: bash
         run: |
           set -euo pipefail

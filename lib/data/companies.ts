@@ -1,10 +1,9 @@
 import type { Company, CompanyId } from "@/lib/types"
 
 /**
- * Track set: TCS, Infosys, Wipro, Accenture, Zoho, Cognizant + core prep.
- * cutoffPRI / slope tune the estimated Placement Probability:
- * higher cutoff = harder to get placed; Zoho is the toughest (programming-heavy),
- * service companies are more accessible.
+ * Track set: TCS, Infosys, Wipro, Accenture, Zoho, Cognizant + general practice.
+ * Company descriptions and eligibility notes are informational. StudyBench
+ * does not estimate a student's chance of selection from these profiles.
  */
 export const COMPANIES: Company[] = [
   {
@@ -14,8 +13,6 @@ export const COMPANIES: Company[] = [
     accent: "oklch(0.55 0.19 256)",
     sector: "IT Services",
     blurb: "TCS NQT - aptitude, reasoning, verbal and a coding round. India's largest recruiter.",
-    cutoffPRI: 55,
-    slope: 0.9,
     eligibility: {
       cgpa: "60% / 6.0 CGPA across 10th, 12th, UG",
       backlogs: "No active backlogs at the time of the drive",
@@ -37,8 +34,6 @@ export const COMPANIES: Company[] = [
     accent: "oklch(0.6 0.13 215)",
     sector: "IT Services",
     blurb: "InfyTQ-aligned hiring - strong aptitude + pseudocode + a hands-on coding round.",
-    cutoffPRI: 58,
-    slope: 0.9,
     eligibility: {
       cgpa: "60% / 6.0 CGPA aggregate, no standing arrears",
       backlogs: "No active backlogs",
@@ -60,8 +55,6 @@ export const COMPANIES: Company[] = [
     accent: "oklch(0.62 0.16 150)",
     sector: "IT Services",
     blurb: "Wipro Elite NTH - aptitude, written communication essay, and coding.",
-    cutoffPRI: 52,
-    slope: 0.9,
     eligibility: {
       cgpa: "60% / 6.0 CGPA across academics",
       backlogs: "No active backlogs",
@@ -83,8 +76,6 @@ export const COMPANIES: Company[] = [
     accent: "oklch(0.58 0.24 300)",
     sector: "Consulting / IT",
     blurb: "Cognitive & technical assessment, coding, and communication assessment.",
-    cutoffPRI: 50,
-    slope: 0.85,
     eligibility: {
       cgpa: "65% or above preferred; no specific CGPA bar some cycles",
       backlogs: "No active backlogs",
@@ -106,8 +97,6 @@ export const COMPANIES: Company[] = [
     accent: "oklch(0.6 0.2 30)",
     sector: "Product / SaaS",
     blurb: "Programming-heavy. Multiple coding rounds - the toughest of the set, but high pay.",
-    cutoffPRI: 70,
-    slope: 0.75,
     eligibility: {
       cgpa: "60%+ typical; skill-first - strong coders prioritized",
       backlogs: "Generally no active backlogs",
@@ -129,8 +118,6 @@ export const COMPANIES: Company[] = [
     accent: "oklch(0.62 0.17 240)",
     sector: "IT Services",
     blurb: "GenC hiring - aptitude, automata-style coding, and communication.",
-    cutoffPRI: 50,
-    slope: 0.85,
     eligibility: {
       cgpa: "60% / 6.0 CGPA aggregate",
       backlogs: "No active backlogs",
@@ -149,13 +136,11 @@ export const COMPANIES: Company[] = [
 
   {
     id: "general",
-    name: "Core Prep",
-    short: "Core",
+    name: "General Practice",
+    short: "General",
     accent: "oklch(0.55 0.215 264)",
     sector: "All-round Prep",
-    blurb: "Complete self-training route across aptitude, reasoning, verbal, coding, CS core, communication and interviews.",
-    cutoffPRI: 45,
-    slope: 0.8,
+    blurb: "Shared aptitude, reasoning, verbal, computer science, programming-language and DSA preparation.",
     isGeneral: true,
   },
 ]
@@ -168,10 +153,7 @@ export const COMPANY_BY_ID: Record<CompanyId, Company> = COMPANIES.reduce(
   {} as Record<CompanyId, Company>,
 )
 
-export const SELECTABLE_COMPANIES = [
-  COMPANY_BY_ID.general,
-  ...COMPANIES.filter((c) => !c.isGeneral),
-]
+export const SELECTABLE_COMPANIES = COMPANIES.filter((company) => !company.isGeneral)
 
 export function getCompany(id: CompanyId): Company {
   return COMPANY_BY_ID[id]

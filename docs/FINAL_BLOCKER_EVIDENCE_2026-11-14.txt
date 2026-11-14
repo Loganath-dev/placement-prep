@@ -1,0 +1,30 @@
+Evidence snapshot — 2026-11-14
+Project: PLACEMENT / rvekcdsczorpxwqdwpbp
+
+LIVE MIGRATION HISTORY
+20261114035209 fix_company_progress_snapshot_insert_grants
+20261114041639 revoke_creator_invite_table_access
+20261114041641 index_review_and_content_foreign_keys
+
+POST-APPLY CREATOR INVITE PRIVILEGES
+anon SELECT=false, INSERT=false
+ authenticated SELECT=false, INSERT=false
+service_role SELECT=false, INSERT=false
+redeem_creator_code(uuid,text): anon EXECUTE=false; authenticated EXECUTE=false; service_role EXECUTE=true
+
+POST-APPLY INDEXES
+idx_affiliate_commissions_reviewed_by
+idx_content_question_reviews_reviewer_id
+idx_content_questions_author_id
+idx_content_questions_published_by
+idx_content_questions_reviewer_id
+
+SECURITY ADVISOR
+Latest returned snapshot: auth_leaked_password_protection WARN / disabled.
+Three INFO rls_enabled_no_policy findings: affiliate_commissions, content_question_reviews, creator_invite_codes. These are server-side tables with no client policies; do not add broad policies merely to silence the informational lint.
+
+BACKUP/PITR
+Not observable through the connected tool interface used in this session. No claim of backup availability, retention, or restore success.
+
+MIGRATION PROVENANCE
+The exact SQL for 20261114035209 was not found in any supplied ZIP or current working tree. Live migration history provides version/name only. No reconstructed SQL has been substituted.
