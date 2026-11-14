@@ -5,7 +5,95 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  minimatch@3.1.5>brace-expansion: ^1.1.12
+  '@hono/node-server@<1.19.15': '>=1.19.15'
+  '@hono/node-server@>=1.19.10 <2.1.3': '>=2.1.3'
+  '@modelcontextprotocol/sdk@<1.32.0': '>=1.32.0'
+  '@modelcontextprotocol/sdk@>=1.10.0 <1.30.1': '>=1.30.1'
+  '@modelcontextprotocol/sdk@>=1.12.0 <1.31.0': '>=1.31.0'
+  '@modelcontextprotocol/sdk@>=1.24.0 <1.32.0': '>=1.32.0'
+  '@modelcontextprotocol/sdk@>=1.3.0 <1.32.0': '>=1.32.0'
+  '@modelcontextprotocol/sdk@>=1.6.0 <1.32.0': '>=1.32.0'
+  '@vitest/mocker@>=2.1.0 <4.1.11': '>=4.1.11'
+  '@vitest/mocker@>=2.1.0-beta.7 <4.1.12': '>=4.1.12'
+  baseline-browser-mapping@>=2.0.0 <2.11.0: '>=2.11.0'
+  body-parser@>=2.0.0 <2.3.0: '>=2.3.0'
+  body-parser@>=2.0.0 <2.4.0: '>=2.4.0'
+  brace-expansion@<1.1.16: '>=1.1.16'
+  brace-expansion@<1.1.17: '>=1.1.17'
+  brace-expansion@<1.1.18: '>=1.1.18'
+  brace-expansion@<1.1.19: '>=1.1.19'
+  brace-expansion@<1.1.20: '>=1.1.20'
+  brace-expansion@<1.1.21: '>=1.1.21'
+  brace-expansion@>=2.0.0 <2.1.3: '>=2.1.3'
+  brace-expansion@>=2.0.0 <2.1.4: '>=2.1.4'
+  brace-expansion@>=2.0.0 <2.1.5: '>=2.1.5'
+  brace-expansion@>=2.0.0 <2.1.6: '>=2.1.6'
+  brace-expansion@>=2.0.0 <2.1.7: '>=2.1.7'
+  brace-expansion@>=3.0.0 <5.0.7: '>=5.0.7'
+  brace-expansion@>=4.0.0 <5.0.10: '>=5.0.10'
+  brace-expansion@>=4.0.0 <5.0.11: '>=5.0.11'
+  brace-expansion@>=4.0.0 <5.0.12: '>=5.0.12'
+  brace-expansion@>=4.0.0 <5.0.8: '>=5.0.8'
+  brace-expansion@>=4.0.0 <5.0.9: '>=5.0.9'
+  browserslist@<=4.28.6: '>=4.28.7'
+  fast-uri@>=3.0.0 <3.1.3: '>=3.1.3'
+  fast-uri@>=3.0.0 <3.1.5: '>=3.1.5'
+  fast-uri@>=3.0.0 <3.1.6: '>=3.1.6'
+  fast-uri@>=3.0.0 <3.1.7: '>=3.1.7'
+  fast-uri@>=3.0.0 <3.1.8: '>=3.1.8'
+  fast-uri@>=3.0.0 <3.1.9: '>=3.1.9'
+  fast-uri@>=3.0.0 <=3.1.3: '>=3.1.4'
+  fast-uri@>=3.1.2 <3.1.6: '>=3.1.6'
+  glob@>=9.0.0 <=14.0.1: '>=14.0.2'
+  hono@<4.12.25: '>=4.12.25'
+  hono@<4.12.34: '>=4.12.34'
+  hono@<4.13.5: '>=4.13.5'
+  hono@<4.13.7: '>=4.13.7'
+  hono@>=3.8.0 <4.12.34: '>=4.12.34'
+  hono@>=4.0.0 <4.12.27: '>=4.12.27'
+  hono@>=4.11.8 <4.12.27: '>=4.12.27'
+  hono@>=4.12.0 <4.12.34: '>=4.12.34'
+  hono@>=4.12.4 <4.13.11: '>=4.13.11'
+  hono@>=4.3.3 <4.12.27: '>=4.12.27'
+  hono@>=4.7.0 <4.12.34: '>=4.12.34'
+  ip-address@<=10.3.0: '>=10.3.1'
+  ip-address@<=10.5.0: '>=10.5.1'
+  ip-address@<=10.7.0: '>=10.7.1'
+  ip-address@<=10.7.3: '>=10.7.4'
+  ip-address@>=10.1.1 <=10.2.0: '>=10.2.1'
+  ip-address@>=10.1.1 <=10.2.1: '>=10.2.2'
+  ip-address@>=10.2.0 <=10.5.0: '>=10.5.1'
+  js-yaml@>=4.0.0 <4.3.0: '>=4.3.0'
+  js-yaml@>=4.0.0 <4.3.1: '>=4.3.1'
+  js-yaml@>=4.0.0 <4.3.2: '>=4.3.2'
+  minimatch@>=7.0.0 <11.0.1: '>=11.0.1'
+  nanoid@<3.3.16: '>=3.3.16'
+  nanoid@<3.3.18: '>=3.3.18'
+  postcss-selector-parser@>=7.0.0 <7.1.6: '>=7.1.6'
+  postcss-selector-parser@>=7.1.0 <7.1.3: '>=7.1.3'
+  postcss@<=8.5.17: '>=8.5.18'
+  postcss@<=8.5.22: '>=8.5.23'
+  proxy-addr@>=1.1.0 <2.0.8: '>=2.0.8'
+  qs@>=2.2.5 <6.16.0: '>=6.16.0'
+  qs@>=6.14.2 <=6.15.3: '>=6.16.0'
+  qs@>=6.7.0 <=6.16.0: '>=6.16.1'
+  sharp@<0.35.0: '>=0.35.0'
+  sharp@<0.35.4: '>=0.35.4'
+  sharp@<0.35.5: '>=0.35.5'
+  source-map-js@>=1.0.0 <1.2.2: '>=1.2.2'
+  undici@>=7.0.0 <7.29.0: '>=7.29.0'
+  undici@>=7.0.0 <7.29.1: '>=7.29.1'
+  undici@>=7.0.0 <7.30.1: '>=7.30.1'
+  undici@>=7.1.0 <7.29.1: '>=7.29.1'
+  undici@>=7.11.0 <7.29.1: '>=7.29.1'
+  undici@>=7.15.0 <7.29.1: '>=7.29.1'
+  undici@>=7.15.0 <7.30.1: '>=7.30.1'
+  undici@>=7.18.0 <7.30.1: '>=7.30.1'
+  undici@>=7.24.1 <7.29.1: '>=7.29.1'
+  undici@>=7.28.0 <7.29.1: '>=7.29.1'
+  vite@>=8.0.0 <=8.1.5: '>=8.1.6'
+  vitest@>=2.1.0 <4.1.11: '>=4.1.11'
+  zod@<4.6.6: '>=4.6.6'
 
 importers:
 
@@ -510,7 +598,7 @@ packages:
     resolution: {integrity: sha512-p/KH9MnfNcsm3sR6x4lNgm5j+QN4Et8srKredl9DZfXiyZ1UQ3aQ2YVpFLbqktYN5JI+DB+VZFKM2PqE5hLKjQ==}
     engines: {node: '>=20'}
     peerDependencies:
-      hono: ^4 || ^5.0.0-0
+      hono: '>=4.12.34'
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -713,6 +801,9 @@ packages:
       '@types/node':
         optional: true
 
+  '@isaacs/nonrecursive-glob-match@1.1.0':
+    resolution: {integrity: sha512-GPm/Dbvk5RLmhRnxXIa7nTpK0xtl4E0wj0MslsuNiJ1FIROU+2+9lgUC/dgF7Ey4QCWhfEsgxilMRMCdHPfDfw==}
+
   '@jridgewell/gen-mapping@0.3.13':
     resolution: {integrity: sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA==}
 
@@ -752,7 +843,7 @@ packages:
     engines: {node: '>=18'}
     peerDependencies:
       '@cfworker/json-schema': ^4.1.1
-      zod: ^3.25 || ^4.0
+      zod: '>=4.6.6'
     peerDependenciesMeta:
       '@cfworker/json-schema':
         optional: true
@@ -2059,7 +2150,7 @@ packages:
     resolution: {integrity: sha512-fKShNpKZzupWZuY0z7egydvL0sqW4INEZBEExMBMAa6izlENEVHwoXgdaTCaBZ5fwlr4xf2o1wXC83n9RpO+NA==}
     peerDependencies:
       msw: ^2.4.9
-      vite: ^6.0.0 || ^7.0.0 || ^8.0.0
+      vite: '>=8.1.6'
     peerDependenciesMeta:
       msw:
         optional: true
@@ -3412,9 +3503,9 @@ packages:
     resolution: {integrity: sha512-VP79XUPxV2CigYP3jWwAUFSku2aKqBH7uTAapFWCBqutsbmDo96KY5o8uh6U+/YSIn5OxJnXp73beVkpqMIGhA==}
     engines: {node: '>=18'}
 
-  minimatch@10.2.6:
-    resolution: {integrity: sha512-vpLQEs+VLCr1nU0BXS07maYoFwlDAH0gngQuuttxIwutDFEMHq2blX+8vpgxDdK3J1PwjCJiep77OitTZ4Ll1A==}
-    engines: {node: 18 || 20 || >=22}
+  minimatch@11.0.8:
+    resolution: {integrity: sha512-nFQuYSTVrGvysVBps5Ih+0BdnYFN/Cj3C816r6+p7yK+FHrVLGE4O4N9AFwykrlNlvM2HYt+Rad1Uiro6h88Ig==}
+    engines: {node: 20 || >=22}
 
   minimatch@3.1.5:
     resolution: {integrity: sha512-VgjWUsnnT6n+NUk6eZq77zeFdpW2LWDzP6zFGrCbHXiYNul5Dzqk2HHQ5uFH2DNW5Xbp8+jVzaeNt94ssEEl4w==}
@@ -4266,7 +4357,7 @@ packages:
     resolution: {integrity: sha512-t8wonIOdQyOjtPd2VktlBu6QjTVTks6v8bSi7kd0r2Vll8TK1JYDZtRRdbmCHOAMphkZgrzK+L+vXK4pyZ8t4A==}
     hasBin: true
     peerDependencies:
-      browserslist: '>= 4.21.0'
+      browserslist: '>=4.28.7'
 
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
@@ -4366,7 +4457,7 @@ packages:
       '@vitest/ui': 4.1.12
       happy-dom: '*'
       jsdom: '*'
-      vite: ^6.0.0 || ^7.0.0 || ^8.0.0
+      vite: '>=8.1.6'
     peerDependenciesMeta:
       '@edge-runtime/vm':
         optional: true
@@ -4479,16 +4570,13 @@ packages:
   zod-to-json-schema@3.25.2:
     resolution: {integrity: sha512-O/PgfnpT1xKSDeQYSCfRI5Gy3hPf91mKVDuYLUHZJMiDFptvP41MSnWofm8dnCm0256ZNfZIM7DSzuSMAFnjHA==}
     peerDependencies:
-      zod: ^3.25.28 || ^4
+      zod: '>=4.6.6'
 
   zod-validation-error@4.0.2:
     resolution: {integrity: sha512-Q6/nZLe6jxuU80qb/4uJ4t5v2VEZ44lzQjPDhYJNztRQ4wyWc6VF3D3Kb/fAuPetZQnhS3hnajCf9CsWesghLQ==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
-      zod: ^3.25.0 || ^4.0.0
-
-  zod@3.25.76:
-    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
+      zod: '>=4.6.6'
 
   zod@4.6.7:
     resolution: {integrity: sha512-g8W2D2kU6a8untc053fX1uVBKzM7yqAxW/3zwk83+6RyF2+SKOuV+c0wBDhUwzV1PaGapmZH+rmcUzPf+3CGwg==}
@@ -5098,6 +5186,8 @@ snapshots:
     optionalDependencies:
       '@types/node': 20.19.41
 
+  '@isaacs/nonrecursive-glob-match@1.1.0': {}
+
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.5
@@ -5141,7 +5231,7 @@ snapshots:
 
   '@marijn/find-cluster-break@1.0.2': {}
 
-  '@modelcontextprotocol/sdk@1.32.2(zod@3.25.76)':
+  '@modelcontextprotocol/sdk@1.32.2(zod@4.6.7)':
     dependencies:
       '@hono/node-server': 2.1.6(hono@4.13.17)
       ajv: 8.20.0
@@ -5158,8 +5248,8 @@ snapshots:
       json-schema-typed: 8.0.2
       pkce-challenge: 5.0.1
       raw-body: 3.0.2
-      zod: 3.25.76
-      zod-to-json-schema: 3.25.2(zod@3.25.76)
+      zod: 4.6.7
+      zod-to-json-schema: 3.25.2(zod@4.6.7)
     transitivePeerDependencies:
       - supports-color
 
@@ -6173,7 +6263,7 @@ snapshots:
   '@ts-morph/common@0.27.0':
     dependencies:
       fast-glob: 3.3.3
-      minimatch: 10.2.6
+      minimatch: 11.0.8
       path-browserify: 1.0.1
 
   '@tybys/wasm-util@0.10.2':
@@ -6286,7 +6376,7 @@ snapshots:
       '@typescript-eslint/types': 8.60.1
       '@typescript-eslint/visitor-keys': 8.60.1
       debug: 4.4.3
-      minimatch: 10.2.6
+      minimatch: 11.0.8
       semver: 7.8.1
       tinyglobby: 0.2.17
       ts-api-utils: 2.5.0(typescript@5.9.3)
@@ -7899,8 +7989,9 @@ snapshots:
 
   mimic-function@5.0.1: {}
 
-  minimatch@10.2.6:
+  minimatch@11.0.8:
     dependencies:
+      '@isaacs/nonrecursive-glob-match': 1.1.0
       brace-expansion: 5.0.12
 
   minimatch@3.1.5:
@@ -8495,7 +8586,7 @@ snapshots:
       '@babel/plugin-transform-typescript': 7.29.7(@babel/core@7.29.7)
       '@babel/preset-typescript': 7.29.7(@babel/core@7.29.7)
       '@dotenvx/dotenvx': 1.71.0
-      '@modelcontextprotocol/sdk': 1.32.2(zod@3.25.76)
+      '@modelcontextprotocol/sdk': 1.32.2(zod@4.6.7)
       '@types/validate-npm-package-name': 4.0.2
       browserslist: 4.29.5
       commander: 14.0.3
@@ -8522,8 +8613,8 @@ snapshots:
       ts-morph: 26.0.0
       tsconfig-paths: 4.2.0
       validate-npm-package-name: 7.0.2
-      zod: 3.25.76
-      zod-to-json-schema: 3.25.2(zod@3.25.76)
+      zod: 4.6.7
+      zod-to-json-schema: 3.25.2(zod@4.6.7)
     transitivePeerDependencies:
       - '@cfworker/json-schema'
       - '@types/node'
@@ -9098,14 +9189,12 @@ snapshots:
 
   yoctocolors@2.1.2: {}
 
-  zod-to-json-schema@3.25.2(zod@3.25.76):
+  zod-to-json-schema@3.25.2(zod@4.6.7):
     dependencies:
-      zod: 3.25.76
+      zod: 4.6.7
 
   zod-validation-error@4.0.2(zod@4.6.7):
     dependencies:
       zod: 4.6.7
-
-  zod@3.25.76: {}
 
   zod@4.6.7: {}
